@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>📊 Менеджер проектов</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --info: #2196F3;
+            --bg: #f5f5f5;
+            --card: #ffffff;
+            --text: #333;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 80px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            backdrop-filter: blur(10px);
+        }
+
+        .project-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:active {
+            transform: scale(0.98);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .project-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 10px;
+            word-wrap: break-word;
+        }
+
+        .priority-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .priority-high {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: #e8f5e9;
+            color: var(--primary);
+        }
+
+        .progress-container {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-percent {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 3px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .tasks-list {
+            margin-top: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 8px;
+        }
+
+        .task-item:active {
+            background: #f0f0f0;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-right: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            font-size: 14px;
+            color: white;
+        }
+
+        .task-checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .task-text {
+            flex: 1;
+            margin: 0 8px;
+            word-wrap: break-word;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .subtasks {
+            margin-left: 32px;
+            padding-left: 10px;
+            border-left: 2px solid #e0e0e0;
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 6px;
+        }
+
+        .subtask-item:active {
+            background: #f5f5f5;
+        }
+
+        .subtask-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-right: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            font-size: 12px;
+            color: white;
+        }
+
+        .subtask-checkbox.checked {
+            background: var(--info);
+            border-color: var(--info);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 1.1em;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:active {
+            color: var(--danger);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            background: #f9f9f9;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:active {
+            background: #e0e0e0;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .floating-btn:active {
+            transform: scale(0.9);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .context-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9em;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .context-menu-item:active {
+            background: #f0f0f0;
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📊 Менеджер проектов</h1>
+            <div class="stats">
+                <div class="stat-item">📁 <span id="totalProjects">0</span></div>
+                <div class="stat-item">✅ <span id="totalTasks">0</span></div>
+                <div class="stat-item">📈 <span id="completedTasks">0</span></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" id="projectsContainer"></div>
+
+    <button class="floating-btn" onclick="openAddProjectModal()">+</button>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-title">Новый проект</div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="projectName" placeholder="Введите название" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Приоритет</label>
+                <select class="form-select" id="projectPriority">
+                    <option value="low">🟢 Низкий</option>
+                    <option value="medium" selected>🟡 Средний</option>
+                    <option value="high">🔴 Высокий</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
+                <button class="btn-primary" onclick="addProject()">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-title">Новая задача</div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="taskName" placeholder="Введите название" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('taskModal')">Отмена</button>
+                <button class="btn-primary" onclick="addTask()">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="subtaskModal">
+        <div class="modal-content">
+            <div class="modal-title">Новая подзадача</div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="subtaskName" placeholder="Введите название" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('subtaskModal')">Отмена</button>
+                <button class="btn-primary" onclick="addSubtask()">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let projects = [];
+        let currentProjectId = null;
+        let currentTaskId = null;
+        let longPressTimer = null;
+
+        // Загрузка данных
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('projects');
+                if (saved) {
+                    projects = JSON.parse(saved);
+                }
+            } catch(e) {
+                console.error('Error loading data:', e);
+            }
+            renderProjects();
+        }
+
+        // Сохранение
+        function saveData() {
+            try {
+                localStorage.setItem('projects', JSON.stringify(projects));
+            } catch(e) {
+                console.error('Error saving data:', e);
+            }
+            updateStats();
+        }
+
+        // Статистика
+        function updateStats() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            projects.forEach(project => {
+                project.tasks.forEach(task => {
+                    totalTasks++;
+                    if (task.completed) completedTasks++;
+                    
+                    if (task.subtasks) {
+                        task.subtasks.forEach(subtask => {
+                            totalTasks++;
+                            if (subtask.completed) completedTasks++;
+                        });
+                    }
+                });
+            });
+            
+            document.getElementById('totalProjects').textContent = projects.length;
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+        }
+
+        // Прогресс
+        function calculateProgress(project) {
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            project.tasks.forEach(task => {
+                totalTasks++;
+                if (task.completed) completedTasks++;
+                
+                if (task.subtasks) {
+                    task.subtasks.forEach(subtask => {
+                        totalTasks++;
+                        if (subtask.completed) completedTasks++;
+                    });
+                }
+            });
+            
+            if (totalTasks === 0) return 0;
+            return Math.round((completedTasks / totalTasks) * 100);
+        }
+
+        // Рендеринг
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            
+            if (projects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🚀</div>
+                        <h3>Нет проектов</h3>
+                        <p style="color: #666; margin: 10px 0;">Нажмите + чтобы создать</p>
+                    </div>
+                `;
+                updateStats();
+                return;
+            }
+            
+            container.innerHTML = projects.map((project, index) => {
+                const progress = calculateProgress(project);
+                const priorityClass = `priority-${project.priority}`;
+                const priorityText = {
+                    high: '🔴 Высокий',
+                    medium: '🟡 Средний',
+                    low: '🟢 Низкий'
+                }[project.priority];
+                
+                return `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-title">${project.name}</div>
+                            <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                        </div>
+                        
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-percent">${progress}%</div>
+                        </div>
+                        
+                        <div class="tasks-list">
+                            ${project.tasks.map((task, taskIndex) => `
+                                <div>
+                                    <div class="task-item" onclick="toggleTask(${index}, ${taskIndex})" 
+                                         oncontextmenu="event.preventDefault(); showTaskMenu(event, ${index}, ${taskIndex})">
+                                        <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                            ${task.completed ? '✓' : ''}
+                                        </div>
+                                        <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${index}, ${taskIndex})">✕</button>
+                                    </div>
+                                    ${task.subtasks && task.subtasks.length > 0 ? `
+                                        <div class="subtasks">
+                                            ${task.subtasks.map((subtask, subtaskIndex) => `
+                                                <div class="subtask-item" onclick="toggleSubtask(${index}, ${taskIndex}, ${subtaskIndex})">
+                                                    <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}">
+                                                        ${subtask.completed ? '✓' : ''}
+                                                    </div>
+                                                    <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
+                                                    <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${index}, ${taskIndex}, ${subtaskIndex})">✕</button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <button class="add-btn" onclick="openAddTaskModal(${index})">+ Добавить задачу</button>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+
+        // Модальные окна
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            const input = document.querySelector(`#${modalId} input`);
+            if (input) {
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openAddProjectModal() {
+            document.getElementById('projectName').value = '';
+            openModal('projectModal');
+        }
+
+        function openAddTaskModal(projectId) {
+            currentProjectId = projectId;
+            document.getElementById('taskName').value = '';
+            openModal('taskModal');
+        }
+
+        function openAddSubtaskModal(projectId, taskId) {
+            currentProjectId = projectId;
+            currentTaskId = taskId;
+            document.getElementById('subtaskName').value = '';
+            openModal('subtaskModal');
+        }
+
+        // Добавление
+        function addProject() {
+            const name = document.getElementById('projectName').value.trim();
+            const priority = document.getElementById('projectPriority').value;
+            
+            if (!name) return;
+            
+            projects.push({
+                id: Date.now(),
+                name: name,
+                priority: priority,
+                tasks: [],
+                createdAt: new Date().toISOString()
+            });
+            
+            saveData();
+            renderProjects();
+            closeModal('projectModal');
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value.trim();
+            
+            if (!name) return;
+            
+            projects[currentProjectId].tasks.push({
+                id: Date.now(),
+                name: name,
+                completed: false,
+                subtasks: [],
+                createdAt: new Date().toISOString()
+            });
+            
+            saveData();
+            renderProjects();
+            closeModal('taskModal');
+        }
+
+        function addSubtask() {
+            const name = document.getElementById('subtaskName').value.trim();
+            
+            if (!name) return;
+            
+            const task = projects[currentProjectId].tasks[currentTaskId];
+            task.subtasks.push({
+                id: Date.now(),
+                name: name,
+                completed: false
+            });
+            
+            saveData();
+            renderProjects();
+            closeModal('subtaskModal');
+        }
+
+        // Переключение
+        function toggleTask(projectId, taskId) {
+            projects[projectId].tasks[taskId].completed = !projects[projectId].tasks[taskId].completed;
+            saveData();
+            renderProjects();
+        }
+
+        function toggleSubtask(projectId, taskId, subtaskId) {
+            projects[projectId].tasks[taskId].subtasks[subtaskId].completed = 
+                !projects[projectId].tasks[taskId].subtasks[subtaskId].completed;
+            saveData();
+            renderProjects();
+        }
+
+        // Удаление
+        function deleteProject(projectId) {
+            if (confirm('Удалить проект?')) {
+                projects.splice(projectId, 1);
+                saveData();
+                renderProjects();
+            }
+        }
+
+        function deleteTask(projectId, taskId) {
+            projects[projectId].tasks.splice(taskId, 1);
+            saveData();
+            renderProjects();
+        }
+
+        function deleteSubtask(projectId, taskId, subtaskId) {
+            projects[projectId].tasks[taskId].subtasks.splice(subtaskId, 1);
+            saveData();
+            renderProjects();
+        }
+
+        // Контекстное меню для задач
+        function showTaskMenu(event, projectId, taskId) {
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) existingMenu.remove();
+            
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = event.clientX + 'px';
+            menu.style.top = event.clientY + 'px';
+            
+            menu.innerHTML = `
+                <div class="context-menu-item" onclick="addSubtaskFromMenu(${projectId}, ${taskId})">➕ Добавить подзадачу</div>
+                <div class="context-menu-item" onclick="deleteTask(${projectId}, ${taskId})">🗑️ Удалить задачу</div>
+            `;
+            
+            document.body.appendChild(menu);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                });
+            }, 100);
+        }
+
+        function addSubtaskFromMenu(projectId, taskId) {
+            openAddSubtaskModal(projectId, taskId);
+        }
+
+        // Закрытие модалок при клике вне
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Enter в полях
+        document.getElementById('projectName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addProject();
+        });
+
+        document.getElementById('taskName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        document.getElementById('subtaskName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addSubtask();
+        });
+
+        // Инициализация
+        loadData();
+    </script>
+</body>
+</html>
