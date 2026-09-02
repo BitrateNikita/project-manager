@@ -83,6 +83,19 @@
             z-index: 200;
         }
 
+        .user-info {
+            position: fixed;
+            top: 40px;
+            right: 10px;
+            background: white;
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 0.75em;
+            box-shadow: var(--shadow);
+            z-index: 200;
+            cursor: pointer;
+        }
+
         .view-toggle {
             display: flex;
             gap: 10px;
@@ -359,6 +372,105 @@
             margin: 0 5px;
         }
 
+        .assignee-badge {
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .assignee-me {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .assignee-wife {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .timer-display {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            color: var(--primary);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .timer-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .timer-start {
+            background: var(--primary);
+            color: white;
+        }
+
+        .timer-stop {
+            background: var(--danger);
+            color: white;
+        }
+
+        .timer-reset {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .comments-section {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .comment-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--info);
+        }
+
+        .comment-time {
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        .voice-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .voice-btn.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -552,6 +664,7 @@
 </head>
 <body>
     <div class="sync-status" id="syncStatus">🔄 Синхронизация...</div>
+    <div class="user-info" id="userInfo" onclick="showLoginModal()">👤 Войти</div>
     
     <header>
         <div class="container">
@@ -582,6 +695,19 @@
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
 
     <!-- Модальные окна -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-title">Вход</div>
+            <div class="form-group">
+                <label class="form-label">Ваше имя</label>
+                <input type="text" class="form-input" id="userName" placeholder="Введите имя">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="login()">Войти</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="projectModal">
         <div class="modal-content">
             <div class="modal-title">Новый проект</div>
@@ -616,6 +742,14 @@
                 <input type="datetime-local" class="form-input" id="taskDate">
             </div>
             <div class="form-group">
+                <label class="form-label">Назначить</label>
+                <select class="form-select" id="taskAssignee">
+                    <option value="me">Я</option>
+                    <option value="wife">Супруга</option>
+                    <option value="both">Оба</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="form-label">Изображение</label>
                 <input type="file" class="form-input" id="taskImage" accept="image/*" onchange="previewImage(this)">
                 <img id="imagePreview" class="image-preview" style="display:none;">
@@ -645,6 +779,35 @@
         </div>
     </div>
 
+    <div class="modal" id="timerModal">
+        <div class="modal-content">
+            <div class="modal-title">⏱️ Таймер</div>
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls">
+                <button class="timer-btn timer-start" onclick="startTimer()">▶️ Старт</button>
+                <button class="timer-btn timer-stop" onclick="stopTimer()">⏹️ Стоп</button>
+                <button class="timer-btn timer-reset" onclick="resetTimer()">🔄 Сброс</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="commentsModal">
+        <div class="modal-content">
+            <div class="modal-title">💬 Комментарии</div>
+            <div id="commentsList"></div>
+            <div class="form-group" style="margin-top: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" class="form-input" id="commentInput" placeholder="Написать комментарий...">
+                    <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceInput()">🎤</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('commentsModal')">Закрыть</button>
+                <button class="btn-primary" onclick="addComment()">Отправить</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
@@ -667,6 +830,57 @@
         let currentView = 'list';
         let collapsedProjects = new Set();
         let selectedImage = null;
+        let currentUser = localStorage.getItem('userName') || null;
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let recognition = null;
+        let isRecording = false;
+
+        // Инициализация распознавания речи
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onresult = function(event) {
+                const text = event.results[0][0].transcript;
+                document.getElementById('commentInput').value = text;
+                stopRecording();
+            };
+            
+            recognition.onerror = function(event) {
+                stopRecording();
+            };
+            
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            if (currentUser) {
+                userInfo.textContent = '👤 ' + currentUser;
+            } else {
+                userInfo.textContent = '👤 Войти';
+            }
+        }
+
+        function showLoginModal() {
+            openModal('loginModal');
+        }
+
+        function login() {
+            const name = document.getElementById('userName').value.trim();
+            if (name) {
+                currentUser = name;
+                localStorage.setItem('userName', name);
+                updateUserInfo();
+                closeModal('loginModal');
+                renderProjects();
+            }
+        }
 
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
@@ -781,10 +995,11 @@
                 
                 return `
                     <div class="project-card">
-                        <div class="project-header" onclick="toggleProject(${index})">
-                            <div class="project-title">${project.name}</div>
+                        <div class="project-header">
+                            <div class="project-title" onclick="toggleProject(${index})">${project.name}</div>
                             <span class="priority-badge ${priorityClass}">${priorityText}</span>
-                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}">▼</button>
+                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${index})">▼</button>
+                            <button class="delete-btn" onclick="deleteProject(${index})">🗑️</button>
                         </div>
                         
                         <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
@@ -804,9 +1019,12 @@
                                             </div>
                                             <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
                                             ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${index}, ${taskIndex})">${task.assignee === 'me' ? 'Я' : task.assignee === 'wife' ? 'Супруга' : 'Оба'}</span>` : ''}
                                             ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
                                             <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, -1)">↑</button>
                                             <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, 1)">↓</button>
+                                            <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
+                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${index}, ${taskIndex})">💬</button>
                                             <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${index}, ${taskIndex})">✕</button>
                                         </div>
                                         ${task.subtasks && task.subtasks.length > 0 ? `
@@ -854,13 +1072,11 @@
                             tasksByDate[dateKey].push({
                                 name: task.name,
                                 projectName: project.name,
-                                projectIndex: projectIndex,
-                                taskIndex: taskIndex,
                                 completed: task.completed
                             });
                         }
                         if (task.subtasks) {
-                            task.subtasks.forEach((subtask, subtaskIndex) => {
+                            task.subtasks.forEach((subtask) => {
                                 if (subtask.date) {
                                     const dateKey = subtask.date.split('T')[0];
                                     if (!tasksByDate[dateKey]) {
@@ -869,9 +1085,6 @@
                                     tasksByDate[dateKey].push({
                                         name: subtask.name,
                                         projectName: project.name,
-                                        projectIndex: projectIndex,
-                                        taskIndex: taskIndex,
-                                        subtaskIndex: subtaskIndex,
                                         completed: subtask.completed
                                     });
                                 }
@@ -980,6 +1193,123 @@
             renderProjects();
         }
 
+        function changeAssignee(projectId, taskId) {
+            const task = projects[projectId].tasks[taskId];
+            const assignees = ['me', 'wife', 'both'];
+            const currentIndex = assignees.indexOf(task.assignee || 'me');
+            task.assignee = assignees[(currentIndex + 1) % assignees.length];
+            saveToFirebase();
+            renderProjects();
+        }
+
+        function openTimer() {
+            openModal('timerModal');
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const minutes = Math.floor((timerSeconds % 3600) / 60);
+            const seconds = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function openComments(projectId, taskId) {
+            currentProjectId = projectId;
+            currentTaskId = taskId;
+            renderComments();
+            openModal('commentsModal');
+        }
+
+        function renderComments() {
+            const task = projects[currentProjectId].tasks[currentTaskId];
+            const comments = task.comments || [];
+            const container = document.getElementById('commentsList');
+            
+            if (comments.length === 0) {
+                container.innerHTML = '<p style="color: #999;">Нет комментариев</p>';
+                return;
+            }
+            
+            container.innerHTML = comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-author">${comment.author}</div>
+                    <div>${comment.text}</div>
+                    <div class="comment-time">${new Date(comment.timestamp).toLocaleString('ru-RU')}</div>
+                </div>
+            `).join('');
+        }
+
+        function addComment() {
+            if (!currentUser) {
+                alert('Сначала войдите');
+                showLoginModal();
+                return;
+            }
+            
+            const text = document.getElementById('commentInput').value.trim();
+            if (!text) return;
+            
+            const task = projects[currentProjectId].tasks[currentTaskId];
+            if (!task.comments) {
+                task.comments = [];
+            }
+            
+            task.comments.push({
+                author: currentUser,
+                text: text,
+                timestamp: new Date().toISOString()
+            });
+            
+            document.getElementById('commentInput').value = '';
+            saveToFirebase();
+            renderComments();
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) {
+                alert('Голосовой ввод не поддерживается');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            isRecording = true;
+            document.getElementById('voiceBtn').classList.add('recording');
+            recognition.start();
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+            recognition.stop();
+        }
+
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
             const input = document.querySelector(`#${modalId} input`);
@@ -995,6 +1325,9 @@
             if (preview) {
                 preview.style.display = 'none';
             }
+            if (modalId === 'timerModal') {
+                stopTimer();
+            }
         }
 
         function openAddProjectModal() {
@@ -1007,6 +1340,7 @@
             document.getElementById('taskName').value = '';
             document.getElementById('taskDate').value = '';
             document.getElementById('taskImage').value = '';
+            document.getElementById('taskAssignee').value = 'me';
             openModal('taskModal');
         }
 
@@ -1039,6 +1373,7 @@
         function addTask() {
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
+            const assignee = document.getElementById('taskAssignee').value;
             
             if (!name) return;
             
@@ -1052,7 +1387,9 @@
                 completed: false,
                 subtasks: [],
                 date: date,
+                assignee: assignee,
                 image: selectedImage,
+                comments: [],
                 createdAt: new Date().toISOString()
             });
             
@@ -1135,6 +1472,15 @@
             if (e.key === 'Enter') addSubtask();
         });
 
+        document.getElementById('commentInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addComment();
+        });
+
+        document.getElementById('userName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+
+        updateUserInfo();
         syncWithFirebase();
     </script>
 </body>
