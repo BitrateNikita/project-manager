@@ -1202,7 +1202,7 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
@@ -1217,8 +1217,7 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();  // ← ДОБАВЬ ЭТУ СТРОКУ
-        const allowedEmails = ['bitrate.motiondesign@gmail.com', 'vikanikitapetrovi@gmail.com'];
+        const auth = firebase.auth();
         const database = firebase.database();
 
         let projects = [];
@@ -1245,85 +1244,28 @@
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
 
-        // Загрузка пользовательских разделов
-
-
-
-        // Функция для сохранения профиля в Firebase
-        function saveProfileToFirebase() {
-            const profileRef = database.ref('profile');
-            profileRef.set({
-                name: currentUser,
-                avatar: userAvatar,
-                updatedAt: new Date().toISOString()
-            });
-        }
-
-        // Слушатель уведомлений
-        function setupNotifications() {
-            const projectsRef = database.ref('projects');
-            projectsRef.on('child_changed', (snapshot) => {
-                showNotification('📝 Обновление данных');
-            });
-            projectsRef.on('child_added', (snapshot) => {
-                showNotification('➕ Добавлен новый проект');
-            });
-            projectsRef.on('child_removed', (snapshot) => {
-                showNotification('🗑️ Удален проект');
-            });
-        }
-
-        
-        // Функция для загрузки профиля из Firebase
-        function loadProfileFromFirebase() {
-            const profileRef = database.ref('profile');
-            profileRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (data.name) {
-                        currentUser = data.name;
-                        localStorage.setItem('userName', data.name);
-                    }
-                    if (data.avatar) {
-                        userAvatar = data.avatar;
-                        localStorage.setItem('userAvatar', data.avatar);
-                    }
-                    updateUserInfo();
-                }
-            });
-        }
-
-        
         // Скрытие хедера при скроле
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
             const header = document.querySelector('header');
             const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-            
             if (currentScroll > lastScrollTop && currentScroll > 80) {
-                // Скроллим вниз - скрываем хедер
                 header.classList.add('hidden');
             } else {
-                // Скроллим вверх - показываем хедер
                 header.classList.remove('hidden');
             }
-            
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        
         function loadCustomSections() {
             const saved = localStorage.getItem('customSections');
-            if (saved) {
-                customSections = JSON.parse(saved);
-            }
+            if (saved) customSections = JSON.parse(saved);
         }
 
         function saveCustomSections() {
             localStorage.setItem('customSections', JSON.stringify(customSections));
         }
 
-        // Все разделы (стандартные + пользовательские)
         function getAllSections() {
             return [
                 { id: '', name: '📋 Список', tag: '' },
@@ -1335,138 +1277,25 @@
         function renderViewToggle() {
             const container = document.getElementById('viewToggle');
             const sections = getAllSections();
-            
             container.innerHTML = sections.map(section => {
                 const count = countTasksInSection(section.tag);
                 const isActive = currentView === (section.tag || 'list');
-                return `
-                    <button class="view-btn ${isActive ? 'active' : ''}" onclick="switchView('${section.tag || 'list'}')">
-                        ${section.name}
-                        ${count > 0 ? `<span class="task-count">${count}</span>` : ''}
-                    </button>
-                `;
-            }).join('') + `
-                <button class="add-section-btn" onclick="openAddSectionModal()">+</button>
-            `;
+                return `<button class="view-btn ${isActive ? 'active' : ''}" onclick="switchView('${section.tag || 'list'}')">${section.name} ${count > 0 ? `<span class="task-count">${count}</span>` : ''}</button>`;
+            }).join('') + `<button class="add-section-btn" onclick="openAddSectionModal()">+</button>`;
         }
 
         function countTasksInSection(tag) {
             let count = 0;
             projects.forEach(project => {
-                if (project.tag === tag) {
-                    count += (project.tasks || []).length;
-                }
+                if (project.tag === tag) count += (project.tasks || []).length;
             });
             return count;
-        }
-
-        function openAddSectionModal() {
-            isEditing = false;
-            currentSectionId = null;
-            document.getElementById('sectionModalTitle').textContent = 'Новый раздел';
-            document.getElementById('sectionName').value = '';
-            document.getElementById('sectionIcon').value = '📋';
-            openModal('sectionModal');
-        }
-
-        function saveSection() {
-            const name = document.getElementById('sectionName').value.trim();
-            let icon = document.getElementById('sectionIcon').value.trim();
-            
-            if (!name) return;
-            
-            // Если эмодзи не введен, используем 📋 по умолчанию
-            if (!icon) {
-                icon = '📋';
-            }
-            
-            // Берем только первый символ (эмодзи)
-            icon = icon.charAt(0);
-            
-            const tag = 'custom_' + Date.now();
-            
-            if (isEditing && currentSectionId !== null) {
-                // Редактирование существующего раздела
-                customSections[currentSectionId].name = icon + ' ' + name;
-            } else {
-                // Новый раздел
-                customSections.push({
-                    id: tag,
-                    name: icon + ' ' + name,
-                    tag: tag
-                });
-            }
-            
-            saveCustomSections();
-            renderViewToggle();
-            closeModal('sectionModal');
-        }
-
-        function openSectionsManager() {
-            const container = document.getElementById('sectionsList');
-            
-            container.innerHTML = customSections.map((section, index) => `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f0f0f0;">
-                    <span>${section.name}</span>
-                    <div>
-                        <button class="edit-btn" onclick="editSection(${index})">✏️</button>
-                        <button class="delete-btn" onclick="deleteSection(${index})">🗑️</button>
-                    </div>
-                </div>
-            `).join('') || '<p style="text-align: center; color: #999;">Нет пользовательских разделов</p>';
-            
-            openModal('sectionsManagerModal');
-        }
-
-        function editSection(index) {
-            const section = customSections[index];
-            currentSectionId = index;
-            isEditing = true;
-            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
-            document.getElementById('sectionName').value = section.name.split(' ').slice(1).join(' ');
-            document.getElementById('sectionIcon').value = section.name.split(' ')[0];  // ← Эмодзи в поле
-            closeModal('sectionsManagerModal');
-            openModal('sectionModal');
-        }
-
-        function deleteSection(index) {
-            if (confirm('Удалить раздел?')) {
-                customSections.splice(index, 1);
-                saveCustomSections();
-                renderViewToggle();
-                closeModal('sectionsManagerModal');
-                if (currentView.startsWith('custom_')) {
-                    switchView('list');
-                }
-            }
-        }
-
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.lang = 'ru-RU';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            
-            recognition.onresult = function(event) {
-                const text = event.results[0][0].transcript;
-                document.getElementById('commentInput').value = text;
-                stopRecording();
-            };
-            
-            recognition.onerror = function(event) {
-                stopRecording();
-            };
-            
-            recognition.onend = function() {
-                stopRecording();
-            };
         }
 
         function updateUserInfo() {
             const userNameDisplay = document.getElementById('userNameDisplay');
             const avatarPlaceholder = document.getElementById('avatarPlaceholder');
             const logoutBtn = document.getElementById('logoutBtn');
-            
             if (currentUser) {
                 userNameDisplay.textContent = currentUser;
                 if (userAvatar) {
@@ -1486,57 +1315,21 @@
             openModal('loginModal');
         }
 
-        function previewAvatar(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userAvatar = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function saveProfile() {
-            const name = document.getElementById('userName').value.trim();
-            if (name) {
-                currentUser = name;
-                localStorage.setItem('userName', name);
-                if (userAvatar) {
-                    localStorage.setItem('userAvatar', userAvatar);
-                }
-                saveProfileToFirebase();  // ← Добавь эту строку
-                updateUserInfo();
-                closeModal('loginModal');
-                renderProjects();
-            }
-        }
-
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.className = 'notification';
             notification.textContent = message;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
 
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
-            
             projectsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (lastProjectsData && JSON.stringify(lastProjectsData) !== JSON.stringify(data)) {
-                        showNotification('📝 Обновление данных');
-                    }
-                    lastProjectsData = data;
                     projects = data;
-                    projects.forEach((project, index) => {
-                        collapsedProjects.add(index);
-                    });
+                    projects.forEach((project, index) => collapsedProjects.add(index));
                     renderProjects();
                     renderViewToggle();
                     document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
@@ -1565,14 +1358,11 @@
         }
 
         function calculateProgress(project) {
-            let totalTasks = 0;
-            let completedTasks = 0;
-            
+            let totalTasks = 0, completedTasks = 0;
             if (project.tasks) {
                 project.tasks.forEach(task => {
                     totalTasks++;
                     if (task.completed) completedTasks++;
-                    
                     if (task.subtasks) {
                         task.subtasks.forEach(subtask => {
                             totalTasks++;
@@ -1581,109 +1371,74 @@
                     }
                 });
             }
-            
             if (totalTasks === 0) return 0;
             return Math.round((completedTasks / totalTasks) * 100);
         }
 
         function renderProjects() {
-            if (currentView === 'list') {
-                renderListView();
-            } else if (currentView === 'calendar') {
-                renderCalendarView();
-            } else if (currentView.startsWith('custom_')) {
-                renderTaggedView('dynamicViews', currentView, '');
-            }
+            if (currentView === 'list') renderListView();
+            else if (currentView === 'calendar') renderCalendarView();
+            else if (currentView.startsWith('custom_')) renderTaggedView('dynamicViews', currentView, '');
         }
 
         function renderListView() {
             const container = document.getElementById('projectsContainer');
             const listProjects = projects.filter(project => !project.tag || project.tag === '');
-            
             if (!listProjects || listProjects.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🚀</div>
-                        <h3>Нет проектов</h3>
-                        <p style="color: #666; margin: 10px 0;">Нажмите + чтобы создать</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚀</div><h3>Нет проектов</h3><p style="color: #666; margin: 10px 0;">Нажмите + чтобы создать</p></div>`;
                 return;
             }
-            
             container.innerHTML = listProjects.map((project) => {
                 const originalIndex = projects.indexOf(project);
                 const progress = calculateProgress(project);
                 const priorityClass = `priority-${project.priority}`;
-                const priorityText = {
-                    high: '🔴 Высокий',
-                    medium: '🟡 Средний',
-                    low: '🟢 Низкий'
-                }[project.priority] || '🟡 Средний';
+                const priorityText = { high: '🔴 Высокий', medium: '🟡 Средний', low: '🟢 Низкий' }[project.priority] || '🟡 Средний';
                 const isCollapsed = collapsedProjects.has(originalIndex);
-                
-                return `
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
-                            <span class="priority-badge ${priorityClass}">${priorityText}</span>
-                            <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
-                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
-                            <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
-                        </div>
-                        
-                        <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
-                            <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="progress-percent">${progress}%</div>
-                            </div>
-                            
-                            <div class="tasks-list">
-                                ${(project.tasks || []).map((task, taskIndex) => `
-                                    <div>
-                                        <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
-                                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                                ${task.completed ? '✓' : ''}
-                                            </div>
-                                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${originalIndex}, ${taskIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
-                                            ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
-                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${originalIndex}, ${taskIndex})">✏️</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, -1)">↑</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, 1)">↓</button>
-                                            <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
-                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${originalIndex}, ${taskIndex})">💬</button>
-                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
-                                        </div>
-                                        ${task.subtasks && task.subtasks.length > 0 ? `
-                                            <div class="subtasks">
-                                                ${task.subtasks.map((subtask, subtaskIndex) => `
-                                                    <div class="subtask-item" onclick="toggleSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">
-                                                        <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}">
-                                                            ${subtask.completed ? '✓' : ''}
-                                                        </div>
-                                                        <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
-                                                        ${subtask.date ? `<span class="date-badge">📅 ${formatDate(subtask.date)}</span>` : ''}
-                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✏️</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, -1)">↑</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, 1)">↓</button>
-                                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✕</button>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                        ` : ''}
-                                        <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${originalIndex}, ${taskIndex})">+ Подзадача</button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            
-                            <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
-                        </div>
+                return `<div class="project-card">
+                    <div class="project-header">
+                        <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
+                        <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                        <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
+                        <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
+                        <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
                     </div>
-                `;
+                    <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
+                        <div class="progress-container">
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                            <div class="progress-percent">${progress}%</div>
+                        </div>
+                        <div class="tasks-list">
+                            ${(project.tasks || []).map((task, taskIndex) => `
+                                <div>
+                                    <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
+                                        <div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div>
+                                        <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                                        ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                                        ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${originalIndex}, ${taskIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
+                                        ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
+                                        <button class="edit-btn" onclick="event.stopPropagation(); editTask(${originalIndex}, ${taskIndex})">✏️</button>
+                                        <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, -1)">↑</button>
+                                        <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, 1)">↓</button>
+                                        <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
+                                        <button class="voice-btn" onclick="event.stopPropagation(); openComments(${originalIndex}, ${taskIndex})">💬</button>
+                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
+                                    </div>
+                                    ${task.subtasks && task.subtasks.length > 0 ? `<div class="subtasks">${task.subtasks.map((subtask, subtaskIndex) => `
+                                        <div class="subtask-item" onclick="toggleSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">
+                                            <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}">${subtask.completed ? '✓' : ''}</div>
+                                            <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
+                                            ${subtask.date ? `<span class="date-badge">📅 ${formatDate(subtask.date)}</span>` : ''}
+                                            <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✏️</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, -1)">↑</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, 1)">↓</button>
+                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✕</button>
+                                        </div>`).join('')}</div>` : ''}
+                                    <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${originalIndex}, ${taskIndex})">+ Подзадача</button>
+                                </div>`).join('')}
+                        </div>
+                        <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
+                    </div>
+                </div>`;
             }).join('');
         }
 
@@ -1691,52 +1446,28 @@
             const container = document.getElementById('calendarContainer');
             const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
             const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            
             const firstDay = new Date(currentYear, currentMonth, 1);
             const lastDay = new Date(currentYear, currentMonth + 1, 0);
             const startDay = (firstDay.getDay() + 6) % 7;
             const daysInMonth = lastDay.getDate();
-            
             const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
-            
-            let calendarHTML = `
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
-                        <div class="calendar-month">${monthNames[currentMonth]} ${currentYear}</div>
-                        <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
-                    </div>
-                    <div class="calendar-grid">
-                        ${weekdays.map(day => `<div class="calendar-weekday">${day}</div>`).join('')}
-            `;
-            
-            for (let i = 0; i < startDay; i++) {
-                calendarHTML += `<div class="calendar-day other-month"></div>`;
-            }
-            
+            let calendarHTML = `<div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
+                    <div class="calendar-month">${monthNames[currentMonth]} ${currentYear}</div>
+                    <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
+                </div>
+                <div class="calendar-grid">
+                    ${weekdays.map(day => `<div class="calendar-weekday">${day}</div>`).join('')}`;
+            for (let i = 0; i < startDay; i++) calendarHTML += `<div class="calendar-day other-month"></div>`;
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hasTasks = checkTasksForDate(dateStr);
                 const isToday = dateStr === todayStr;
-                
-                calendarHTML += `
-                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" 
-                         onclick="selectDate('${dateStr}')">
-                        ${day}
-                        ${hasTasks ? '<div class="calendar-day-indicator"></div>' : ''}
-                    </div>
-                `;
+                calendarHTML += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" onclick="selectDate('${dateStr}')">${day}${hasTasks ? '<div class="calendar-day-indicator"></div>' : ''}</div>`;
             }
-            
-            calendarHTML += `
-                    </div>
-                    <div class="calendar-tasks-panel" id="calendarTasksPanel">
-                        <div id="calendarTasksList"></div>
-                    </div>
-                </div>
-            `;
-            
+            calendarHTML += `</div><div class="calendar-tasks-panel" id="calendarTasksPanel"><div id="calendarTasksList"></div></div></div>`;
             container.innerHTML = calendarHTML;
         }
 
@@ -1745,16 +1476,8 @@
             projects.forEach(project => {
                 if (project.tasks) {
                     project.tasks.forEach(task => {
-                        if (task.date && task.date.split('T')[0] === dateStr) {
-                            hasTasks = true;
-                        }
-                        if (task.subtasks) {
-                            task.subtasks.forEach(subtask => {
-                                if (subtask.date && subtask.date.split('T')[0] === dateStr) {
-                                    hasTasks = true;
-                                }
-                            });
-                        }
+                        if (task.date && task.date.split('T')[0] === dateStr) hasTasks = true;
+                        if (task.subtasks) task.subtasks.forEach(subtask => { if (subtask.date && subtask.date.split('T')[0] === dateStr) hasTasks = true; });
                     });
                 }
             });
@@ -1765,149 +1488,73 @@
             selectedDate = dateStr;
             const panel = document.getElementById('calendarTasksPanel');
             const list = document.getElementById('calendarTasksList');
-            
             const tasksForDate = [];
             projects.forEach(project => {
                 if (project.tasks) {
                     project.tasks.forEach(task => {
-                        if (task.date && task.date.split('T')[0] === dateStr) {
-                            tasksForDate.push({
-                                name: task.name,
-                                projectName: project.name,
-                                completed: task.completed,
-                                time: task.date.split('T')[1] || ''
-                            });
-                        }
-                        if (task.subtasks) {
-                            task.subtasks.forEach(subtask => {
-                                if (subtask.date && subtask.date.split('T')[0] === dateStr) {
-                                    tasksForDate.push({
-                                        name: subtask.name,
-                                        projectName: project.name,
-                                        completed: subtask.completed,
-                                        time: subtask.date.split('T')[1] || ''
-                                    });
-                                }
-                            });
-                        }
+                        if (task.date && task.date.split('T')[0] === dateStr) tasksForDate.push({ name: task.name, projectName: project.name, completed: task.completed, time: task.date.split('T')[1] || '' });
+                        if (task.subtasks) task.subtasks.forEach(subtask => { if (subtask.date && subtask.date.split('T')[0] === dateStr) tasksForDate.push({ name: subtask.name, projectName: project.name, completed: subtask.completed, time: subtask.date.split('T')[1] || '' }); });
                     });
                 }
             });
-            
-            if (tasksForDate.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #999;">Нет задач на эту дату</p>';
-            } else {
-                list.innerHTML = tasksForDate.sort((a, b) => a.time.localeCompare(b.time)).map(task => `
-                    <div class="calendar-task-item ${task.completed ? 'completed' : ''}">
-                        ${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}
-                        ${task.name} 
-                        <small>(${task.projectName})</small>
-                    </div>
-                `).join('');
-            }
-            
+            if (tasksForDate.length === 0) list.innerHTML = '<p style="text-align: center; color: #999;">Нет задач на эту дату</p>';
+            else list.innerHTML = tasksForDate.sort((a, b) => a.time.localeCompare(b.time)).map(task => `<div class="calendar-task-item ${task.completed ? 'completed' : ''}">${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}${task.name} <small>(${task.projectName})</small></div>`).join('');
             panel.classList.add('active');
         }
 
         function changeMonth(delta) {
             currentMonth += delta;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             renderCalendarView();
         }
 
         function renderTaggedView(containerId, tag, emptyMessage) {
             const container = document.getElementById(containerId);
             const taggedProjects = projects.filter(project => project.tag === tag);
-            
-            if (taggedProjects.length === 0) {
-                container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`;
-                return;
-            }
-            
+            if (taggedProjects.length === 0) { container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`; return; }
             container.innerHTML = taggedProjects.map(project => {
                 const originalIndex = projects.indexOf(project);
                 const progress = calculateProgress(project);
                 const isCollapsed = collapsedProjects.has(originalIndex);
-                
-                return `
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
-                            <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
-                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
-                            <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
-                        </div>
-                        <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
-                            <div class="progress-container">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="progress-percent">${progress}%</div>
-                            </div>
-                            <div class="tasks-list">
-                                ${(project.tasks || []).map((task, taskIndex) => `
-                                    <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
-                                        <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                            ${task.completed ? '✓' : ''}
-                                        </div>
-                                        <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                                        ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
-                        </div>
+                return `<div class="project-card">
+                    <div class="project-header">
+                        <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
+                        <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
+                        <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
+                        <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
                     </div>
-                `;
+                    <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
+                        <div class="progress-container"><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div><div class="progress-percent">${progress}%</div></div>
+                        <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `<div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})"><div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div><div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}<button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button></div>`).join('')}</div>
+                        <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
+                    </div>
+                </div>`;
             }).join('');
         }
 
         function switchView(view) {
             currentView = view;
-            
-            // Скрываем все view
             document.getElementById('listView').style.display = 'none';
             document.getElementById('calendarView').classList.remove('active');
             document.getElementById('dynamicViews').style.display = 'none';
-            
-            if (view === 'list') {
-                document.getElementById('listView').style.display = 'block';
-            } else if (view === 'calendar') {
-                document.getElementById('calendarView').classList.add('active');
-            } else {
-                document.getElementById('dynamicViews').style.display = 'block';
-            }
-            
+            if (view === 'list') document.getElementById('listView').style.display = 'block';
+            else if (view === 'calendar') document.getElementById('calendarView').classList.add('active');
+            else document.getElementById('dynamicViews').style.display = 'block';
             renderViewToggle();
             renderProjects();
         }
 
         function toggleProject(index) {
-            if (collapsedProjects.has(index)) {
-                collapsedProjects.delete(index);
-            } else {
-                collapsedProjects.add(index);
-            }
+            if (collapsedProjects.has(index)) collapsedProjects.delete(index);
+            else collapsedProjects.add(index);
             renderProjects();
         }
 
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
-            return date.toLocaleDateString('ru-RU', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         function previewImage(input) {
@@ -1916,42 +1563,29 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     selectedImage = e.target.result;
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = selectedImage;
-                    preview.style.display = 'block';
+                    document.getElementById('imagePreview').src = selectedImage;
+                    document.getElementById('imagePreview').style.display = 'block';
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function showImage(src) {
-            window.open(src, '_blank');
-        }
+        function showImage(src) { window.open(src, '_blank'); }
 
         function moveTask(projectId, taskId, direction) {
             const tasks = projects[projectId].tasks;
             const newIndex = taskId + direction;
             if (newIndex < 0 || newIndex >= tasks.length) return;
-            
-            const temp = tasks[taskId];
-            tasks[taskId] = tasks[newIndex];
-            tasks[newIndex] = temp;
-            
-            saveToFirebase();
-            renderProjects();
+            const temp = tasks[taskId]; tasks[taskId] = tasks[newIndex]; tasks[newIndex] = temp;
+            saveToFirebase(); renderProjects();
         }
 
         function moveSubtask(projectId, taskId, subtaskId, direction) {
             const subtasks = projects[projectId].tasks[taskId].subtasks;
             const newIndex = subtaskId + direction;
             if (newIndex < 0 || newIndex >= subtasks.length) return;
-            
-            const temp = subtasks[subtaskId];
-            subtasks[subtaskId] = subtasks[newIndex];
-            subtasks[newIndex] = temp;
-            
-            saveToFirebase();
-            renderProjects();
+            const temp = subtasks[subtaskId]; subtasks[subtaskId] = subtasks[newIndex]; subtasks[newIndex] = temp;
+            saveToFirebase(); renderProjects();
         }
 
         function changeAssignee(projectId, taskId) {
@@ -1959,136 +1593,60 @@
             const assignees = ['me', 'wife', 'nika', 'both'];
             const currentIndex = assignees.indexOf(task.assignee || 'me');
             task.assignee = assignees[(currentIndex + 1) % assignees.length];
-            saveToFirebase();
-            renderProjects();
+            saveToFirebase(); renderProjects();
         }
 
-        function openTimer() {
-            openModal('timerModal');
-        }
-
-        function startTimer() {
-            if (timerInterval) return;
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-
-        function resetTimer() {
-            stopTimer();
-            timerSeconds = 0;
-            updateTimerDisplay();
-        }
-
+        function openTimer() { openModal('timerModal'); }
+        function startTimer() { if (timerInterval) return; timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
+        function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+        function resetTimer() { stopTimer(); timerSeconds = 0; updateTimerDisplay(); }
         function updateTimerDisplay() {
             const hours = Math.floor(timerSeconds / 3600);
             const minutes = Math.floor((timerSeconds % 3600) / 60);
             const seconds = timerSeconds % 60;
-            document.getElementById('timerDisplay').textContent = 
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
-        function openComments(projectId, taskId) {
-            currentProjectId = projectId;
-            currentTaskId = taskId;
-            renderComments();
-            openModal('commentsModal');
-        }
+        function openComments(projectId, taskId) { currentProjectId = projectId; currentTaskId = taskId; renderComments(); openModal('commentsModal'); }
 
         function renderComments() {
             const task = projects[currentProjectId].tasks[currentTaskId];
             const comments = task.comments || [];
             const container = document.getElementById('commentsList');
-            
-            if (comments.length === 0) {
-                container.innerHTML = '<p style="color: #999;">Нет комментариев</p>';
-                return;
-            }
-            
-            container.innerHTML = comments.map(comment => `
-                <div class="comment-item">
-                    <div class="comment-author">${comment.author}</div>
-                    ${comment.text ? `<div>${comment.text}</div>` : ''}
-                    ${comment.voice ? `
-                        <div class="voice-message">
-                            <audio controls src="${comment.voice}"></audio>
-                        </div>
-                    ` : ''}
-                    <div class="comment-time">${new Date(comment.timestamp).toLocaleString('ru-RU')}</div>
-                </div>
-            `).join('');
+            if (comments.length === 0) { container.innerHTML = '<p style="color: #999;">Нет комментариев</p>'; return; }
+            container.innerHTML = comments.map(comment => `<div class="comment-item"><div class="comment-author">${comment.author}</div>${comment.text ? `<div>${comment.text}</div>` : ''}${comment.voice ? `<div class="voice-message"><audio controls src="${comment.voice}"></audio></div>` : ''}<div class="comment-time">${new Date(comment.timestamp).toLocaleString('ru-RU')}</div></div>`).join('');
         }
 
         function addComment() {
-            if (!currentUser) {
-                alert('Сначала войдите');
-                showLoginModal();
-                return;
-            }
-            
+            if (!currentUser) { alert('Сначала войдите'); showLoginModal(); return; }
             const text = document.getElementById('commentInput').value.trim();
             if (!text) return;
-            
             const task = projects[currentProjectId].tasks[currentTaskId];
-            
-            task.comments.push({
-                author: currentUser,
-                text: text,
-                timestamp: new Date().toISOString()
-            });
-            
+            if (!task.comments) task.comments = [];
+            task.comments.push({ author: currentUser, text: text, timestamp: new Date().toISOString() });
             document.getElementById('commentInput').value = '';
-            saveToFirebase();
-            renderComments();
+            saveToFirebase(); renderComments();
         }
 
-        function toggleVoiceInput() {
-            if (isRecordingVoice) {
-                stopVoiceRecording();
-            } else {
-                startVoiceRecording();
-            }
-        }
+        function toggleVoiceInput() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording(); }
 
         function startVoiceRecording() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Запись голоса не поддерживается');
-                return;
-            }
-            
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    
-                    mediaRecorder.ondataavailable = function(event) {
-                        audioChunks.push(event.data);
-                    };
-                    
-                    mediaRecorder.onstop = function() {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const audioBase64 = e.target.result;
-                            addVoiceComment(audioBase64);
-                        };
-                        reader.readAsDataURL(audioBlob);
-                    };
-                    
-                    mediaRecorder.start();
-                    isRecordingVoice = true;
-                    document.getElementById('voiceBtn').classList.add('recording');
-                    document.getElementById('voiceBtn').textContent = '⏹️';
-                })
-                .catch(error => {
-                    alert('Не удалось получить доступ к микрофону');
-                });
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Запись голоса не поддерживается'); return; }
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = function(event) { audioChunks.push(event.data); };
+                mediaRecorder.onstop = function() {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = function(e) { addVoiceComment(e.target.result); };
+                    reader.readAsDataURL(audioBlob);
+                };
+                mediaRecorder.start();
+                isRecordingVoice = true;
+                document.getElementById('voiceBtn').classList.add('recording');
+                document.getElementById('voiceBtn').textContent = '⏹️';
+            }).catch(error => { alert('Не удалось получить доступ к микрофону'); });
         }
 
         function stopVoiceRecording() {
@@ -2097,36 +1655,20 @@
                 isRecordingVoice = false;
                 document.getElementById('voiceBtn').classList.remove('recording');
                 document.getElementById('voiceBtn').textContent = '🎤';
-                
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
         }
 
         function addVoiceComment(audioBase64) {
-            if (!currentUser) {
-                alert('Сначала войдите');
-                showLoginModal();
-                return;
-            }
-            
+            if (!currentUser) { alert('Сначала войдите'); showLoginModal(); return; }
             const task = projects[currentProjectId].tasks[currentTaskId];
-            if (!task.comments) {
-                task.comments = [];
-            }
-            
-            task.comments.push({
-                author: currentUser,
-                voice: audioBase64,
-                timestamp: new Date().toISOString()
-            });
-            
-            saveToFirebase();
-            renderComments();
+            if (!task.comments) task.comments = [];
+            task.comments.push({ author: currentUser, voice: audioBase64, timestamp: new Date().toISOString() });
+            saveToFirebase(); renderComments();
         }
 
         function editProject(projectId) {
-            isEditing = true;
-            currentProjectId = projectId;
+            isEditing = true; currentProjectId = projectId;
             const project = projects[projectId];
             document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
             document.getElementById('projectName').value = project.name;
@@ -2136,27 +1678,18 @@
         }
 
         function editTask(projectId, taskId) {
-            isEditing = true;
-            currentProjectId = projectId;
-            currentTaskId = taskId;
+            isEditing = true; currentProjectId = projectId; currentTaskId = taskId;
             const task = projects[projectId].tasks[taskId];
             document.getElementById('taskModalTitle').textContent = 'Редактировать задачу';
             document.getElementById('taskName').value = task.name;
             document.getElementById('taskDate').value = task.date || '';
             document.getElementById('taskAssignee').value = task.assignee || 'me';
-            if (task.image) {
-                selectedImage = task.image;
-                document.getElementById('imagePreview').src = task.image;
-                document.getElementById('imagePreview').style.display = 'block';
-            }
+            if (task.image) { selectedImage = task.image; document.getElementById('imagePreview').src = task.image; document.getElementById('imagePreview').style.display = 'block'; }
             openModal('taskModal');
         }
 
         function editSubtask(projectId, taskId, subtaskId) {
-            isEditing = true;
-            currentProjectId = projectId;
-            currentTaskId = taskId;
-            currentSubtaskId = subtaskId;
+            isEditing = true; currentProjectId = projectId; currentTaskId = taskId; currentSubtaskId = subtaskId;
             const subtask = projects[projectId].tasks[taskId].subtasks[subtaskId];
             document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу';
             document.getElementById('subtaskName').value = subtask.name;
@@ -2167,23 +1700,16 @@
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
             const input = document.querySelector(`#${modalId} input`);
-            if (input) {
-                setTimeout(() => input.focus(), 100);
-            }
+            if (input) setTimeout(() => input.focus(), 100);
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
             selectedImage = null;
             const preview = document.getElementById('imagePreview');
-            if (preview) {
-                preview.style.display = 'none';
-            }
-            if (modalId === 'timerModal') {
-                stopTimer();
-            }
-            isEditing = false;
-            currentSubtaskId = null;
+            if (preview) preview.style.display = 'none';
+            if (modalId === 'timerModal') stopTimer();
+            isEditing = false; currentSubtaskId = null;
         }
 
         function openAddProjectModal() {
@@ -2191,21 +1717,15 @@
             document.getElementById('projectModalTitle').textContent = 'Новый проект';
             document.getElementById('projectName').value = '';
             document.getElementById('projectPriority').value = 'medium';
-            
-            // Заполняем select разделов
             const tagSelect = document.getElementById('projectTag');
             tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>';
-            customSections.forEach(section => {
-                tagSelect.innerHTML += `<option value="${section.tag}">${section.name}</option>`;
-            });
-            
+            customSections.forEach(section => { tagSelect.innerHTML += `<option value="${section.tag}">${section.name}</option>`; });
             document.getElementById('projectTag').value = '';
             openModal('projectModal');
         }
 
         function openAddTaskModal(projectId) {
-            isEditing = false;
-            currentProjectId = projectId;
+            isEditing = false; currentProjectId = projectId;
             document.getElementById('taskModalTitle').textContent = 'Новая задача';
             document.getElementById('taskName').value = '';
             document.getElementById('taskDate').value = '';
@@ -2215,280 +1735,179 @@
         }
 
         function openAddSubtaskModal(projectId, taskId) {
-            isEditing = false;
-            currentProjectId = projectId;
-            currentTaskId = taskId;
+            isEditing = false; currentProjectId = projectId; currentTaskId = taskId;
             document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача';
             document.getElementById('subtaskName').value = '';
             document.getElementById('subtaskDate').value = '';
             openModal('subtaskModal');
         }
 
+        function openAddSectionModal() {
+            isEditing = false; currentSectionId = null;
+            document.getElementById('sectionModalTitle').textContent = 'Новый раздел';
+            document.getElementById('sectionName').value = '';
+            document.getElementById('sectionIcon').value = '📋';
+            openModal('sectionModal');
+        }
+
+        function saveSection() {
+            const name = document.getElementById('sectionName').value.trim();
+            let icon = document.getElementById('sectionIcon').value.trim();
+            if (!name) return;
+            if (!icon) icon = '📋';
+            icon = icon.charAt(0);
+            const tag = 'custom_' + Date.now();
+            if (isEditing && currentSectionId !== null) customSections[currentSectionId].name = icon + ' ' + name;
+            else customSections.push({ id: tag, name: icon + ' ' + name, tag: tag });
+            saveCustomSections(); renderViewToggle(); closeModal('sectionModal');
+        }
+
+        function openSectionsManager() {
+            const container = document.getElementById('sectionsList');
+            container.innerHTML = customSections.map((section, index) => `<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f0f0f0;"><span>${section.name}</span><div><button class="edit-btn" onclick="editSection(${index})">✏️</button><button class="delete-btn" onclick="deleteSection(${index})">🗑️</button></div></div>`).join('') || '<p style="text-align: center; color: #999;">Нет пользовательских разделов</p>';
+            openModal('sectionsManagerModal');
+        }
+
+        function editSection(index) {
+            const section = customSections[index];
+            currentSectionId = index; isEditing = true;
+            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
+            document.getElementById('sectionName').value = section.name.split(' ').slice(1).join(' ');
+            document.getElementById('sectionIcon').value = section.name.split(' ')[0];
+            closeModal('sectionsManagerModal'); openModal('sectionModal');
+        }
+
+        function deleteSection(index) {
+            if (confirm('Удалить раздел?')) {
+                customSections.splice(index, 1);
+                saveCustomSections(); renderViewToggle(); closeModal('sectionsManagerModal');
+                if (currentView.startsWith('custom_')) switchView('list');
+            }
+        }
+
         function saveProject() {
             const name = document.getElementById('projectName').value.trim();
             const priority = document.getElementById('projectPriority').value;
             const tag = document.getElementById('projectTag').value;
-            
             if (!name) return;
-            
-            if (isEditing) {
-                projects[currentProjectId].name = name;
-                projects[currentProjectId].priority = priority;
-                projects[currentProjectId].tag = tag;
-            } else {
-                projects.push({
-                    id: Date.now(),
-                    name: name,
-                    priority: priority,
-                    tag: tag,
-                    tasks: [],
-                    createdAt: new Date().toISOString()
-                });
-            }
-            
-            saveToFirebase();
-            closeModal('projectModal');
+            if (isEditing) { projects[currentProjectId].name = name; projects[currentProjectId].priority = priority; projects[currentProjectId].tag = tag; }
+            else projects.push({ id: Date.now(), name: name, priority: priority, tag: tag, tasks: [], createdAt: new Date().toISOString() });
+            saveToFirebase(); closeModal('projectModal');
         }
 
         function saveTask() {
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
             const assignee = document.getElementById('taskAssignee').value;
-            
             if (!name) return;
-            
             if (isEditing) {
                 projects[currentProjectId].tasks[currentTaskId].name = name;
                 projects[currentProjectId].tasks[currentTaskId].date = date;
                 projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
-                if (selectedImage) {
-                    projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
-                }
+                if (selectedImage) projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
             } else {
-                if (!projects[currentProjectId].tasks) {
-                    projects[currentProjectId].tasks = [];
-                }
-                
-                projects[currentProjectId].tasks.push({
-                    id: Date.now(),
-                    name: name,
-                    completed: false,
-                    subtasks: [],
-                    date: date,
-                    assignee: assignee,
-                    image: selectedImage,
-                    comments: [],
-                    createdAt: new Date().toISOString()
-                });
+                if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = [];
+                projects[currentProjectId].tasks.push({ id: Date.now(), name: name, completed: false, subtasks: [], date: date, assignee: assignee, image: selectedImage, comments: [], createdAt: new Date().toISOString() });
             }
-            
-            saveToFirebase();
-            closeModal('taskModal');
+            saveToFirebase(); closeModal('taskModal');
         }
 
         function saveSubtask() {
             const name = document.getElementById('subtaskName').value.trim();
             const date = document.getElementById('subtaskDate').value;
-            
             if (!name) return;
-            
             const task = projects[currentProjectId].tasks[currentTaskId];
-            if (!task.subtasks) {
-                task.subtasks = [];
-            }
-            
-            if (isEditing && currentSubtaskId !== null) {
-                task.subtasks[currentSubtaskId].name = name;
-                task.subtasks[currentSubtaskId].date = date;
-            } else {
-                task.subtasks.push({
-                    id: Date.now(),
-                    name: name,
-                    completed: false,
-                    date: date
-                });
-            }
-            
-            saveToFirebase();
-            closeModal('subtaskModal');
+            if (!task.subtasks) task.subtasks = [];
+            if (isEditing && currentSubtaskId !== null) { task.subtasks[currentSubtaskId].name = name; task.subtasks[currentSubtaskId].date = date; }
+            else task.subtasks.push({ id: Date.now(), name: name, completed: false, date: date });
+            saveToFirebase(); closeModal('subtaskModal');
         }
 
         function toggleTask(projectId, taskId) {
             projects[projectId].tasks[taskId].completed = !projects[projectId].tasks[taskId].completed;
-            saveToFirebase();
-            renderProjects();
+            saveToFirebase(); renderProjects();
         }
 
         function toggleSubtask(projectId, taskId, subtaskId) {
-            projects[projectId].tasks[taskId].subtasks[subtaskId].completed = 
-                !projects[projectId].tasks[taskId].subtasks[subtaskId].completed;
-            saveToFirebase();
-            renderProjects();
+            projects[projectId].tasks[taskId].subtasks[subtaskId].completed = !projects[projectId].tasks[taskId].subtasks[subtaskId].completed;
+            saveToFirebase(); renderProjects();
         }
 
         function deleteProject(projectId) {
-            if (confirm('Удалить проект?')) {
-                projects.splice(projectId, 1);
-                saveToFirebase();
-                renderProjects();
-            }
+            if (confirm('Удалить проект?')) { projects.splice(projectId, 1); saveToFirebase(); renderProjects(); }
         }
 
-        function deleteTask(projectId, taskId) {
-            projects[projectId].tasks.splice(taskId, 1);
-            saveToFirebase();
-            renderProjects();
-        }
-
-        function deleteSubtask(projectId, taskId, subtaskId) {
-            projects[projectId].tasks[taskId].subtasks.splice(subtaskId, 1);
-            saveToFirebase();
-            renderProjects();
-        }
+        function deleteTask(projectId, taskId) { projects[projectId].tasks.splice(taskId, 1); saveToFirebase(); renderProjects(); }
+        function deleteSubtask(projectId, taskId, subtaskId) { projects[projectId].tasks[taskId].subtasks.splice(subtaskId, 1); saveToFirebase(); renderProjects(); }
 
         document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
         });
 
-        document.getElementById('projectName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveProject();
-        });
+        document.getElementById('projectName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveProject(); });
+        document.getElementById('taskName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveTask(); });
+        document.getElementById('subtaskName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSubtask(); });
+        document.getElementById('commentInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addComment(); });
+        document.getElementById('sectionName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSection(); });
 
-        document.getElementById('taskName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveTask();
-        });
-
-        document.getElementById('subtaskName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveSubtask();
-        });
-
-        document.getElementById('commentInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addComment();
-        });
-
-        document.getElementById('userName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveProfile();
-        });
-
-        document.getElementById('sectionName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveSection();
-        });
-
-
-        
         // Вход через Google
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({
-                prompt: 'select_account'
+            provider.setCustomParameters({ prompt: 'select_account' });
+            auth.signInWithRedirect(provider).catch((error) => {
+                console.error('Ошибка входа:', error);
+                alert('Ошибка входа: ' + error.message);
             });
-            
-            auth.signInWithRedirect(provider)
-                .catch((error) => {
-                    console.error('Ошибка входа:', error);
-                    alert('Ошибка входа: ' + error.message);
-                });
         }
-        
-        // Обработка результата входа
+
         function handleSignInResult(user) {
             if (!user) return;
-            
             const email = user.email;
-            
-            if (!email) {
-                console.error('Email is null');
-                return;
-            }
-            
-            const allowedEmails = [
-                'bitrate.motiondesign@gmail.com',
-                'vikanikitapetrovi@gmail.com'
-            ];
-            
+            if (!email) return;
+            const allowedEmails = ['bitrate.motiondesign@gmail.com', 'vikanikitapetrovi@gmail.com'];
             if (allowedEmails.includes(email)) {
                 currentUser = user.displayName || email;
                 userAvatar = user.photoURL || null;
-                
                 localStorage.setItem('userName', currentUser);
-                if (userAvatar) {
-                    localStorage.setItem('userAvatar', userAvatar);
-                }
-                
+                if (userAvatar) localStorage.setItem('userAvatar', userAvatar);
                 updateUserInfo();
                 closeModal('loginModal');
-                renderProjects();
                 showNotification('✅ Вход выполнен');
             } else {
                 alert('Доступ запрещен');
                 auth.signOut();
             }
         }
-        
-        // Выход
+
         function signOut() {
-            auth.signOut()
-                .then(() => {
-                    currentUser = null;
-                    userAvatar = null;
-                    localStorage.removeItem('userName');
-                    localStorage.removeItem('userAvatar');
-                    updateUserInfo();
-                    showNotification('👋 Вы вышли');
-                })
-                .catch((error) => {
-                    console.error('Ошибка выхода:', error);
-                });
-        }
-        
-        // Слушатель состояния авторизации
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                handleSignInResult(user);
-            } else {
-                // Проверяем localStorage перед очисткой
-                const savedUser = localStorage.getItem('userName');
-                if (savedUser) {
-                    currentUser = savedUser;
-                    userAvatar = localStorage.getItem('userAvatar');
-                    updateUserInfo();
-                } else {
-                    currentUser = null;
-                    userAvatar = null;
-                    updateUserInfo();
-                }
-            }
-        });
-        
-        // Обработка redirect результата
-        auth.getRedirectResult()
-            .then((result) => {
-                if (result.user) {
-                    handleSignInResult(result.user);
-                }
-            })
-            .catch((error) => {
-                console.error('Ошибка redirect:', error);
-            });
-        
-        // Проверяем localStorage при загрузке
-        const savedUser = localStorage.getItem('userName');
-        if (savedUser) {
-            currentUser = savedUser;
-            userAvatar = localStorage.getItem('userAvatar');
+            auth.signOut().then(() => {
+                currentUser = null; userAvatar = null;
+                localStorage.removeItem('userName'); localStorage.removeItem('userAvatar');
+                updateUserInfo(); showNotification('👋 Вы вышли');
+            }).catch((error) => { console.error('Ошибка выхода:', error); });
         }
 
+        auth.onAuthStateChanged((user) => {
+            if (user) handleSignInResult(user);
+            else {
+                const savedUser = localStorage.getItem('userName');
+                if (savedUser) { currentUser = savedUser; userAvatar = localStorage.getItem('userAvatar'); }
+                else { currentUser = null; userAvatar = null; }
+                updateUserInfo();
+            }
+        });
+
+        auth.getRedirectResult().then((result) => {
+            if (result.user) handleSignInResult(result.user);
+        }).catch((error) => { console.error('Ошибка redirect:', error); });
+
         // Инициализация
+        const savedUser = localStorage.getItem('userName');
+        if (savedUser) { currentUser = savedUser; userAvatar = localStorage.getItem('userAvatar'); }
         loadCustomSections();
         updateUserInfo();
-        loadProfileFromFirebase();
         syncWithFirebase();
         renderViewToggle();
-        setupNotifications();
         
     </script>
 </body>
