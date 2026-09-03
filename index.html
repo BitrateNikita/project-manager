@@ -2381,37 +2381,49 @@
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    const user = result.user;
-                    const email = user.email;
-                    
-                    // Проверка разрешенных email
-                    const allowedEmails = [
-                        'bitrate.motiondesign@gmail.com',
-                        'vikanikitapetrovi@gmail.com'
-                    ];
-                    
-                    if (allowedEmails.includes(email)) {
-                        currentUser = user.displayName;
-                        userAvatar = user.photoURL;
-                        
-                        localStorage.setItem('userName', currentUser);
-                        localStorage.setItem('userAvatar', userAvatar);
-                        
-                        updateUserInfo();
-                        closeModal('loginModal');
-                        renderProjects();
-                        showNotification('✅ Вход выполнен');
-                    } else {
-                        alert('Доступ запрещен');
-                        auth.signOut();
-                    }
-                })
-                .catch((error) => {
-                    console.error('Ошибка входа:', error);
-                    alert('Ошибка входа: ' + error.message);
-                });
+            // Проверяем, мобильное ли устройство
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Для мобильных используем redirect
+                auth.signInWithRedirect(provider);
+            } else {
+                // Для ПК используем popup
+                auth.signInWithPopup(provider)
+                    .then((result) => {
+                        handleSignInResult(result.user);
+                    })
+                    .catch((error) => {
+                        console.error('Ошибка входа:', error);
+                        alert('Ошибка входа: ' + error.message);
+                    });
+            }
+        }
+        
+        // Обработка результата входа
+        function handleSignInResult(user) {
+            const email = user.email;
+            
+            const allowedEmails = [
+                'bitrate.motiondesign@gmail.com',
+                'vikanikitapetrovi@gmail.com'
+            ];
+            
+            if (allowedEmails.includes(email)) {
+                currentUser = user.displayName;
+                userAvatar = user.photoURL;
+                
+                localStorage.setItem('userName', currentUser);
+                localStorage.setItem('userAvatar', userAvatar);
+                
+                updateUserInfo();
+                closeModal('loginModal');
+                renderProjects();
+                showNotification('✅ Вход выполнен');
+            } else {
+                alert('Доступ запрещен');
+                auth.signOut();
+            }
         }
         
         // Выход
@@ -2433,18 +2445,26 @@
         // Слушатель состояния авторизации
         auth.onAuthStateChanged((user) => {
             if (user) {
-                currentUser = user.displayName;
-                userAvatar = user.photoURL;
-                localStorage.setItem('userName', currentUser);
-                localStorage.setItem('userAvatar', userAvatar);
+                handleSignInResult(user);
             } else {
                 currentUser = null;
                 userAvatar = null;
                 localStorage.removeItem('userName');
                 localStorage.removeItem('userAvatar');
+                updateUserInfo();
             }
-            updateUserInfo();
         });
+        
+        // Обработка redirect результата
+        auth.getRedirectResult()
+            .then((result) => {
+                if (result.user) {
+                    handleSignInResult(result.user);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка redirect:', error);
+            });
 
         // Инициализация
         loadCustomSections();
