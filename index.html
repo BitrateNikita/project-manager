@@ -1217,6 +1217,7 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();  // ← ДОБАВЬ ЭТУ СТРОКУ
         const allowedEmails = ['bitrate.motiondesign@gmail.com', 'vikanikitapetrovi@gmail.com'];
         const database = firebase.database();
 
@@ -2031,12 +2032,10 @@
                 return;
             }
             
-        
+            const text = document.getElementById('commentInput').value.trim();
+            if (!text) return;
             
             const task = projects[currentProjectId].tasks[currentTaskId];
-            if (!task.comments) {
-                task.comments = [];
-            }
             
             task.comments.push({
                 author: currentUser,
@@ -2380,8 +2379,6 @@
         });
 
 
-        // Инициализация Auth
-        const auth = firebase.auth();
         
         // Вход через Google
         function signInWithGoogle() {
