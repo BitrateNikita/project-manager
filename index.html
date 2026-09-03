@@ -895,7 +895,8 @@
             sectionsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    customSections = data;
+                    // Firebase Realtime Database возвращает объект, преобразуем в массив
+                    customSections = Object.values(data);
                 } else {
                     customSections = [];
                 }
@@ -904,8 +905,20 @@
         }
 
         function saveCustomSections() {
-            database.ref('customSections').set(customSections)
-                .catch((error) => { console.error('Ошибка сохранения разделов:', error); });
+            // Преобразуем массив в объект для Firebase
+            const sectionsObject = {};
+            customSections.forEach((section, index) => {
+                sectionsObject[index] = section;
+            });
+            database.ref('customSections').set(sectionsObject)
+                .then(() => {
+                    console.log('Разделы сохранены:', sectionsObject);
+                    showNotification('✅ Разделы сохранены');
+                })
+                .catch((error) => { 
+                    console.error('Ошибка сохранения разделов:', error);
+                    showNotification('❌ Ошибка сохранения');
+                });
         }
 
         function getAllSections() {
