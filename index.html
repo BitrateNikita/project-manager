@@ -2383,24 +2383,16 @@
         // Вход через Google
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
             
-            // Проверяем, мобильное ли устройство
-            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                // Для мобильных используем redirect
-                auth.signInWithRedirect(provider);
-            } else {
-                // Для ПК используем popup
-                auth.signInWithPopup(provider)
-                    .then((result) => {
-                        handleSignInResult(result.user);
-                    })
-                    .catch((error) => {
-                        console.error('Ошибка входа:', error);
-                        alert('Ошибка входа: ' + error.message);
-                    });
-            }
+            // Для GitHub Pages всегда используем redirect
+            auth.signInWithRedirect(provider)
+                .catch((error) => {
+                    console.error('Ошибка входа:', error);
+                    alert('Ошибка входа: ' + error.message);
+                });
         }
         
         // Обработка результата входа
