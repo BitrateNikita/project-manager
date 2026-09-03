@@ -602,11 +602,13 @@
         document.getElementById('commentInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addComment(); });
         document.getElementById('sectionName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSection(); });
 
-        // АВТОРИЗАЦИЯ
+        // АВТОРИЗАЦИЯ (используем POPUP вместо redirect)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithRedirect(provider).catch((error) => { console.error('Ошибка входа:', error); alert('Ошибка входа: ' + error.message); });
+            auth.signInWithPopup(provider)
+                .then((result) => { handleSignInResult(result.user); })
+                .catch((error) => { console.error('Ошибка входа:', error); alert('Ошибка входа: ' + error.message); });
         }
         function handleSignInResult(user) {
             if (!user) return;
@@ -633,14 +635,7 @@
 
         // ИНИЦИАЛИЗАЦИЯ
         loadCustomSections();
-
-        auth.getRedirectResult().then((result) => {
-            if (result.user) handleSignInResult(result.user);
-            initApp();
-        }).catch((error) => {
-            console.error('Ошибка redirect:', error);
-            initApp();
-        });
+        initApp();
 
         function initApp() {
             const user = auth.currentUser;
