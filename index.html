@@ -71,6 +71,8 @@
             z-index: 100;
             height: 150px;
             display: flex;
+            justify-content: flex-start;  /* ← Прижать к левому краю */
+            gap: 15px;  /* ← Расстояние между элементами */
             align-items: center;
         }
 
@@ -97,14 +99,15 @@
 
         .user-avatar-container {
             display: flex;
-            align-items: center;
+            align-items: flex-end;  /* ← Прижать к низу */
             gap: 10px;
             cursor: pointer;
+            margin-top: 20px;  /* ← Добавь отступ сверху */
         }
 
         .user-avatar {
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: #e0e0e0;
             display: flex;
@@ -986,13 +989,13 @@
     
     <header>
         <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1>📊 Планнер</h1>
             <div class="user-avatar-container" onclick="showLoginModal()">
                 <div class="user-avatar" id="userAvatar">
                     <span id="avatarPlaceholder">👤</span>
                 </div>
                 <div class="user-name" id="userNameDisplay">Войти</div>
             </div>
+            <h1>Планнер</h1>
         </div>
     </header>
 
