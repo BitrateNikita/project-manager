@@ -2387,7 +2387,6 @@
                 prompt: 'select_account'
             });
             
-            // Для GitHub Pages всегда используем redirect
             auth.signInWithRedirect(provider)
                 .catch((error) => {
                     console.error('Ошибка входа:', error);
@@ -2397,7 +2396,14 @@
         
         // Обработка результата входа
         function handleSignInResult(user) {
+            if (!user) return;
+            
             const email = user.email;
+            
+            if (!email) {
+                console.error('Email is null');
+                return;
+            }
             
             const allowedEmails = [
                 'bitrate.motiondesign@gmail.com',
@@ -2405,11 +2411,13 @@
             ];
             
             if (allowedEmails.includes(email)) {
-                currentUser = user.displayName;
-                userAvatar = user.photoURL;
+                currentUser = user.displayName || email;
+                userAvatar = user.photoURL || null;
                 
                 localStorage.setItem('userName', currentUser);
-                localStorage.setItem('userAvatar', userAvatar);
+                if (userAvatar) {
+                    localStorage.setItem('userAvatar', userAvatar);
+                }
                 
                 updateUserInfo();
                 closeModal('loginModal');
@@ -2442,11 +2450,17 @@
             if (user) {
                 handleSignInResult(user);
             } else {
-                currentUser = null;
-                userAvatar = null;
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userAvatar');
-                updateUserInfo();
+                // Проверяем localStorage перед очисткой
+                const savedUser = localStorage.getItem('userName');
+                if (savedUser) {
+                    currentUser = savedUser;
+                    userAvatar = localStorage.getItem('userAvatar');
+                    updateUserInfo();
+                } else {
+                    currentUser = null;
+                    userAvatar = null;
+                    updateUserInfo();
+                }
             }
         });
         
@@ -2460,6 +2474,13 @@
             .catch((error) => {
                 console.error('Ошибка redirect:', error);
             });
+        
+        // Проверяем localStorage при загрузке
+        const savedUser = localStorage.getItem('userName');
+        if (savedUser) {
+            currentUser = savedUser;
+            userAvatar = localStorage.getItem('userAvatar');
+        }
 
         // Инициализация
         loadCustomSections();
