@@ -77,10 +77,7 @@
             transition: transform 0.3s ease;
         }
 
-        header.hidden {
-            transform: translateY(-100%);
-        }
-
+        header.hidden { transform: translateY(-100%); }
         header::before {
             content: '';
             position: absolute;
@@ -91,19 +88,9 @@
             background: rgba(255,255,255,0.25);
             z-index: 1;
         }
+        header > * { position: relative; z-index: 2; }
 
-        header > * {
-            position: relative;
-            z-index: 2;
-        }
-
-        .user-avatar-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
+        .user-avatar-container { display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .user-avatar {
             width: 45px;
             height: 45px;
@@ -118,13 +105,7 @@
             flex-shrink: 0;
             border: 2px solid white;
         }
-
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-name {
             font-size: 0.8em;
             font-weight: 500;
@@ -170,12 +151,7 @@
             align-items: center;
             gap: 4px;
         }
-
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+        .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .task-count {
             background: var(--info);
@@ -232,7 +208,6 @@
             flex-shrink: 0;
             padding: 5px;
         }
-
         .edit-btn { font-size: 1em; }
         .collapse-btn { font-size: 1.1em; transition: transform 0.3s; }
         .collapse-btn.collapsed { transform: rotate(-90deg); }
@@ -240,14 +215,8 @@
         .move-btn { color: #999; font-size: 0.8em; padding: 3px; }
         .voice-btn { font-size: 1.1em; }
 
-        .project-content {
-            transition: max-height 0.3s ease;
-            overflow: hidden;
-        }
-
-        .project-content.collapsed {
-            max-height: 0 !important;
-        }
+        .project-content { transition: max-height 0.3s ease; overflow: hidden; }
+        .project-content.collapsed { max-height: 0 !important; }
 
         .priority-badge {
             padding: 3px 8px;
@@ -256,18 +225,21 @@
             font-weight: 500;
             white-space: nowrap;
         }
-
         .priority-high { background: #ffebee; color: var(--danger); }
         .priority-medium { background: #fff3e0; color: var(--warning); }
         .priority-low { background: #e8f5e9; color: var(--primary); }
 
         .progress-container { margin: 10px 0; }
         .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; transition: width 0.3s ease; }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
         .progress-percent { font-size: 0.75em; color: #666; margin-top: 3px; text-align: right; }
 
         .tasks-list { margin-top: 10px; }
-
         .task-item {
             display: flex;
             align-items: center;
@@ -276,7 +248,6 @@
             cursor: pointer;
             border-radius: 8px;
         }
-
         .task-item:active { background: #f0f0f0; }
 
         .task-checkbox {
@@ -293,7 +264,6 @@
             font-size: 12px;
             color: white;
         }
-
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
 
         .task-text { flex: 1; margin: 0 5px; word-wrap: break-word; font-size: 0.9em; }
@@ -308,12 +278,7 @@
             cursor: pointer;
         }
 
-        .subtasks {
-            margin-left: 30px;
-            padding-left: 8px;
-            border-left: 2px solid #e0e0e0;
-        }
-
+        .subtasks { margin-left: 30px; padding-left: 8px; border-left: 2px solid #e0e0e0; }
         .subtask-item {
             display: flex;
             align-items: center;
@@ -322,7 +287,6 @@
             cursor: pointer;
             border-radius: 6px;
         }
-
         .subtask-checkbox {
             width: 18px;
             height: 18px;
@@ -337,7 +301,6 @@
             font-size: 10px;
             color: white;
         }
-
         .subtask-checkbox.checked { background: var(--info); border-color: var(--info); }
 
         .add-btn {
@@ -369,7 +332,6 @@
             margin: 0 3px;
             cursor: pointer;
         }
-
         .assignee-me { background: #e3f2fd; color: #1976d2; }
         .assignee-wife { background: #fce4ec; color: #c2185b; }
 
@@ -380,14 +342,7 @@
         .timer-stop { background: var(--danger); color: white; }
         .timer-reset { background: #f5f5f5; color: #666; }
 
-        .comment-item {
-            padding: 8px;
-            margin: 5px 0;
-            background: white;
-            border-radius: 8px;
-            font-size: 0.85em;
-        }
-
+        .comment-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
         .comment-author { font-weight: 600; color: var(--info); }
         .comment-time { font-size: 0.75em; color: #999; }
 
@@ -400,7 +355,6 @@
             border-radius: 15px;
             margin: 3px 0;
         }
-
         .voice-message audio { max-width: 180px; height: 30px; }
 
         .modal {
@@ -417,7 +371,6 @@
             padding: 15px;
             backdrop-filter: blur(5px);
         }
-
         .modal.active { display: flex; }
 
         .modal-content {
@@ -449,7 +402,6 @@
             font-size: 0.95em;
             background: #f9f9f9;
         }
-
         .form-input:focus { outline: none; border-color: var(--primary); background: white; }
 
         .form-select {
@@ -462,26 +414,11 @@
             cursor: pointer;
         }
 
-        .emoji-picker {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 5px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .emoji-option {
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; max-height: 150px; overflow-y: auto; }
+        .emoji-option { font-size: 1.5em; cursor: pointer; padding: 5px; border-radius: 5px; }
         .emoji-option.selected { background: var(--primary); }
 
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-
         .btn-primary {
             flex: 1;
             background: var(--primary);
@@ -493,7 +430,6 @@
             font-size: 0.95em;
             font-weight: 500;
         }
-
         .btn-secondary {
             flex: 1;
             background: #f5f5f5;
@@ -589,13 +525,7 @@
             background: var(--primary);
             border-radius: 50%;
         }
-        .calendar-tasks-panel {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            display: none;
-        }
+        .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
         .calendar-tasks-panel.active { display: block; }
         .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
 
@@ -615,18 +545,9 @@
             flex-direction: column;
             justify-content: center;
         }
-
-        .footer-icons {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: 3px;
-        }
-
+        .footer-icons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 3px; }
         .footer-icon { width: 25px; height: 25px; cursor: pointer; }
-
         .footer-calls { display: flex; justify-content: space-around; gap: 5px; }
-
         .footer-call-btn {
             flex: 1;
             padding: 4px;
@@ -663,11 +584,7 @@
         }
 
         #loginModal { z-index: 9999 !important; }
-
-        .voice-btn.recording {
-            animation: pulse 1s infinite;
-            color: var(--danger);
-        }
+        .voice-btn.recording { animation: pulse 1s infinite; color: var(--danger); }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -716,7 +633,6 @@
     </div>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
-
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-title">Вход</div>
@@ -769,11 +685,18 @@
                     <option value="high">🔴 Высокий</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="projectTagGroup">
                 <label class="form-label">Раздел</label>
                 <select class="form-select" id="projectTag">
                     <option value="">📋 Список (общее)</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Комментарий</label>
+                <input type="text" class="form-input" id="projectComment" placeholder="Написать комментарий...">
+            </div>
+            <div class="form-group">
+                <button class="btn-secondary" onclick="recordProjectVoice()" id="projectVoiceBtn">🎤 Записать голосовое</button>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
@@ -803,6 +726,13 @@
                 </select>
             </div>
             <div class="form-group">
+                <label class="form-label">Комментарий</label>
+                <input type="text" class="form-input" id="taskComment" placeholder="Написать комментарий...">
+            </div>
+            <div class="form-group">
+                <button class="btn-secondary" onclick="recordTaskVoice()" id="taskVoiceBtn">🎤 Записать голосовое</button>
+            </div>
+            <div class="form-group">
                 <label class="form-label">Изображение</label>
                 <input type="file" class="form-input" id="taskImage" accept="image/*" onchange="previewImage(this)">
                 <img id="imagePreview" class="image-preview" style="display:none;">
@@ -824,6 +754,13 @@
             <div class="form-group">
                 <label class="form-label">Дата и время</label>
                 <input type="datetime-local" class="form-input" id="subtaskDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Комментарий</label>
+                <input type="text" class="form-input" id="subtaskComment" placeholder="Написать комментарий...">
+            </div>
+            <div class="form-group">
+                <button class="btn-secondary" onclick="recordSubtaskVoice()" id="subtaskVoiceBtn">🎤 Записать голосовое</button>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('subtaskModal')">Отмена</button>
@@ -876,7 +813,6 @@
             messagingSenderId: "1016609389948",
             appId: "1:1016609389948:web:a3fbaca5e88f7da521b8f9"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
@@ -903,10 +839,14 @@
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let selectedEmoji = '📋';
+        let projectVoiceBase64 = null;
+        let taskVoiceBase64 = null;
+        let subtaskVoiceBase64 = null;
+        let recordingTarget = null;
 
         const emojiList = ['📋','📅','🖨️','🛒','💪','🏠','🚗','📚','💰','🎨','🎮','🎵','📷','✈️','🌍','🔥','💡','⭐','❤️','🎯','📌','📎','🗂️','📁','📊','📈','📉','🎁','🎉','🎊','🌸','🌺','🍀','🌈','☀️','🌙','⚡','💧','🌊','🍎','🍕','🍔','☕','🍺','🏆','🎖️','🥇','🚀','🛸','🏰','🗿','🎪','🎭','🎬','📺','💻','📱','🔧','🔨','⚙️','🧰','🧲','🧪','🔬','💊','💉','🩺','🧬','🦷','👁️','🧠','🫀','💪','🦴','👶','👧','👦','👩','👨','👵','👴','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐍','🦎','🐙','🦑','🦐','🦀','🐠','🐟','🐡','🐬','🐳','🦈','🐊','🦕','🦖','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️','🍁','🍂','🍃','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','⭐','🌟','💫','✨','🔥','💥','☄️','🌊','💦','💧','🫧','🌪️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌫️'];
 
-        // ==================== ЭМОДЗИ ПИКЕР ====================
+        // ==================== ЭМОДЗИ ====================
         function renderEmojiPicker() {
             const container = document.getElementById('emojiPicker');
             container.innerHTML = emojiList.map(emoji =>
@@ -920,7 +860,7 @@
             renderEmojiPicker();
         }
 
-        // ==================== ХЕДЕР СКРОЛЛ ====================
+        // ==================== ХЕДЕР ====================
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
             const header = document.querySelector('header');
@@ -930,7 +870,7 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        // ==================== СИНХРОНИЗАЦИЯ РАЗДЕЛОВ ====================
+        // ==================== РАЗДЕЛЫ (Firebase) ====================
         function loadCustomSections() {
             const sectionsRef = database.ref('customSections');
             sectionsRef.on('value', (snapshot) => {
@@ -950,13 +890,8 @@
                 sectionsObject[index] = section;
             });
             database.ref('customSections').set(sectionsObject)
-                .then(() => {
-                    showNotification('✅ Разделы сохранены');
-                })
-                .catch((error) => {
-                    console.error('Ошибка сохранения разделов:', error);
-                    showNotification('❌ Ошибка сохранения');
-                });
+                .then(() => showNotification('✅ Разделы сохранены'))
+                .catch(() => showNotification('❌ Ошибка сохранения'));
         }
 
         function getAllSections() {
@@ -1010,7 +945,7 @@
             setTimeout(() => notification.remove(), 3000);
         }
 
-        // ==================== FIREBASE СИНХРОНИЗАЦИЯ ====================
+        // ==================== FIREBASE ====================
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
             projectsRef.on('value', (snapshot) => {
@@ -1065,7 +1000,7 @@
             else if (currentView.startsWith('custom_')) renderTaggedView('dynamicViews', currentView, '');
         }
 
-        // ==================== РЕНДЕР СПИСКА ====================
+        // ==================== РЕНДЕР ====================
         function renderListView() {
             const container = document.getElementById('projectsContainer');
             const listProjects = projects.filter(p => !p.tag || p.tag === '');
@@ -1073,60 +1008,73 @@
                 container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚀</div><h3>Нет проектов</h3><p style="color:#666;margin:10px 0;">Нажмите + чтобы создать</p></div>`;
                 return;
             }
-            container.innerHTML = listProjects.map(project => {
-                const idx = projects.indexOf(project);
-                const progress = calculateProgress(project);
-                const prClass = `priority-${project.priority}`;
-                const prText = { high: '🔴 Высокий', medium: '🟡 Средний', low: '🟢 Низкий' }[project.priority] || '🟡 Средний';
-                const collapsed = collapsedProjects.has(idx);
-                return `<div class="project-card">
-                    <div class="project-header">
-                        <div class="project-title" onclick="toggleProject(${idx})">${project.name}</div>
-                        <span class="priority-badge ${prClass}">${prText}</span>
-                        <button class="edit-btn" onclick="editProject(${idx})">✏️</button>
-                        <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="toggleProject(${idx})">▼</button>
-                        <button class="delete-btn" onclick="deleteProject(${idx})">🗑️</button>
-                    </div>
-                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
-                        <div class="progress-container">
-                            <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-                            <div class="progress-percent">${progress}%</div>
-                        </div>
-                        <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `
-                            <div>
-                                <div class="task-item" onclick="toggleTask(${idx}, ${taskIndex})">
-                                    <div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div>
-                                    <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                                    ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                    ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${idx}, ${taskIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
-                                    ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
-                                    <button class="edit-btn" onclick="event.stopPropagation(); editTask(${idx}, ${taskIndex})">✏️</button>
-                                    <button class="move-btn" onclick="event.stopPropagation(); moveTask(${idx}, ${taskIndex}, -1)">↑</button>
-                                    <button class="move-btn" onclick="event.stopPropagation(); moveTask(${idx}, ${taskIndex}, 1)">↓</button>
-                                    <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
-                                    <button class="voice-btn" onclick="event.stopPropagation(); openComments(${idx}, ${taskIndex})">💬</button>
-                                    <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${idx}, ${taskIndex})">✕</button>
-                                </div>
-                                ${task.subtasks && task.subtasks.length ? `<div class="subtasks">${task.subtasks.map((st, stIndex) => `
-                                    <div class="subtask-item" onclick="toggleSubtask(${idx}, ${taskIndex}, ${stIndex})">
-                                        <div class="subtask-checkbox ${st.completed ? 'checked' : ''}">${st.completed ? '✓' : ''}</div>
-                                        <div class="task-text ${st.completed ? 'completed' : ''}">${st.name}</div>
-                                        ${st.date ? `<span class="date-badge">📅 ${formatDate(st.date)}</span>` : ''}
-                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${idx}, ${taskIndex}, ${stIndex})">✏️</button>
-                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${idx}, ${taskIndex}, ${stIndex}, -1)">↑</button>
-                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${idx}, ${taskIndex}, ${stIndex}, 1)">↓</button>
-                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${idx}, ${taskIndex}, ${stIndex})">✕</button>
-                                    </div>`).join('')}</div>` : ''}
-                                <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${idx}, ${taskIndex})">+ Подзадача</button>
-                            </div>`).join('')}
-                        </div>
-                        <button class="add-btn" onclick="openAddTaskModal(${idx})">+ Добавить задачу</button>
-                    </div>
-                </div>`;
-            }).join('');
+            container.innerHTML = listProjects.map(project => renderProjectCard(project)).join('');
         }
 
-        // ==================== РЕНДЕР КАЛЕНДАРЯ ====================
+        function renderTaggedView(containerId, tag, emptyMessage) {
+            const container = document.getElementById(containerId);
+            const tagged = projects.filter(p => p.tag === tag);
+            if (!tagged.length) { container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`; return; }
+            container.innerHTML = tagged.map(project => renderProjectCard(project)).join('');
+        }
+
+        function renderProjectCard(project) {
+            const idx = projects.indexOf(project);
+            const progress = calculateProgress(project);
+            const prClass = `priority-${project.priority}`;
+            const prText = { high: '🔴 Высокий', medium: '🟡 Средний', low: '🟢 Низкий' }[project.priority] || '🟡 Средний';
+            const collapsed = collapsedProjects.has(idx);
+            return `<div class="project-card">
+                <div class="project-header">
+                    <div class="project-title" onclick="toggleProject(${idx})">${project.name}</div>
+                    <span class="priority-badge ${prClass}">${prText}</span>
+                    <button class="edit-btn" onclick="editProject(${idx})">✏️</button>
+                    <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="toggleProject(${idx})">▼</button>
+                    <button class="delete-btn" onclick="deleteProject(${idx})">🗑️</button>
+                </div>
+                <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
+                    ${project.comments && project.comments.length ? `<div class="tasks-list">${project.comments.map(c => `<div class="comment-item"><div class="comment-author">${c.author}</div>${c.text ? `<div>${c.text}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                    <div class="progress-container">
+                        <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                        <div class="progress-percent">${progress}%</div>
+                    </div>
+                    <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `
+                        <div>
+                            <div class="task-item" onclick="toggleTask(${idx}, ${taskIndex})">
+                                <div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div>
+                                <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                                ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                                ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${idx}, ${taskIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
+                                ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
+                                <button class="edit-btn" onclick="event.stopPropagation(); editTask(${idx}, ${taskIndex})">✏️</button>
+                                <button class="move-btn" onclick="event.stopPropagation(); moveTask(${idx}, ${taskIndex}, -1)">↑</button>
+                                <button class="move-btn" onclick="event.stopPropagation(); moveTask(${idx}, ${taskIndex}, 1)">↓</button>
+                                <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
+                                <button class="voice-btn" onclick="event.stopPropagation(); openComments(${idx}, ${taskIndex})">💬</button>
+                                <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${idx}, ${taskIndex})">✕</button>
+                            </div>
+                            ${task.comments && task.comments.length ? `<div class="subtasks">${task.comments.map(c => `<div class="comment-item"><div class="comment-author">${c.author}</div>${c.text ? `<div>${c.text}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                            ${task.subtasks && task.subtasks.length ? `<div class="subtasks">${task.subtasks.map((st, stIndex) => `
+                                <div class="subtask-item" onclick="toggleSubtask(${idx}, ${taskIndex}, ${stIndex})">
+                                    <div class="subtask-checkbox ${st.completed ? 'checked' : ''}">${st.completed ? '✓' : ''}</div>
+                                    <div class="task-text ${st.completed ? 'completed' : ''}">${st.name}</div>
+                                    ${st.date ? `<span class="date-badge">📅 ${formatDate(st.date)}</span>` : ''}
+                                    <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${idx}, ${taskIndex}, ${stIndex})">✏️</button>
+                                    <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${idx}, ${taskIndex}, ${stIndex}, -1)">↑</button>
+                                    <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${idx}, ${taskIndex}, ${stIndex}, 1)">↓</button>
+                                    <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${idx}, ${taskIndex}, ${stIndex})">✕</button>
+                                </div>
+                                ${st.comments && st.comments.length ? `<div class="subtasks">${st.comments.map(c => `<div class="comment-item"><div class="comment-author">${c.author}</div>${c.text ? `<div>${c.text}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                            `).join('')}</div>` : ''}
+                            <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${idx}, ${taskIndex})">+ Подзадача</button>
+                        </div>`).join('')}
+                    </div>
+                    <button class="add-btn" onclick="openAddTaskModal(${idx})">+ Добавить задачу</button>
+                </div>
+            </div>`;
+        }
+
+        // ==================== КАЛЕНДАРЬ ====================
         function renderCalendarView() {
             const container = document.getElementById('calendarContainer');
             const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -1186,30 +1134,6 @@
             if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             renderCalendarView();
-        }
-
-        function renderTaggedView(containerId, tag, emptyMessage) {
-            const container = document.getElementById(containerId);
-            const tagged = projects.filter(p => p.tag === tag);
-            if (!tagged.length) { container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`; return; }
-            container.innerHTML = tagged.map(project => {
-                const idx = projects.indexOf(project);
-                const progress = calculateProgress(project);
-                const collapsed = collapsedProjects.has(idx);
-                return `<div class="project-card">
-                    <div class="project-header">
-                        <div class="project-title" onclick="toggleProject(${idx})">${project.name}</div>
-                        <button class="edit-btn" onclick="editProject(${idx})">✏️</button>
-                        <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="toggleProject(${idx})">▼</button>
-                        <button class="delete-btn" onclick="deleteProject(${idx})">🗑️</button>
-                    </div>
-                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
-                        <div class="progress-container"><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="progress-percent">${progress}%</div></div>
-                        <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `<div class="task-item" onclick="toggleTask(${idx}, ${taskIndex})"><div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div><div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}<button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${idx}, ${taskIndex})">✕</button></div>`).join('')}</div>
-                        <button class="add-btn" onclick="openAddTaskModal(${idx})">+ Добавить задачу</button>
-                    </div>
-                </div>`;
-            }).join('');
         }
 
         function switchView(view) {
@@ -1309,11 +1233,15 @@
             saveToFirebase(); renderComments();
         }
 
-        // ==================== ГОЛОСОВЫЕ СООБЩЕНИЯ ====================
-        function toggleVoiceInput() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording(); }
+        // ==================== ГОЛОСОВЫЕ ====================
+        function toggleVoiceInput() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording('comment'); }
+        function recordProjectVoice() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording('project'); }
+        function recordTaskVoice() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording('task'); }
+        function recordSubtaskVoice() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording('subtask'); }
 
-        function startVoiceRecording() {
+        function startVoiceRecording(target) {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Запись голоса не поддерживается'); return; }
+            recordingTarget = target;
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
@@ -1321,13 +1249,19 @@
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
-                    reader.onload = e => addVoiceComment(e.target.result);
+                    reader.onload = e => {
+                        const audioBase64 = e.target.result;
+                        if (recordingTarget === 'project') projectVoiceBase64 = audioBase64;
+                        else if (recordingTarget === 'task') taskVoiceBase64 = audioBase64;
+                        else if (recordingTarget === 'subtask') subtaskVoiceBase64 = audioBase64;
+                        else addVoiceComment(audioBase64);
+                        showNotification('✅ Голосовое записано');
+                    };
                     reader.readAsDataURL(blob);
                 };
                 mediaRecorder.start();
                 isRecordingVoice = true;
                 document.getElementById('voiceBtn').classList.add('recording');
-                document.getElementById('voiceBtn').textContent = '⏹️';
             }).catch(() => alert('Не удалось получить доступ к микрофону'));
         }
 
@@ -1336,7 +1270,6 @@
                 mediaRecorder.stop();
                 isRecordingVoice = false;
                 document.getElementById('voiceBtn').classList.remove('recording');
-                document.getElementById('voiceBtn').textContent = '🎤';
                 mediaRecorder.stream.getTracks().forEach(t => t.stop());
             }
         }
@@ -1356,7 +1289,12 @@
             document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
             document.getElementById('projectName').value = p.name;
             document.getElementById('projectPriority').value = p.priority || 'medium';
+            const tagSelect = document.getElementById('projectTag');
+            tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>';
+            customSections.forEach(s => { tagSelect.innerHTML += `<option value="${s.tag}">${s.name}</option>`; });
             document.getElementById('projectTag').value = p.tag || '';
+            document.getElementById('projectComment').value = '';
+            projectVoiceBase64 = null;
             openModal('projectModal');
         }
 
@@ -1367,6 +1305,8 @@
             document.getElementById('taskName').value = t.name;
             document.getElementById('taskDate').value = t.date || '';
             document.getElementById('taskAssignee').value = t.assignee || 'me';
+            document.getElementById('taskComment').value = '';
+            taskVoiceBase64 = null;
             if (t.image) { selectedImage = t.image; document.getElementById('imagePreview').src = t.image; document.getElementById('imagePreview').style.display = 'block'; }
             openModal('taskModal');
         }
@@ -1377,6 +1317,8 @@
             document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу';
             document.getElementById('subtaskName').value = st.name;
             document.getElementById('subtaskDate').value = st.date || '';
+            document.getElementById('subtaskComment').value = '';
+            subtaskVoiceBase64 = null;
             openModal('subtaskModal');
         }
 
@@ -1405,7 +1347,19 @@
             const tagSelect = document.getElementById('projectTag');
             tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>';
             customSections.forEach(s => { tagSelect.innerHTML += `<option value="${s.tag}">${s.name}</option>`; });
+            tagSelect.innerHTML += '<option value="__new__">➕ Создать новый раздел...</option>';
             document.getElementById('projectTag').value = '';
+            document.getElementById('projectComment').value = '';
+            projectVoiceBase64 = null;
+            
+            // Если мы в кастомном разделе - скрываем выбор раздела
+            if (currentView.startsWith('custom_')) {
+                document.getElementById('projectTagGroup').style.display = 'none';
+                document.getElementById('projectTag').value = currentView;
+            } else {
+                document.getElementById('projectTagGroup').style.display = 'block';
+            }
+            
             openModal('projectModal');
         }
 
@@ -1416,6 +1370,8 @@
             document.getElementById('taskDate').value = '';
             document.getElementById('taskImage').value = '';
             document.getElementById('taskAssignee').value = 'me';
+            document.getElementById('taskComment').value = '';
+            taskVoiceBase64 = null;
             openModal('taskModal');
         }
 
@@ -1424,6 +1380,8 @@
             document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача';
             document.getElementById('subtaskName').value = '';
             document.getElementById('subtaskDate').value = '';
+            document.getElementById('subtaskComment').value = '';
+            subtaskVoiceBase64 = null;
             openModal('subtaskModal');
         }
 
@@ -1456,31 +1414,80 @@
         function saveProject() {
             const name = document.getElementById('projectName').value.trim();
             const priority = document.getElementById('projectPriority').value;
-            const tag = document.getElementById('projectTag').value;
+            let tag = document.getElementById('projectTag').value;
+            const commentText = document.getElementById('projectComment').value.trim();
+            
             if (!name) return;
+            
+            // Если выбран "Создать новый раздел"
+            if (tag === '__new__') {
+                const newSectionName = prompt('Название нового раздела:');
+                if (newSectionName) {
+                    const newTag = 'custom_' + Date.now();
+                    customSections.push({ id: newTag, name: '📋 ' + newSectionName, tag: newTag });
+                    saveCustomSections();
+                    tag = newTag;
+                } else {
+                    return;
+                }
+            }
+            
+            const comments = [];
+            if (commentText) {
+                comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
+            }
+            if (projectVoiceBase64) {
+                comments.push({ author: currentUser || 'Пользователь', voice: projectVoiceBase64, timestamp: new Date().toISOString() });
+            }
+            
             if (isEditing) {
                 projects[currentProjectId].name = name;
                 projects[currentProjectId].priority = priority;
                 projects[currentProjectId].tag = tag;
+                if (comments.length) {
+                    if (!projects[currentProjectId].comments) projects[currentProjectId].comments = [];
+                    projects[currentProjectId].comments.push(...comments);
+                }
             } else {
-                projects.push({ id: Date.now(), name, priority, tag, tasks: [], createdAt: new Date().toISOString() });
+                projects.push({
+                    id: Date.now(),
+                    name,
+                    priority,
+                    tag,
+                    tasks: [],
+                    comments: comments,
+                    createdAt: new Date().toISOString()
+                });
             }
-            saveToFirebase(); closeModal('projectModal');
+            saveToFirebase(); closeModal('projectModal'); renderViewToggle();
         }
 
         function saveTask() {
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
             const assignee = document.getElementById('taskAssignee').value;
+            const commentText = document.getElementById('taskComment').value.trim();
             if (!name) return;
+            
+            const comments = [];
+            if (commentText) comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
+            if (taskVoiceBase64) comments.push({ author: currentUser || 'Пользователь', voice: taskVoiceBase64, timestamp: new Date().toISOString() });
+            
             if (isEditing) {
                 projects[currentProjectId].tasks[currentTaskId].name = name;
                 projects[currentProjectId].tasks[currentTaskId].date = date;
                 projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
+                if (comments.length) {
+                    if (!projects[currentProjectId].tasks[currentTaskId].comments) projects[currentProjectId].tasks[currentTaskId].comments = [];
+                    projects[currentProjectId].tasks[currentTaskId].comments.push(...comments);
+                }
                 if (selectedImage) projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
             } else {
                 if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = [];
-                projects[currentProjectId].tasks.push({ id: Date.now(), name, completed: false, subtasks: [], date, assignee, image: selectedImage, comments: [], createdAt: new Date().toISOString() });
+                projects[currentProjectId].tasks.push({
+                    id: Date.now(), name, completed: false, subtasks: [], date, assignee,
+                    image: selectedImage, comments: comments, createdAt: new Date().toISOString()
+                });
             }
             saveToFirebase(); closeModal('taskModal');
         }
@@ -1488,14 +1495,25 @@
         function saveSubtask() {
             const name = document.getElementById('subtaskName').value.trim();
             const date = document.getElementById('subtaskDate').value;
+            const commentText = document.getElementById('subtaskComment').value.trim();
             if (!name) return;
+            
+            const comments = [];
+            if (commentText) comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
+            if (subtaskVoiceBase64) comments.push({ author: currentUser || 'Пользователь', voice: subtaskVoiceBase64, timestamp: new Date().toISOString() });
+            
             const task = projects[currentProjectId].tasks[currentTaskId];
             if (!task.subtasks) task.subtasks = [];
+            
             if (isEditing && currentSubtaskId !== null) {
                 task.subtasks[currentSubtaskId].name = name;
                 task.subtasks[currentSubtaskId].date = date;
+                if (comments.length) {
+                    if (!task.subtasks[currentSubtaskId].comments) task.subtasks[currentSubtaskId].comments = [];
+                    task.subtasks[currentSubtaskId].comments.push(...comments);
+                }
             } else {
-                task.subtasks.push({ id: Date.now(), name, completed: false, date });
+                task.subtasks.push({ id: Date.now(), name, completed: false, date, comments });
             }
             saveToFirebase(); closeModal('subtaskModal');
         }
