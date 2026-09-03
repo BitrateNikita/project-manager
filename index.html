@@ -7,158 +7,670 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <title>📊 Планнер</title>
     <style>
-        :root { --primary: #4CAF50; --danger: #f44336; --warning: #ff9800; --info: #2196F3; --bg: #f5f5f5; --card: #ffffff; --text: #333; --shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); line-height: 1.6; padding-bottom: 100px; user-select: none; -webkit-user-select: none; background-image: url('bg.png'); background-repeat: repeat; background-size: 50% auto; background-attachment: fixed; position: relative; min-height: 100vh; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0); z-index: -1; }
-        .container { max-width: 100%; margin: 0 auto; padding: 10px; padding-bottom: 120px; padding-top: 70px; }
-        header { background-image: url('bg-header.jpg'); background-size: cover; background-position: center; color: white; padding: 8px 10px; margin-bottom: 10px; box-shadow: var(--shadow); position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; display: flex; align-items: center; transition: transform 0.3s ease; }
-        header.hidden { transform: translateY(-100%); }
-        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.25); z-index: 1; }
-        header > * { position: relative; z-index: 2; }
-        .user-avatar-container { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.2em; overflow: hidden; cursor: pointer; flex-shrink: 0; border: 2px solid white; }
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-name { font-size: 0.8em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-        .sync-status { position: fixed; top: 8px; right: 8px; background: white; border-radius: 12px; padding: 3px 8px; font-size: 0.65em; box-shadow: var(--shadow); z-index: 200; }
-        .view-toggle { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; align-items: center; }
-        .view-btn { flex-shrink: 0; padding: 8px 12px; background: white; border: 2px solid #e0e0e0; border-radius: 18px; cursor: pointer; font-size: 0.8em; transition: all 0.3s; white-space: nowrap; position: relative; display: flex; align-items: center; gap: 4px; }
-        .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .task-count { background: var(--info); color: white; border-radius: 10px; padding: 1px 5px; font-size: 0.65em; font-weight: bold; }
-        .add-section-btn { flex-shrink: 0; width: 35px; height: 35px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-        .add-section-btn:active { transform: scale(0.9); }
-        .project-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: var(--shadow); transition: all 0.3s; }
-        .project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer; }
-        .project-title { font-size: 1.1em; font-weight: 600; flex: 1; margin-right: 10px; word-wrap: break-word; }
-        .edit-btn { background: none; border: none; cursor: pointer; font-size: 1em; padding: 5px; flex-shrink: 0; }
-        .collapse-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px; transition: transform 0.3s; }
+        :root {
+            --primary: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --info: #2196F3;
+            --bg: #f5f5f5;
+            --card: #ffffff;
+            --text: #333;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 100px;
+            user-select: none;
+            -webkit-user-select: none;
+            background-image: url('bg.png');
+            background-repeat: repeat;
+            background-size: 50% auto;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            padding-bottom: 120px;
+            padding-top: 70px;
+        }
+
+        /* Шапка */
+        header {
+            background-image: url('bg-header.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        header.hidden {
+            transform: translateY(-100%);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.25);
+            z-index: 1;
+        }
+
+        header > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .user-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
+            border: 2px solid white;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 0.8em;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .sync-status {
+            position: fixed;
+            top: 8px;
+            right: 8px;
+            background: white;
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 0.65em;
+            box-shadow: var(--shadow);
+            z-index: 200;
+        }
+
+        /* Кнопки разделов */
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+            align-items: center;
+        }
+
+        .view-btn {
+            flex-shrink: 0;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .task-count {
+            background: var(--info);
+            color: white;
+            border-radius: 10px;
+            padding: 1px 5px;
+            font-size: 0.65em;
+            font-weight: bold;
+        }
+
+        .add-section-btn {
+            flex-shrink: 0;
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Карточки проектов */
+        .project-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .project-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 10px;
+            word-wrap: break-word;
+        }
+
+        .edit-btn, .collapse-btn, .delete-btn, .move-btn, .voice-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .edit-btn { font-size: 1em; padding: 5px; }
+        .collapse-btn { font-size: 1.1em; padding: 5px; transition: transform 0.3s; }
         .collapse-btn.collapsed { transform: rotate(-90deg); }
-        .project-content { transition: max-height 0.3s ease; overflow: hidden; }
-        .project-content.collapsed { max-height: 0 !important; }
-        .priority-badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 500; white-space: nowrap; }
+        .delete-btn { font-size: 1em; padding: 5px; color: #999; }
+        .move-btn { font-size: 0.8em; padding: 3px; color: #999; }
+        .voice-btn { font-size: 1.1em; padding: 5px; }
+
+        .project-content {
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .project-content.collapsed {
+            max-height: 0 !important;
+        }
+
+        /* Приоритеты */
+        .priority-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
         .priority-high { background: #ffebee; color: var(--danger); }
         .priority-medium { background: #fff3e0; color: var(--warning); }
         .priority-low { background: #e8f5e9; color: var(--primary); }
+
+        /* Прогресс */
         .progress-container { margin: 10px 0; }
         .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; transition: width 0.3s ease; }
-        .progress-percent { font-size: 0.75em; color: #666; margin-top: 3px; text-align: right; font-weight: 500; }
+        .progress-percent { font-size: 0.75em; color: #666; margin-top: 3px; text-align: right; }
+
+        /* Задачи */
         .tasks-list { margin-top: 10px; }
-        .task-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; border-radius: 8px; position: relative; }
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
         .task-item:active { background: #f0f0f0; }
-        .task-checkbox { width: 22px; height: 22px; border: 2px solid #ddd; border-radius: 50%; margin-right: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 12px; color: white; }
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-right: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+            color: white;
+        }
+
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
         .task-text { flex: 1; margin: 0 5px; word-wrap: break-word; font-size: 0.9em; }
         .task-text.completed { text-decoration: line-through; color: #999; }
         .task-image { width: 35px; height: 35px; object-fit: cover; border-radius: 8px; margin: 0 3px; cursor: pointer; }
-        .subtasks { margin-left: 30px; padding-left: 8px; border-left: 2px solid #e0e0e0; }
-        .subtask-item { display: flex; align-items: center; padding: 6px; font-size: 0.8em; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
-        .subtask-item:active { background: #f5f5f5; }
-        .subtask-checkbox { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; margin-right: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 10px; color: white; }
+
+        /* Подзадачи */
+        .subtasks {
+            margin-left: 30px;
+            padding-left: 8px;
+            border-left: 2px solid #e0e0e0;
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .subtask-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-right: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 10px;
+            color: white;
+        }
+
         .subtask-checkbox.checked { background: var(--info); border-color: var(--info); }
-        .add-btn { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 18px; cursor: pointer; font-size: 0.8em; transition: all 0.3s; margin-top: 8px; width: 100%; font-weight: 500; }
-        .add-btn:active { transform: scale(0.95); }
-        .delete-btn { background: none; border: none; color: #999; cursor: pointer; padding: 5px; font-size: 1em; transition: color 0.2s; flex-shrink: 0; }
-        .delete-btn:active { color: var(--danger); }
-        .move-btn { background: none; border: none; color: #999; cursor: pointer; padding: 3px; font-size: 0.8em; flex-shrink: 0; }
-        .move-btn:active { color: var(--primary); }
-        .date-badge { font-size: 0.65em; color: #666; background: #f0f0f0; padding: 2px 5px; border-radius: 8px; margin: 0 3px; }
-        .assignee-badge { font-size: 0.65em; padding: 2px 5px; border-radius: 8px; margin: 0 3px; cursor: pointer; }
+
+        /* Кнопки */
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 8px;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        /* Бейджи */
+        .date-badge {
+            font-size: 0.65em;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 8px;
+            margin: 0 3px;
+        }
+
+        .assignee-badge {
+            font-size: 0.65em;
+            padding: 2px 5px;
+            border-radius: 8px;
+            margin: 0 3px;
+            cursor: pointer;
+        }
+
         .assignee-me { background: #e3f2fd; color: #1976d2; }
         .assignee-wife { background: #fce4ec; color: #c2185b; }
+
+        /* Таймер */
         .timer-display { font-size: 2em; font-weight: bold; text-align: center; margin: 10px 0; color: var(--primary); }
         .timer-controls { display: flex; gap: 10px; justify-content: center; }
-        .timer-btn { padding: 8px 15px; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9em; font-weight: 500; }
+        .timer-btn { padding: 8px 15px; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
         .timer-start { background: var(--primary); color: white; }
         .timer-stop { background: var(--danger); color: white; }
         .timer-reset { background: #f5f5f5; color: #666; }
+
+        /* Комментарии */
         .comment-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
         .comment-author { font-weight: 600; color: var(--info); }
         .comment-time { font-size: 0.75em; color: #999; }
-        .voice-btn { background: none; border: none; font-size: 1.1em; cursor: pointer; padding: 5px; }
-        .voice-btn.recording { animation: pulse 1s infinite; color: var(--danger); }
         .voice-message { display: flex; align-items: center; gap: 5px; padding: 5px; background: #f0f0f0; border-radius: 15px; margin: 3px 0; }
         .voice-message audio { max-width: 180px; height: 30px; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px); }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         .modal-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; margin-bottom: 5px; font-weight: 500; color: #666; font-size: 0.9em; }
-        .form-input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; transition: border-color 0.3s; background: #f9f9f9; }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            background: #f9f9f9;
+        }
         .form-input:focus { outline: none; border-color: var(--primary); background: white; }
-        .form-select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; background: white; cursor: pointer; }
-        .emoji-picker { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; max-height: 150px; overflow-y: auto; }
-        .emoji-option { font-size: 1.5em; cursor: pointer; padding: 5px; border-radius: 5px; transition: background 0.2s; }
-        .emoji-option:hover { background: #f0f0f0; }
-        .emoji-option.selected { background: var(--primary); border-radius: 5px; }
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Эмодзи пикер */
+        .emoji-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .emoji-option {
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .emoji-option.selected { background: var(--primary); }
+
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-primary { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 0.95em; transition: background 0.3s; font-weight: 500; }
-        .btn-primary:active { transform: scale(0.95); }
-        .btn-secondary { flex: 1; background: #f5f5f5; color: #666; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 0.95em; }
-        .floating-btn { position: fixed; bottom: 110px; right: 15px; width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.6em; cursor: pointer; box-shadow: 0 4px 20px rgba(76,175,80,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .floating-btn:active { transform: scale(0.9); }
-        .edit-sections-btn { position: fixed; bottom: 110px; right: 75px; width: 50px; height: 50px; background: var(--info); color: white; border: none; border-radius: 50%; font-size: 1.2em; cursor: pointer; box-shadow: 0 4px 20px rgba(33,150,243,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .edit-sections-btn:active { transform: scale(0.9); }
+        .btn-primary {
+            flex: 1;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            flex: 1;
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        /* Плавающие кнопки */
+        .floating-btn {
+            position: fixed;
+            bottom: 110px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.6em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(76,175,80,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .edit-sections-btn {
+            position: fixed;
+            bottom: 110px;
+            right: 75px;
+            width: 50px;
+            height: 50px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(33,150,243,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        /* Пустое состояние */
         .empty-state { text-align: center; padding: 50px 20px; }
         .empty-state-icon { font-size: 4em; margin-bottom: 20px; }
+
+        /* Календарь */
         .calendar-view { display: none; }
         .calendar-view.active { display: block; }
         .calendar-container { background: white; border-radius: 15px; padding: 15px; box-shadow: var(--shadow); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .calendar-nav-btn { background: var(--info); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1em; display: flex; align-items: center; justify-content: center; }
+        .calendar-nav-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .calendar-month { font-size: 1.1em; font-weight: 600; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
         .calendar-weekday { text-align: center; font-weight: 600; font-size: 0.75em; color: #666; padding: 4px; }
-        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 6px; cursor: pointer; position: relative; font-size: 0.85em; transition: all 0.3s; }
-        .calendar-day:active { transform: scale(0.9); }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
         .calendar-day.today { background: var(--info); color: white; font-weight: bold; }
         .calendar-day.has-tasks { background: #e8f5e9; border: 2px solid var(--primary); }
         .calendar-day.other-month { opacity: 0.3; }
-        .calendar-day-indicator { position: absolute; bottom: 3px; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
-        .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
+        .calendar-day-indicator {
+            position: absolute;
+            bottom: 3px;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        .calendar-tasks-panel {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: none;
+        }
         .calendar-tasks-panel.active { display: block; }
         .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
+
         .image-preview { max-width: 100%; margin-top: 10px; border-radius: 10px; }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgb(50, 81, 102); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 150; padding: 5px; height: 90px; display: flex; flex-direction: column; justify-content: center; }
-        .footer-icons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 3px; }
-        .footer-icon { width: 25px; height: 25px; cursor: pointer; transition: all 0.3s; }
-        .footer-icon:active { transform: scale(0.8); }
+
+        /* Футер */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgb(50, 81, 102);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 150;
+            padding: 5px;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .footer-icons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .footer-icon { width: 25px; height: 25px; cursor: pointer; }
         .footer-calls { display: flex; justify-content: space-around; gap: 5px; }
-        .footer-call-btn { flex: 1; padding: 4px; background: #f5f5f5; border: none; border-radius: 10px; cursor: pointer; font-size: 0.6em; text-align: center; text-decoration: none; color: var(--text); transition: all 0.3s; }
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 18px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 3000; animation: slideDown 0.5s ease; max-width: 90%; text-align: center; font-size: 0.9em; }
-        @keyframes slideDown { from { transform: translate(-50%, -100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        .footer-call-btn {
+            flex: 1;
+            padding: 4px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.6em;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 3000;
+            animation: slideDown 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
         #loginModal { z-index: 9999 !important; }
     </style>
 </head>
 <body>
     <div class="sync-status" id="syncStatus">🔄</div>
+    
     <header>
         <div class="user-avatar-container" onclick="showLoginModal()">
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
             <div class="user-name" id="userNameDisplay">Войти</div>
         </div>
     </header>
+
     <div class="container">
         <div class="view-toggle" id="viewToggle"></div>
         <div id="listView"><div id="projectsContainer"></div></div>
         <div id="calendarView" class="calendar-view"><div id="calendarContainer"></div></div>
         <div id="dynamicViews"></div>
     </div>
+
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
     <button class="edit-sections-btn" onclick="openSectionsManager()">⚙️</button>
+
     <div class="footer">
         <div class="footer-icons">
-            <a href="https://t.me" target="_blank"><img src="icons/tg.png" class="footer-icon" alt="Телеграм"></a>
-            <a href="https://max.ru" target="_blank"><img src="icons/max.png" class="footer-icon" alt="Макс"></a>
-            <a href="https://wa.me" target="_blank"><img src="icons/whatsapp.png" class="footer-icon" alt="Ватсап"></a>
-            <a href="https://vk.com" target="_blank"><img src="icons/vk.png" class="footer-icon" alt="ВК"></a>
-            <a href="https://youtube.com" target="_blank"><img src="icons/youtube.png" class="footer-icon" alt="Ютуб"></a>
-            <a href="https://raketo.app" target="_blank"><img src="icons/raketo.png" class="footer-icon" alt="Ракета"></a>
-            <a href="https://ozon.ru" target="_blank"><img src="icons/ozon.png" class="footer-icon" alt="Озон"></a>
-            <a href="https://wildberries.ru" target="_blank"><img src="icons/wb.png" class="footer-icon" alt="Валдберис"></a>
+            <a href="https://t.me" target="_blank"><img src="icons/tg.png" class="footer-icon"></a>
+            <a href="https://max.ru" target="_blank"><img src="icons/max.png" class="footer-icon"></a>
+            <a href="https://wa.me" target="_blank"><img src="icons/whatsapp.png" class="footer-icon"></a>
+            <a href="https://vk.com" target="_blank"><img src="icons/vk.png" class="footer-icon"></a>
+            <a href="https://youtube.com" target="_blank"><img src="icons/youtube.png" class="footer-icon"></a>
+            <a href="https://raketo.app" target="_blank"><img src="icons/raketo.png" class="footer-icon"></a>
+            <a href="https://ozon.ru" target="_blank"><img src="icons/ozon.png" class="footer-icon"></a>
+            <a href="https://wildberries.ru" target="_blank"><img src="icons/wb.png" class="footer-icon"></a>
         </div>
         <div class="footer-calls">
             <a href="tel:+79186468822" class="footer-call-btn">👨‍💼 Разработчик</a>
@@ -166,59 +678,123 @@
             <a href="tel:+79186468833" class="footer-call-btn">👩 Приматка</a>
         </div>
     </div>
+
+    <!-- Модальные окна -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-title">Вход</div>
-            <button class="btn-primary" onclick="signInWithGoogle()" style="margin-bottom: 10px;">🚀 Войти через Google</button>
-            <button class="btn-secondary" onclick="signOut()" style="display: none;" id="logoutBtn">Выйти</button>
+            <button class="btn-primary" onclick="signInWithGoogle()">🚀 Войти через Google</button>
+            <button class="btn-secondary" onclick="signOut()" style="display:none;" id="logoutBtn">Выйти</button>
         </div>
     </div>
+
     <div class="modal" id="sectionModal">
         <div class="modal-content">
             <div class="modal-title" id="sectionModalTitle">Новый раздел</div>
-            <div class="form-group"><label class="form-label">Название раздела</label><input type="text" class="form-input" id="sectionName" placeholder="Введите название" autocomplete="off"></div>
+            <div class="form-group">
+                <label class="form-label">Название раздела</label>
+                <input type="text" class="form-input" id="sectionName" placeholder="Введите название">
+            </div>
             <div class="form-group">
                 <label class="form-label">Иконка</label>
                 <div class="emoji-picker" id="emojiPicker"></div>
                 <input type="hidden" id="sectionIcon" value="📋">
             </div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('sectionModal')">Отмена</button><button class="btn-primary" onclick="saveSection()">Сохранить</button></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('sectionModal')">Отмена</button>
+                <button class="btn-primary" onclick="saveSection()">Сохранить</button>
+            </div>
         </div>
     </div>
+
     <div class="modal" id="sectionsManagerModal">
         <div class="modal-content">
             <div class="modal-title">Управление разделами</div>
             <div id="sectionsList"></div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('sectionsManagerModal')">Закрыть</button></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('sectionsManagerModal')">Закрыть</button>
+            </div>
         </div>
     </div>
+
     <div class="modal" id="projectModal">
         <div class="modal-content">
             <div class="modal-title" id="projectModalTitle">Новый проект</div>
-            <div class="form-group"><label class="form-label">Название</label><input type="text" class="form-input" id="projectName" placeholder="Введите название" autocomplete="off"></div>
-            <div class="form-group"><label class="form-label">Приоритет</label><select class="form-select" id="projectPriority"><option value="low">🟢 Низкий</option><option value="medium" selected>🟡 Средний</option><option value="high">🔴 Высокий</option></select></div>
-            <div class="form-group"><label class="form-label">Раздел</label><select class="form-select" id="projectTag"><option value="">📋 Список (общее)</option></select></div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button><button class="btn-primary" onclick="saveProject()">Сохранить</button></div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="projectName" placeholder="Введите название">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Приоритет</label>
+                <select class="form-select" id="projectPriority">
+                    <option value="low">🟢 Низкий</option>
+                    <option value="medium" selected>🟡 Средний</option>
+                    <option value="high">🔴 Высокий</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Раздел</label>
+                <select class="form-select" id="projectTag">
+                    <option value="">📋 Список (общее)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
+                <button class="btn-primary" onclick="saveProject()">Сохранить</button>
+            </div>
         </div>
     </div>
+
     <div class="modal" id="taskModal">
         <div class="modal-content">
             <div class="modal-title" id="taskModalTitle">Новая задача</div>
-            <div class="form-group"><label class="form-label">Название</label><input type="text" class="form-input" id="taskName" placeholder="Введите название" autocomplete="off"></div>
-            <div class="form-group"><label class="form-label">Дата и время</label><input type="datetime-local" class="form-input" id="taskDate"></div>
-            <div class="form-group"><label class="form-label">Назначить</label><select class="form-select" id="taskAssignee"><option value="me">Никита</option><option value="wife">Виктория</option><option value="nika">Ника</option><option value="both">Оба</option></select></div>
-            <div class="form-group"><label class="form-label">Изображение</label><input type="file" class="form-input" id="taskImage" accept="image/*" onchange="previewImage(this)"><img id="imagePreview" class="image-preview" style="display:none;"></div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('taskModal')">Отмена</button><button class="btn-primary" onclick="saveTask()">Сохранить</button></div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="taskName" placeholder="Введите название">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Дата и время</label>
+                <input type="datetime-local" class="form-input" id="taskDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Назначить</label>
+                <select class="form-select" id="taskAssignee">
+                    <option value="me">Никита</option>
+                    <option value="wife">Виктория</option>
+                    <option value="nika">Ника</option>
+                    <option value="both">Оба</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Изображение</label>
+                <input type="file" class="form-input" id="taskImage" accept="image/*" onchange="previewImage(this)">
+                <img id="imagePreview" class="image-preview" style="display:none;">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('taskModal')">Отмена</button>
+                <button class="btn-primary" onclick="saveTask()">Сохранить</button>
+            </div>
         </div>
     </div>
+
     <div class="modal" id="subtaskModal">
         <div class="modal-content">
             <div class="modal-title" id="subtaskModalTitle">Новая подзадача</div>
-            <div class="form-group"><label class="form-label">Название</label><input type="text" class="form-input" id="subtaskName" placeholder="Введите название" autocomplete="off"></div>
-            <div class="form-group"><label class="form-label">Дата и время</label><input type="datetime-local" class="form-input" id="subtaskDate"></div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('subtaskModal')">Отмена</button><button class="btn-primary" onclick="saveSubtask()">Сохранить</button></div>
+            <div class="form-group">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-input" id="subtaskName" placeholder="Введите название">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Дата и время</label>
+                <input type="datetime-local" class="form-input" id="subtaskDate">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('subtaskModal')">Отмена</button>
+                <button class="btn-primary" onclick="saveSubtask()">Сохранить</button>
+            </div>
         </div>
     </div>
+
     <div class="modal" id="timerModal">
         <div class="modal-content">
             <div class="modal-title">⏱️ Таймер</div>
@@ -230,17 +806,21 @@
             </div>
         </div>
     </div>
+
     <div class="modal" id="commentsModal">
         <div class="modal-content">
             <div class="modal-title">💬 Комментарии</div>
             <div id="commentsList"></div>
-            <div class="form-group" style="margin-top: 10px;">
-                <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="margin-top:10px;">
+                <div style="display:flex;gap:10px;">
                     <input type="text" class="form-input" id="commentInput" placeholder="Написать комментарий...">
                     <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceInput()">🎤</button>
                 </div>
             </div>
-            <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('commentsModal')">Закрыть</button><button class="btn-primary" onclick="addComment()">Отправить</button></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('commentsModal')">Закрыть</button>
+                <button class="btn-primary" onclick="addComment()">Отправить</button>
+            </div>
         </div>
     </div>
 
@@ -257,6 +837,7 @@
             messagingSenderId: "1016609389948",
             appId: "1:1016609389948:web:a3fbaca5e88f7da521b8f9"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
@@ -287,7 +868,9 @@
 
         function renderEmojiPicker() {
             const container = document.getElementById('emojiPicker');
-            container.innerHTML = emojiList.map(emoji => `<span class="emoji-option ${emoji === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${emoji}')">${emoji}</span>`).join('');
+            container.innerHTML = emojiList.map(emoji => 
+                `<span class="emoji-option ${emoji === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${emoji}')">${emoji}</span>`
+            ).join('');
         }
 
         function selectEmoji(emoji) {
@@ -296,6 +879,7 @@
             renderEmojiPicker();
         }
 
+        // Скрытие хедера
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
             const header = document.querySelector('header');
@@ -305,9 +889,32 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        function loadCustomSections() { const saved = localStorage.getItem('customSections'); if (saved) customSections = JSON.parse(saved); }
-        function saveCustomSections() { localStorage.setItem('customSections', JSON.stringify(customSections)); }
-        function getAllSections() { return [{ id: '', name: '📋 Список', tag: '' }, { id: 'calendar', name: '📅 Календарь', tag: 'calendar' }, ...customSections]; }
+        // СИНХРОНИЗАЦИЯ РАЗДЕЛОВ ЧЕРЕЗ FIREBASE
+        function loadCustomSections() {
+            const sectionsRef = database.ref('customSections');
+            sectionsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    customSections = data;
+                } else {
+                    customSections = [];
+                }
+                renderViewToggle();
+            });
+        }
+
+        function saveCustomSections() {
+            database.ref('customSections').set(customSections)
+                .catch((error) => { console.error('Ошибка сохранения разделов:', error); });
+        }
+
+        function getAllSections() {
+            return [
+                { id: '', name: '📋 Список', tag: '' },
+                { id: 'calendar', name: '📅 Календарь', tag: 'calendar' },
+                ...customSections
+            ];
+        }
 
         function renderViewToggle() {
             const container = document.getElementById('viewToggle');
@@ -318,7 +925,12 @@
                 return `<button class="view-btn ${isActive ? 'active' : ''}" onclick="switchView('${section.tag || 'list'}')">${section.name} ${count > 0 ? `<span class="task-count">${count}</span>` : ''}</button>`;
             }).join('') + `<button class="add-section-btn" onclick="openAddSectionModal()">+</button>`;
         }
-        function countTasksInSection(tag) { let count = 0; projects.forEach(p => { if (p.tag === tag) count += (p.tasks || []).length; }); return count; }
+
+        function countTasksInSection(tag) {
+            let count = 0;
+            projects.forEach(p => { if (p.tag === tag) count += (p.tasks || []).length; });
+            return count;
+        }
 
         function updateUserInfo() {
             const userNameDisplay = document.getElementById('userNameDisplay');
@@ -326,7 +938,7 @@
             const logoutBtn = document.getElementById('logoutBtn');
             if (currentUser) {
                 userNameDisplay.textContent = currentUser;
-                if (userAvatar) avatarPlaceholder.innerHTML = `<img src="${userAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                if (userAvatar) avatarPlaceholder.innerHTML = `<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
                 else avatarPlaceholder.textContent = currentUser.charAt(0).toUpperCase();
                 if (logoutBtn) logoutBtn.style.display = 'block';
             } else {
@@ -335,7 +947,9 @@
                 if (logoutBtn) logoutBtn.style.display = 'none';
             }
         }
+
         function showLoginModal() { openModal('loginModal'); }
+
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.className = 'notification';
@@ -364,23 +978,33 @@
                 }
             });
         }
+
         function saveToFirebase() {
             database.ref('projects').set(projects)
-                .then(() => { document.getElementById('syncStatus').textContent = '✅'; document.getElementById('syncStatus').style.color = '#4CAF50'; showNotification('✅ Сохранено'); })
-                .catch(() => { document.getElementById('syncStatus').textContent = '❌'; document.getElementById('syncStatus').style.color = '#f44336'; });
+                .then(() => {
+                    document.getElementById('syncStatus').textContent = '✅';
+                    document.getElementById('syncStatus').style.color = '#4CAF50';
+                    showNotification('✅ Сохранено');
+                })
+                .catch(() => {
+                    document.getElementById('syncStatus').textContent = '❌';
+                    document.getElementById('syncStatus').style.color = '#f44336';
+                });
         }
 
         function calculateProgress(project) {
             let total = 0, done = 0;
             if (project.tasks) {
                 project.tasks.forEach(task => {
-                    total++; if (task.completed) done++;
+                    total++;
+                    if (task.completed) done++;
                     if (task.subtasks) task.subtasks.forEach(st => { total++; if (st.completed) done++; });
                 });
             }
             if (total === 0) return 0;
             return Math.round((done / total) * 100);
         }
+
         function renderProjects() {
             if (currentView === 'list') renderListView();
             else if (currentView === 'calendar') renderCalendarView();
@@ -390,7 +1014,10 @@
         function renderListView() {
             const container = document.getElementById('projectsContainer');
             const listProjects = projects.filter(p => !p.tag || p.tag === '');
-            if (!listProjects.length) { container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚀</div><h3>Нет проектов</h3><p style="color:#666;margin:10px 0;">Нажмите + чтобы создать</p></div>`; return; }
+            if (!listProjects.length) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚀</div><h3>Нет проектов</h3><p style="color:#666;margin:10px 0;">Нажмите + чтобы создать</p></div>`;
+                return;
+            }
             container.innerHTML = listProjects.map(project => {
                 const idx = projects.indexOf(project);
                 const progress = calculateProgress(project);
@@ -405,8 +1032,11 @@
                         <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="toggleProject(${idx})">▼</button>
                         <button class="delete-btn" onclick="deleteProject(${idx})">🗑️</button>
                     </div>
-                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height: ${collapsed ? '0' : '99999px'}">
-                        <div class="progress-container"><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="progress-percent">${progress}%</div></div>
+                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
+                        <div class="progress-container">
+                            <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                            <div class="progress-percent">${progress}%</div>
+                        </div>
                         <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `
                             <div>
                                 <div class="task-item" onclick="toggleTask(${idx}, ${taskIndex})">
@@ -433,7 +1063,8 @@
                                         <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${idx}, ${taskIndex}, ${stIndex})">✕</button>
                                     </div>`).join('')}</div>` : ''}
                                 <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${idx}, ${taskIndex})">+ Подзадача</button>
-                            </div>`).join('')}</div>
+                            </div>`).join('')}
+                        </div>
                         <button class="add-btn" onclick="openAddTaskModal(${idx})">+ Добавить задачу</button>
                     </div>
                 </div>`;
@@ -449,7 +1080,13 @@
             const startDay = (firstDay.getDay() + 6) % 7;
             const daysInMonth = lastDay.getDate();
             const todayStr = new Date().toISOString().split('T')[0];
-            let html = `<div class="calendar-container"><div class="calendar-header"><button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button><div class="calendar-month">${monthNames[currentMonth]} ${currentYear}</div><button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button></div><div class="calendar-grid">${weekdays.map(d => `<div class="calendar-weekday">${d}</div>`).join('')}`;
+            let html = `<div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
+                    <div class="calendar-month">${monthNames[currentMonth]} ${currentYear}</div>
+                    <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
+                </div>
+                <div class="calendar-grid">${weekdays.map(d => `<div class="calendar-weekday">${d}</div>`).join('')}`;
             for (let i = 0; i < startDay; i++) html += `<div class="calendar-day other-month"></div>`;
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -471,6 +1108,7 @@
             });
             return has;
         }
+
         function selectDate(dateStr) {
             selectedDate = dateStr;
             const panel = document.getElementById('calendarTasksPanel');
@@ -486,12 +1124,14 @@
             else list.innerHTML = tasks.sort((a, b) => a.time.localeCompare(b.time)).map(t => `<div class="calendar-task-item ${t.completed ? 'completed' : ''}">${t.time ? `<small>${t.time.slice(0,5)}</small> ` : ''}${t.name} <small>(${t.projectName})</small></div>`).join('');
             panel.classList.add('active');
         }
+
         function changeMonth(delta) {
             currentMonth += delta;
             if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             renderCalendarView();
         }
+
         function renderTaggedView(containerId, tag, emptyMessage) {
             const container = document.getElementById(containerId);
             const tagged = projects.filter(p => p.tag === tag);
@@ -507,7 +1147,7 @@
                         <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="toggleProject(${idx})">▼</button>
                         <button class="delete-btn" onclick="deleteProject(${idx})">🗑️</button>
                     </div>
-                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height: ${collapsed ? '0' : '99999px'}">
+                    <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
                         <div class="progress-container"><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div><div class="progress-percent">${progress}%</div></div>
                         <div class="tasks-list">${(project.tasks || []).map((task, taskIndex) => `<div class="task-item" onclick="toggleTask(${idx}, ${taskIndex})"><div class="task-checkbox ${task.completed ? 'checked' : ''}">${task.completed ? '✓' : ''}</div><div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}<button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${idx}, ${taskIndex})">✕</button></div>`).join('')}</div>
                         <button class="add-btn" onclick="openAddTaskModal(${idx})">+ Добавить задачу</button>
@@ -515,6 +1155,7 @@
                 </div>`;
             }).join('');
         }
+
         function switchView(view) {
             currentView = view;
             document.getElementById('listView').style.display = 'none';
@@ -523,36 +1164,74 @@
             if (view === 'list') document.getElementById('listView').style.display = 'block';
             else if (view === 'calendar') document.getElementById('calendarView').classList.add('active');
             else document.getElementById('dynamicViews').style.display = 'block';
-            renderViewToggle(); renderProjects();
+            renderViewToggle();
+            renderProjects();
         }
+
         function toggleProject(index) {
             if (collapsedProjects.has(index)) collapsedProjects.delete(index);
             else collapsedProjects.add(index);
             renderProjects();
         }
+
         function formatDate(dateString) {
             if (!dateString) return '';
             const d = new Date(dateString);
             return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
+
         function previewImage(input) {
             const file = input.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) { selectedImage = e.target.result; document.getElementById('imagePreview').src = selectedImage; document.getElementById('imagePreview').style.display = 'block'; };
+                reader.onload = function(e) {
+                    selectedImage = e.target.result;
+                    document.getElementById('imagePreview').src = selectedImage;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
                 reader.readAsDataURL(file);
             }
         }
+
         function showImage(src) { window.open(src, '_blank'); }
-        function moveTask(pid, tid, dir) { const tasks = projects[pid].tasks; const ni = tid + dir; if (ni < 0 || ni >= tasks.length) return; const temp = tasks[tid]; tasks[tid] = tasks[ni]; tasks[ni] = temp; saveToFirebase(); renderProjects(); }
-        function moveSubtask(pid, tid, sid, dir) { const subs = projects[pid].tasks[tid].subtasks; const ni = sid + dir; if (ni < 0 || ni >= subs.length) return; const temp = subs[sid]; subs[sid] = subs[ni]; subs[ni] = temp; saveToFirebase(); renderProjects(); }
-        function changeAssignee(pid, tid) { const task = projects[pid].tasks[tid]; const assignees = ['me','wife','nika','both']; const ci = assignees.indexOf(task.assignee || 'me'); task.assignee = assignees[(ci + 1) % assignees.length]; saveToFirebase(); renderProjects(); }
+
+        function moveTask(pid, tid, dir) {
+            const tasks = projects[pid].tasks;
+            const ni = tid + dir;
+            if (ni < 0 || ni >= tasks.length) return;
+            const temp = tasks[tid]; tasks[tid] = tasks[ni]; tasks[ni] = temp;
+            saveToFirebase(); renderProjects();
+        }
+
+        function moveSubtask(pid, tid, sid, dir) {
+            const subs = projects[pid].tasks[tid].subtasks;
+            const ni = sid + dir;
+            if (ni < 0 || ni >= subs.length) return;
+            const temp = subs[sid]; subs[sid] = subs[ni]; subs[ni] = temp;
+            saveToFirebase(); renderProjects();
+        }
+
+        function changeAssignee(pid, tid) {
+            const task = projects[pid].tasks[tid];
+            const assignees = ['me','wife','nika','both'];
+            const ci = assignees.indexOf(task.assignee || 'me');
+            task.assignee = assignees[(ci + 1) % assignees.length];
+            saveToFirebase(); renderProjects();
+        }
+
         function openTimer() { openModal('timerModal'); }
         function startTimer() { if (timerInterval) return; timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
         function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
         function resetTimer() { stopTimer(); timerSeconds = 0; updateTimerDisplay(); }
-        function updateTimerDisplay() { const h = Math.floor(timerSeconds / 3600); const m = Math.floor((timerSeconds % 3600) / 60); const s = timerSeconds % 60; document.getElementById('timerDisplay').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+        function updateTimerDisplay() {
+            const h = Math.floor(timerSeconds / 3600);
+            const m = Math.floor((timerSeconds % 3600) / 60);
+            const s = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
         function openComments(pid, tid) { currentProjectId = pid; currentTaskId = tid; renderComments(); openModal('commentsModal'); }
+
         function renderComments() {
             const task = projects[currentProjectId].tasks[currentTaskId];
             const comments = task.comments || [];
@@ -560,6 +1239,7 @@
             if (!comments.length) { container.innerHTML = '<p style="color:#999;">Нет комментариев</p>'; return; }
             container.innerHTML = comments.map(c => `<div class="comment-item"><div class="comment-author">${c.author}</div>${c.text ? `<div>${c.text}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}<div class="comment-time">${new Date(c.timestamp).toLocaleString('ru-RU')}</div></div>`).join('');
         }
+
         function addComment() {
             if (!currentUser) { alert('Сначала войдите'); showLoginModal(); return; }
             const text = document.getElementById('commentInput').value.trim();
@@ -570,19 +1250,38 @@
             document.getElementById('commentInput').value = '';
             saveToFirebase(); renderComments();
         }
+
         function toggleVoiceInput() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording(); }
+
         function startVoiceRecording() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('Запись голоса не поддерживается'); return; }
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = () => { const blob = new Blob(audioChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.onload = e => addVoiceComment(e.target.result); reader.readAsDataURL(blob); };
-                mediaRecorder.start(); isRecordingVoice = true; document.getElementById('voiceBtn').classList.add('recording'); document.getElementById('voiceBtn').textContent = '⏹️';
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = e => addVoiceComment(e.target.result);
+                    reader.readAsDataURL(blob);
+                };
+                mediaRecorder.start();
+                isRecordingVoice = true;
+                document.getElementById('voiceBtn').classList.add('recording');
+                document.getElementById('voiceBtn').textContent = '⏹️';
             }).catch(() => alert('Не удалось получить доступ к микрофону'));
         }
+
         function stopVoiceRecording() {
-            if (mediaRecorder && isRecordingVoice) { mediaRecorder.stop(); isRecordingVoice = false; document.getElementById('voiceBtn').classList.remove('recording'); document.getElementById('voiceBtn').textContent = '🎤'; mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+            if (mediaRecorder && isRecordingVoice) {
+                mediaRecorder.stop();
+                isRecordingVoice = false;
+                document.getElementById('voiceBtn').classList.remove('recording');
+                document.getElementById('voiceBtn').textContent = '🎤';
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+            }
         }
+
         function addVoiceComment(audioBase64) {
             if (!currentUser) { alert('Сначала войдите'); showLoginModal(); return; }
             const task = projects[currentProjectId].tasks[currentTaskId];
@@ -590,36 +1289,211 @@
             task.comments.push({ author: currentUser, voice: audioBase64, timestamp: new Date().toISOString() });
             saveToFirebase(); renderComments();
         }
-        function editProject(pid) { isEditing = true; currentProjectId = pid; const p = projects[pid]; document.getElementById('projectModalTitle').textContent = 'Редактировать проект'; document.getElementById('projectName').value = p.name; document.getElementById('projectPriority').value = p.priority || 'medium'; document.getElementById('projectTag').value = p.tag || ''; openModal('projectModal'); }
-        function editTask(pid, tid) { isEditing = true; currentProjectId = pid; currentTaskId = tid; const t = projects[pid].tasks[tid]; document.getElementById('taskModalTitle').textContent = 'Редактировать задачу'; document.getElementById('taskName').value = t.name; document.getElementById('taskDate').value = t.date || ''; document.getElementById('taskAssignee').value = t.assignee || 'me'; if (t.image) { selectedImage = t.image; document.getElementById('imagePreview').src = t.image; document.getElementById('imagePreview').style.display = 'block'; } openModal('taskModal'); }
-        function editSubtask(pid, tid, sid) { isEditing = true; currentProjectId = pid; currentTaskId = tid; currentSubtaskId = sid; const st = projects[pid].tasks[tid].subtasks[sid]; document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу'; document.getElementById('subtaskName').value = st.name; document.getElementById('subtaskDate').value = st.date || ''; openModal('subtaskModal'); }
-        function openModal(id) { document.getElementById(id).classList.add('active'); const input = document.querySelector(`#${id} input`); if (input) setTimeout(() => input.focus(), 100); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); selectedImage = null; const preview = document.getElementById('imagePreview'); if (preview) preview.style.display = 'none'; if (id === 'timerModal') stopTimer(); isEditing = false; currentSubtaskId = null; }
-        function openAddProjectModal() { isEditing = false; document.getElementById('projectModalTitle').textContent = 'Новый проект'; document.getElementById('projectName').value = ''; document.getElementById('projectPriority').value = 'medium'; const tagSelect = document.getElementById('projectTag'); tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>'; customSections.forEach(s => { tagSelect.innerHTML += `<option value="${s.tag}">${s.name}</option>`; }); document.getElementById('projectTag').value = ''; openModal('projectModal'); }
-        function openAddTaskModal(pid) { isEditing = false; currentProjectId = pid; document.getElementById('taskModalTitle').textContent = 'Новая задача'; document.getElementById('taskName').value = ''; document.getElementById('taskDate').value = ''; document.getElementById('taskImage').value = ''; document.getElementById('taskAssignee').value = 'me'; openModal('taskModal'); }
-        function openAddSubtaskModal(pid, tid) { isEditing = false; currentProjectId = pid; currentTaskId = tid; document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача'; document.getElementById('subtaskName').value = ''; document.getElementById('subtaskDate').value = ''; openModal('subtaskModal'); }
-        function openAddSectionModal() { isEditing = false; currentSectionId = null; document.getElementById('sectionModalTitle').textContent = 'Новый раздел'; document.getElementById('sectionName').value = ''; selectedEmoji = '📋'; document.getElementById('sectionIcon').value = '📋'; renderEmojiPicker(); openModal('sectionModal'); }
-        function saveSection() { const name = document.getElementById('sectionName').value.trim(); const icon = document.getElementById('sectionIcon').value; if (!name) return; const tag = 'custom_' + Date.now(); if (isEditing && currentSectionId !== null) customSections[currentSectionId].name = icon + ' ' + name; else customSections.push({ id: tag, name: icon + ' ' + name, tag: tag }); saveCustomSections(); renderViewToggle(); closeModal('sectionModal'); }
-        function openSectionsManager() { const container = document.getElementById('sectionsList'); container.innerHTML = customSections.map((s, i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;"><span>${s.name}</span><div><button class="edit-btn" onclick="editSection(${i})">✏️</button><button class="delete-btn" onclick="deleteSection(${i})">🗑️</button></div></div>`).join('') || '<p style="text-align:center;color:#999;">Нет пользовательских разделов</p>'; openModal('sectionsManagerModal'); }
-        function editSection(i) { const s = customSections[i]; currentSectionId = i; isEditing = true; document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел'; document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' '); selectedEmoji = s.name.split(' ')[0]; document.getElementById('sectionIcon').value = selectedEmoji; renderEmojiPicker(); closeModal('sectionsManagerModal'); openModal('sectionModal'); }
-        function deleteSection(i) { if (confirm('Удалить раздел?')) { customSections.splice(i, 1); saveCustomSections(); renderViewToggle(); closeModal('sectionsManagerModal'); if (currentView.startsWith('custom_')) switchView('list'); } }
-        function saveProject() { const name = document.getElementById('projectName').value.trim(); const priority = document.getElementById('projectPriority').value; const tag = document.getElementById('projectTag').value; if (!name) return; if (isEditing) { projects[currentProjectId].name = name; projects[currentProjectId].priority = priority; projects[currentProjectId].tag = tag; } else projects.push({ id: Date.now(), name, priority, tag, tasks: [], createdAt: new Date().toISOString() }); saveToFirebase(); closeModal('projectModal'); }
-        function saveTask() { const name = document.getElementById('taskName').value.trim(); const date = document.getElementById('taskDate').value; const assignee = document.getElementById('taskAssignee').value; if (!name) return; if (isEditing) { projects[currentProjectId].tasks[currentTaskId].name = name; projects[currentProjectId].tasks[currentTaskId].date = date; projects[currentProjectId].tasks[currentTaskId].assignee = assignee; if (selectedImage) projects[currentProjectId].tasks[currentTaskId].image = selectedImage; } else { if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = []; projects[currentProjectId].tasks.push({ id: Date.now(), name, completed: false, subtasks: [], date, assignee, image: selectedImage, comments: [], createdAt: new Date().toISOString() }); } saveToFirebase(); closeModal('taskModal'); }
-        function saveSubtask() { const name = document.getElementById('subtaskName').value.trim(); const date = document.getElementById('subtaskDate').value; if (!name) return; const task = projects[currentProjectId].tasks[currentTaskId]; if (!task.subtasks) task.subtasks = []; if (isEditing && currentSubtaskId !== null) { task.subtasks[currentSubtaskId].name = name; task.subtasks[currentSubtaskId].date = date; } else task.subtasks.push({ id: Date.now(), name, completed: false, date }); saveToFirebase(); closeModal('subtaskModal'); }
-        function toggleTask(pid, tid) { projects[pid].tasks[tid].completed = !projects[pid].tasks[tid].completed; saveToFirebase(); renderProjects(); }
-        function toggleSubtask(pid, tid, sid) { projects[pid].tasks[tid].subtasks[sid].completed = !projects[pid].tasks[tid].subtasks[sid].completed; saveToFirebase(); renderProjects(); }
-        function deleteProject(pid) { if (confirm('Удалить проект?')) { projects.splice(pid, 1); saveToFirebase(); renderProjects(); } }
+
+        function editProject(pid) {
+            isEditing = true; currentProjectId = pid;
+            const p = projects[pid];
+            document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
+            document.getElementById('projectName').value = p.name;
+            document.getElementById('projectPriority').value = p.priority || 'medium';
+            document.getElementById('projectTag').value = p.tag || '';
+            openModal('projectModal');
+        }
+
+        function editTask(pid, tid) {
+            isEditing = true; currentProjectId = pid; currentTaskId = tid;
+            const t = projects[pid].tasks[tid];
+            document.getElementById('taskModalTitle').textContent = 'Редактировать задачу';
+            document.getElementById('taskName').value = t.name;
+            document.getElementById('taskDate').value = t.date || '';
+            document.getElementById('taskAssignee').value = t.assignee || 'me';
+            if (t.image) { selectedImage = t.image; document.getElementById('imagePreview').src = t.image; document.getElementById('imagePreview').style.display = 'block'; }
+            openModal('taskModal');
+        }
+
+        function editSubtask(pid, tid, sid) {
+            isEditing = true; currentProjectId = pid; currentTaskId = tid; currentSubtaskId = sid;
+            const st = projects[pid].tasks[tid].subtasks[sid];
+            document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу';
+            document.getElementById('subtaskName').value = st.name;
+            document.getElementById('subtaskDate').value = st.date || '';
+            openModal('subtaskModal');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            const input = document.querySelector(`#${id} input`);
+            if (input) setTimeout(() => input.focus(), 100);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            selectedImage = null;
+            const preview = document.getElementById('imagePreview');
+            if (preview) preview.style.display = 'none';
+            if (id === 'timerModal') stopTimer();
+            isEditing = false;
+            currentSubtaskId = null;
+        }
+
+        function openAddProjectModal() {
+            isEditing = false;
+            document.getElementById('projectModalTitle').textContent = 'Новый проект';
+            document.getElementById('projectName').value = '';
+            document.getElementById('projectPriority').value = 'medium';
+            const tagSelect = document.getElementById('projectTag');
+            tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>';
+            customSections.forEach(s => { tagSelect.innerHTML += `<option value="${s.tag}">${s.name}</option>`; });
+            document.getElementById('projectTag').value = '';
+            openModal('projectModal');
+        }
+
+        function openAddTaskModal(pid) {
+            isEditing = false; currentProjectId = pid;
+            document.getElementById('taskModalTitle').textContent = 'Новая задача';
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDate').value = '';
+            document.getElementById('taskImage').value = '';
+            document.getElementById('taskAssignee').value = 'me';
+            openModal('taskModal');
+        }
+
+        function openAddSubtaskModal(pid, tid) {
+            isEditing = false; currentProjectId = pid; currentTaskId = tid;
+            document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача';
+            document.getElementById('subtaskName').value = '';
+            document.getElementById('subtaskDate').value = '';
+            openModal('subtaskModal');
+        }
+
+        function openAddSectionModal() {
+            isEditing = false; currentSectionId = null;
+            document.getElementById('sectionModalTitle').textContent = 'Новый раздел';
+            document.getElementById('sectionName').value = '';
+            selectedEmoji = '📋';
+            document.getElementById('sectionIcon').value = '📋';
+            renderEmojiPicker();
+            openModal('sectionModal');
+        }
+
+        function saveSection() {
+            const name = document.getElementById('sectionName').value.trim();
+            const icon = document.getElementById('sectionIcon').value;
+            if (!name) return;
+            const tag = 'custom_' + Date.now();
+            if (isEditing && currentSectionId !== null) {
+                customSections[currentSectionId].name = icon + ' ' + name;
+            } else {
+                customSections.push({ id: tag, name: icon + ' ' + name, tag: tag });
+            }
+            saveCustomSections();
+            renderViewToggle();
+            closeModal('sectionModal');
+        }
+
+        function openSectionsManager() {
+            const container = document.getElementById('sectionsList');
+            container.innerHTML = customSections.map((s, i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;"><span>${s.name}</span><div><button class="edit-btn" onclick="editSection(${i})">✏️</button><button class="delete-btn" onclick="deleteSection(${i})">🗑️</button></div></div>`).join('') || '<p style="text-align:center;color:#999;">Нет пользовательских разделов</p>';
+            openModal('sectionsManagerModal');
+        }
+
+        function editSection(i) {
+            const s = customSections[i];
+            currentSectionId = i; isEditing = true;
+            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
+            document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' ');
+            selectedEmoji = s.name.split(' ')[0];
+            document.getElementById('sectionIcon').value = selectedEmoji;
+            renderEmojiPicker();
+            closeModal('sectionsManagerModal');
+            openModal('sectionModal');
+        }
+
+        function deleteSection(i) {
+            if (confirm('Удалить раздел?')) {
+                customSections.splice(i, 1);
+                saveCustomSections();
+                renderViewToggle();
+                closeModal('sectionsManagerModal');
+                if (currentView.startsWith('custom_')) switchView('list');
+            }
+        }
+
+        function saveProject() {
+            const name = document.getElementById('projectName').value.trim();
+            const priority = document.getElementById('projectPriority').value;
+            const tag = document.getElementById('projectTag').value;
+            if (!name) return;
+            if (isEditing) {
+                projects[currentProjectId].name = name;
+                projects[currentProjectId].priority = priority;
+                projects[currentProjectId].tag = tag;
+            } else {
+                projects.push({ id: Date.now(), name, priority, tag, tasks: [], createdAt: new Date().toISOString() });
+            }
+            saveToFirebase(); closeModal('projectModal');
+        }
+
+        function saveTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const date = document.getElementById('taskDate').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            if (!name) return;
+            if (isEditing) {
+                projects[currentProjectId].tasks[currentTaskId].name = name;
+                projects[currentProjectId].tasks[currentTaskId].date = date;
+                projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
+                if (selectedImage) projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
+            } else {
+                if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = [];
+                projects[currentProjectId].tasks.push({ id: Date.now(), name, completed: false, subtasks: [], date, assignee, image: selectedImage, comments: [], createdAt: new Date().toISOString() });
+            }
+            saveToFirebase(); closeModal('taskModal');
+        }
+
+        function saveSubtask() {
+            const name = document.getElementById('subtaskName').value.trim();
+            const date = document.getElementById('subtaskDate').value;
+            if (!name) return;
+            const task = projects[currentProjectId].tasks[currentTaskId];
+            if (!task.subtasks) task.subtasks = [];
+            if (isEditing && currentSubtaskId !== null) {
+                task.subtasks[currentSubtaskId].name = name;
+                task.subtasks[currentSubtaskId].date = date;
+            } else {
+                task.subtasks.push({ id: Date.now(), name, completed: false, date });
+            }
+            saveToFirebase(); closeModal('subtaskModal');
+        }
+
+        function toggleTask(pid, tid) {
+            projects[pid].tasks[tid].completed = !projects[pid].tasks[tid].completed;
+            saveToFirebase(); renderProjects();
+        }
+
+        function toggleSubtask(pid, tid, sid) {
+            projects[pid].tasks[tid].subtasks[sid].completed = !projects[pid].tasks[tid].subtasks[sid].completed;
+            saveToFirebase(); renderProjects();
+        }
+
+        function deleteProject(pid) {
+            if (confirm('Удалить проект?')) { projects.splice(pid, 1); saveToFirebase(); renderProjects(); }
+        }
+
         function deleteTask(pid, tid) { projects[pid].tasks.splice(tid, 1); saveToFirebase(); renderProjects(); }
         function deleteSubtask(pid, tid, sid) { projects[pid].tasks[tid].subtasks.splice(sid, 1); saveToFirebase(); renderProjects(); }
 
-        document.querySelectorAll('.modal').forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); }); });
+        // Обработчики Enter
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+        });
         document.getElementById('projectName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveProject(); });
         document.getElementById('taskName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveTask(); });
         document.getElementById('subtaskName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSubtask(); });
         document.getElementById('commentInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addComment(); });
         document.getElementById('sectionName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSection(); });
 
-        // АВТОРИЗАЦИЯ (POPUP)
+        // АВТОРИЗАЦИЯ
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -627,6 +1501,7 @@
                 .then((result) => { handleSignInResult(result.user); })
                 .catch((error) => { console.error('Ошибка входа:', error); alert('Ошибка входа: ' + error.message); });
         }
+
         function handleSignInResult(user) {
             if (!user) return;
             const email = user.email;
@@ -640,8 +1515,12 @@
                 updateUserInfo();
                 closeModal('loginModal');
                 showNotification('✅ Вход выполнен');
-            } else { alert('Доступ запрещен'); auth.signOut(); }
+            } else {
+                alert('Доступ запрещен');
+                auth.signOut();
+            }
         }
+
         function signOut() {
             auth.signOut().then(() => {
                 currentUser = null; userAvatar = null;
@@ -651,7 +1530,6 @@
         }
 
         // ИНИЦИАЛИЗАЦИЯ
-        loadCustomSections();
         renderEmojiPicker();
         initApp();
 
@@ -664,6 +1542,7 @@
             }
             updateUserInfo();
             syncWithFirebase();
+            loadCustomSections();
             renderViewToggle();
 
             auth.onAuthStateChanged((user) => {
