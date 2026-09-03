@@ -90,6 +90,10 @@
         .form-input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; transition: border-color 0.3s; background: #f9f9f9; }
         .form-input:focus { outline: none; border-color: var(--primary); background: white; }
         .form-select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; background: white; cursor: pointer; }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; max-height: 150px; overflow-y: auto; }
+        .emoji-option { font-size: 1.5em; cursor: pointer; padding: 5px; border-radius: 5px; transition: background 0.2s; }
+        .emoji-option:hover { background: #f0f0f0; }
+        .emoji-option.selected { background: var(--primary); border-radius: 5px; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .btn-primary { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 0.95em; transition: background 0.3s; font-weight: 500; }
         .btn-primary:active { transform: scale(0.95); }
@@ -130,7 +134,7 @@
     </style>
 </head>
 <body>
-    <div class="sync-status" id="syncStatus">🔄 Синхронизация...</div>
+    <div class="sync-status" id="syncStatus">🔄</div>
     <header>
         <div class="user-avatar-container" onclick="showLoginModal()">
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
@@ -173,7 +177,11 @@
         <div class="modal-content">
             <div class="modal-title" id="sectionModalTitle">Новый раздел</div>
             <div class="form-group"><label class="form-label">Название раздела</label><input type="text" class="form-input" id="sectionName" placeholder="Введите название" autocomplete="off"></div>
-            <div class="form-group"><label class="form-label">Иконка (эмодзи)</label><input type="text" class="form-input" id="sectionIcon" placeholder="📋" maxlength="4"></div>
+            <div class="form-group">
+                <label class="form-label">Иконка</label>
+                <div class="emoji-picker" id="emojiPicker"></div>
+                <input type="hidden" id="sectionIcon" value="📋">
+            </div>
             <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('sectionModal')">Отмена</button><button class="btn-primary" onclick="saveSection()">Сохранить</button></div>
         </div>
     </div>
@@ -273,6 +281,20 @@
         let selectedDate = null;
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
+        let selectedEmoji = '📋';
+
+        const emojiList = ['📋','📅','🖨️','🛒','💪','🏠','🚗','📚','💰','🎨','🎮','🎵','📷','✈️','🌍','🔥','💡','⭐','❤️','🎯','📌','📎','🗂️','📁','📊','📈','📉','🎁','🎉','🎊','🌸','🌺','🍀','🌈','☀️','🌙','⚡','💧','🌊','🍎','🍕','🍔','☕','🍺','🏆','🎖️','🥇','🚀','🛸','🏰','🗿','🎪','🎭','🎨','🎬','📺','💻','📱','🔧','🔨','⚙️','🧰','🧲','🧪','🔬','💊','💉','🩺','🧬','🦷','👁️','🧠','🫀','🫁','💪','🦴','👶','👧','👦','👩','👨','👵','👴','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐍','🦎','🐙','🦑','🦐','🦀','🐠','🐟','🐡','🐬','🐳','🦈','🐊','🦕','🦖','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️','🍀','🍁','🍂','🍃','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','⭐','🌟','💫','✨','⚡','🔥','💥','☄️','🌊','💦','💧','🫧','🌪️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌫️','🌪️'];
+
+        function renderEmojiPicker() {
+            const container = document.getElementById('emojiPicker');
+            container.innerHTML = emojiList.map(emoji => `<span class="emoji-option ${emoji === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${emoji}')">${emoji}</span>`).join('');
+        }
+
+        function selectEmoji(emoji) {
+            selectedEmoji = emoji;
+            document.getElementById('sectionIcon').value = emoji;
+            renderEmojiPicker();
+        }
 
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
@@ -576,10 +598,10 @@
         function openAddProjectModal() { isEditing = false; document.getElementById('projectModalTitle').textContent = 'Новый проект'; document.getElementById('projectName').value = ''; document.getElementById('projectPriority').value = 'medium'; const tagSelect = document.getElementById('projectTag'); tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>'; customSections.forEach(s => { tagSelect.innerHTML += `<option value="${s.tag}">${s.name}</option>`; }); document.getElementById('projectTag').value = ''; openModal('projectModal'); }
         function openAddTaskModal(pid) { isEditing = false; currentProjectId = pid; document.getElementById('taskModalTitle').textContent = 'Новая задача'; document.getElementById('taskName').value = ''; document.getElementById('taskDate').value = ''; document.getElementById('taskImage').value = ''; document.getElementById('taskAssignee').value = 'me'; openModal('taskModal'); }
         function openAddSubtaskModal(pid, tid) { isEditing = false; currentProjectId = pid; currentTaskId = tid; document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача'; document.getElementById('subtaskName').value = ''; document.getElementById('subtaskDate').value = ''; openModal('subtaskModal'); }
-        function openAddSectionModal() { isEditing = false; currentSectionId = null; document.getElementById('sectionModalTitle').textContent = 'Новый раздел'; document.getElementById('sectionName').value = ''; document.getElementById('sectionIcon').value = '📋'; openModal('sectionModal'); }
-        function saveSection() { const name = document.getElementById('sectionName').value.trim(); let icon = document.getElementById('sectionIcon').value.trim(); if (!name) return; if (!icon) icon = '📋'; icon = icon.charAt(0); const tag = 'custom_' + Date.now(); if (isEditing && currentSectionId !== null) customSections[currentSectionId].name = icon + ' ' + name; else customSections.push({ id: tag, name: icon + ' ' + name, tag: tag }); saveCustomSections(); renderViewToggle(); closeModal('sectionModal'); }
+        function openAddSectionModal() { isEditing = false; currentSectionId = null; document.getElementById('sectionModalTitle').textContent = 'Новый раздел'; document.getElementById('sectionName').value = ''; selectedEmoji = '📋'; document.getElementById('sectionIcon').value = '📋'; renderEmojiPicker(); openModal('sectionModal'); }
+        function saveSection() { const name = document.getElementById('sectionName').value.trim(); const icon = document.getElementById('sectionIcon').value; if (!name) return; const tag = 'custom_' + Date.now(); if (isEditing && currentSectionId !== null) customSections[currentSectionId].name = icon + ' ' + name; else customSections.push({ id: tag, name: icon + ' ' + name, tag: tag }); saveCustomSections(); renderViewToggle(); closeModal('sectionModal'); }
         function openSectionsManager() { const container = document.getElementById('sectionsList'); container.innerHTML = customSections.map((s, i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;"><span>${s.name}</span><div><button class="edit-btn" onclick="editSection(${i})">✏️</button><button class="delete-btn" onclick="deleteSection(${i})">🗑️</button></div></div>`).join('') || '<p style="text-align:center;color:#999;">Нет пользовательских разделов</p>'; openModal('sectionsManagerModal'); }
-        function editSection(i) { const s = customSections[i]; currentSectionId = i; isEditing = true; document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел'; document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' '); document.getElementById('sectionIcon').value = s.name.split(' ')[0]; closeModal('sectionsManagerModal'); openModal('sectionModal'); }
+        function editSection(i) { const s = customSections[i]; currentSectionId = i; isEditing = true; document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел'; document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' '); selectedEmoji = s.name.split(' ')[0]; document.getElementById('sectionIcon').value = selectedEmoji; renderEmojiPicker(); closeModal('sectionsManagerModal'); openModal('sectionModal'); }
         function deleteSection(i) { if (confirm('Удалить раздел?')) { customSections.splice(i, 1); saveCustomSections(); renderViewToggle(); closeModal('sectionsManagerModal'); if (currentView.startsWith('custom_')) switchView('list'); } }
         function saveProject() { const name = document.getElementById('projectName').value.trim(); const priority = document.getElementById('projectPriority').value; const tag = document.getElementById('projectTag').value; if (!name) return; if (isEditing) { projects[currentProjectId].name = name; projects[currentProjectId].priority = priority; projects[currentProjectId].tag = tag; } else projects.push({ id: Date.now(), name, priority, tag, tasks: [], createdAt: new Date().toISOString() }); saveToFirebase(); closeModal('projectModal'); }
         function saveTask() { const name = document.getElementById('taskName').value.trim(); const date = document.getElementById('taskDate').value; const assignee = document.getElementById('taskAssignee').value; if (!name) return; if (isEditing) { projects[currentProjectId].tasks[currentTaskId].name = name; projects[currentProjectId].tasks[currentTaskId].date = date; projects[currentProjectId].tasks[currentTaskId].assignee = assignee; if (selectedImage) projects[currentProjectId].tasks[currentTaskId].image = selectedImage; } else { if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = []; projects[currentProjectId].tasks.push({ id: Date.now(), name, completed: false, subtasks: [], date, assignee, image: selectedImage, comments: [], createdAt: new Date().toISOString() }); } saveToFirebase(); closeModal('taskModal'); }
@@ -630,6 +652,7 @@
 
         // ИНИЦИАЛИЗАЦИЯ
         loadCustomSections();
+        renderEmojiPicker();
         initApp();
 
         function initApp() {
