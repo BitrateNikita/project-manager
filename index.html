@@ -29,7 +29,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text);
             line-height: 1.6;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
             user-select: none;
             -webkit-user-select: none;
             background-image: url('bg.png');
@@ -37,6 +37,7 @@
             background-size: 50% auto;
             background-attachment: fixed;
             position: relative;
+            min-height: 100vh;
         }
 
         body::before {
@@ -46,7 +47,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            /*background: rgba(255,255,255,0.85);*/
+            background: rgba(255,255,255,0);
             z-index: -1;
         }
 
@@ -54,6 +55,7 @@
             max-width: 100%;
             margin: 0 auto;
             padding: 10px;
+            padding-bottom: 120px;
         }
 
         header {
@@ -113,19 +115,23 @@
 
         .view-toggle {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .view-btn {
-            flex: 1;
-            padding: 10px;
+            flex-shrink: 0;
+            padding: 10px 15px;
             background: white;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.85em;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         .view-btn.active {
@@ -634,7 +640,7 @@
 
         .floating-btn {
             position: fixed;
-            bottom: 20px;
+            bottom: 80px;
             right: 20px;
             width: 56px;
             height: 56px;
@@ -674,24 +680,118 @@
             display: block;
         }
 
-        .calendar-day {
+        .calendar-container {
             background: white;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
+            border-radius: 15px;
+            padding: 15px;
             box-shadow: var(--shadow);
         }
 
-        .calendar-date {
-            font-weight: 600;
-            margin-bottom: 5px;
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .calendar-task {
+        .calendar-nav-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-month {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8em;
+            color: #666;
             padding: 5px;
-            margin: 2px 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             background: #f5f5f5;
-            border-radius: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .calendar-day:active {
+            transform: scale(0.9);
+        }
+
+        .calendar-day.today {
+            background: var(--info);
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-tasks {
+            background: #e8f5e9;
+            border: 2px solid var(--primary);
+        }
+
+        .calendar-day.has-tasks.today {
+            background: var(--info);
+            border-color: white;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day-indicator {
+            position: absolute;
+            bottom: 3px;
+            width: 5px;
+            height: 5px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .calendar-tasks-panel {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .calendar-tasks-panel.active {
+            display: block;
+        }
+
+        .calendar-task-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
             font-size: 0.85em;
         }
 
@@ -710,74 +810,57 @@
             margin-left: 5px;
         }
 
-        .footer-links {
-            margin-top: 20px;
-            padding: 20px 10px;
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-
-        .footer-links h3 {
-            margin-bottom: 15px;
-            color: #666;
-        }
-
-        .footer-links-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .footer-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 150;
             padding: 10px;
-            background: #f5f5f5;
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--text);
-            transition: all 0.3s;
-            cursor: pointer;
         }
 
-        .footer-link:active {
-            transform: scale(0.95);
-        }
-
-        .footer-link-icon {
-            font-size: 2em;
+        .footer-icons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             margin-bottom: 5px;
         }
 
-        .footer-link-text {
-            font-size: 0.75em;
-        }
-
-        .call-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .call-btn {
-            display: block;
-            padding: 12px;
-            background: var(--info);
-            color: white;
-            border: none;
-            border-radius: 10px;
+        .footer-icon {
+            width: 35px;
+            height: 35px;
             cursor: pointer;
-            font-size: 1em;
-            text-decoration: none;
-            text-align: center;
             transition: all 0.3s;
         }
 
-        .call-btn:active {
+        .footer-icon:active {
+            transform: scale(0.8);
+        }
+
+        .footer-calls {
+            display: flex;
+            justify-content: space-around;
+            gap: 5px;
+        }
+
+        .footer-call-btn {
+            flex: 1;
+            padding: 8px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.75em;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .footer-call-btn:active {
+            background: #e0e0e0;
             transform: scale(0.95);
         }
 
@@ -828,6 +911,9 @@
         <div class="view-toggle">
             <button class="view-btn active" onclick="switchView('list')">📋 Список</button>
             <button class="view-btn" onclick="switchView('calendar')">📅 Календарь</button>
+            <button class="view-btn" onclick="switchView('3d')">🖨️ 3Д печать</button>
+            <button class="view-btn" onclick="switchView('marketplaces')">🛒 Маркетплейсы</button>
+            <button class="view-btn" onclick="switchView('training')">💪 Тренеровки</button>
         </div>
         
         <div id="listView">
@@ -838,69 +924,38 @@
             <div id="calendarContainer"></div>
         </div>
         
-        <div class="footer-links">
-            <h3>📱 Для перехода</h3>
-            <div class="footer-links-grid">
-                <a href="https://t.me" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/tg.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Telegram</span>
-                </a>
-                <a href="https://max.ru" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/max.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Max</span>
-                </a>
-                <a href="https://wa.me" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/whatsapp.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Whatsapp</span>
-                </a>
-                <a href="https://vk.com" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/vk.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Vk</span>
-                </a>
-                <a href="https://youtube.com" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/youtube.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Youtube</span>
-                </a>
-                <a href="https://raketa.ru" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/raketo.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Raketo</span>
-                </a>
-                <a href="https://ozon.ru" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/ozon.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Ozon</span>
-                </a>
-                <a href="https://wildberries.ru" class="footer-link" target="_blank">
-                    <span class="footer-link-icon">
-                        <img src="icons/wb.png" style="width: 32px; height: 32px;">
-                    </span>
-                    <span class="footer-link-text">Waldberis</span>
-                </a>
-            </div>
-            
-            <h3>📞 Позвонить</h3>
-            <div class="call-buttons">
-                <a href="tel:+79186468822" class="call-btn">👨‍💼 Разработчик</a>
-                <a href="tel:+79933213302" class="call-btn">👧 Ника</a>
-                <a href="tel:+79186468833" class="call-btn">👩 Приматка</a>
-            </div>
+        <div id="view3d" class="calendar-view">
+            <div id="container3d"></div>
+        </div>
+        
+        <div id="viewMarketplaces" class="calendar-view">
+            <div id="containerMarketplaces"></div>
+        </div>
+        
+        <div id="viewTraining" class="calendar-view">
+            <div id="containerTraining"></div>
         </div>
     </div>
 
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
+
+    <div class="footer">
+        <div class="footer-icons">
+            <a href="https://t.me" target="_blank"><img src="icons/tg.png" class="footer-icon" alt="Телеграм"></a>
+            <a href="https://max.ru" target="_blank"><img src="icons/max.png" class="footer-icon" alt="Макс"></a>
+            <a href="https://wa.me" target="_blank"><img src="icons/whatsapp.png" class="footer-icon" alt="Ватсап"></a>
+            <a href="https://vk.com" target="_blank"><img src="icons/vk.png" class="footer-icon" alt="ВК"></a>
+            <a href="https://youtube.com" target="_blank"><img src="icons/yt.png" class="footer-icon" alt="Ютуб"></a>
+            <a href="https://raketo.app" target="_blank"><img src="icons/raketo.png" class="footer-icon" alt="Ракета"></a>
+            <a href="https://ozon.ru" target="_blank"><img src="icons/ozon.png" class="footer-icon" alt="Озон"></a>
+            <a href="https://wildberries.ru" target="_blank"><img src="icons/wb.png" class="footer-icon" alt="Валдберис"></a>
+        </div>
+        <div class="footer-calls">
+            <a href="tel:+79186468822" class="footer-call-btn">👨‍💼 Разработчик</a>
+            <a href="tel:+79933213302" class="footer-call-btn">👧 Ника</a>
+            <a href="tel:+79186468833" class="footer-call-btn">👩 Приматка</a>
+        </div>
+    </div>
 
     <!-- Модальные окна -->
     <div class="modal" id="loginModal">
@@ -1049,8 +1104,10 @@
         let isRecordingVoice = false;
         let lastProjectsData = null;
         let isEditing = false;
+        let selectedDate = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
 
-        // Инициализация распознавания речи
         if ('webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
             recognition.lang = 'ru-RU';
@@ -1113,12 +1170,15 @@
             projectsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    // Проверяем, были ли изменения
                     if (lastProjectsData && JSON.stringify(lastProjectsData) !== JSON.stringify(data)) {
                         showNotification('📝 Обновление данных');
                     }
                     lastProjectsData = data;
                     projects = data;
+                    // Все проекты свернуты
+                    projects.forEach((project, index) => {
+                        collapsedProjects.add(index);
+                    });
                     renderProjects();
                     document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
                     document.getElementById('syncStatus').style.color = '#4CAF50';
@@ -1194,8 +1254,14 @@
         function renderProjects() {
             if (currentView === 'list') {
                 renderListView();
-            } else {
+            } else if (currentView === 'calendar') {
                 renderCalendarView();
+            } else if (currentView === '3d') {
+                render3DView();
+            } else if (currentView === 'marketplaces') {
+                renderMarketplacesView();
+            } else if (currentView === 'training') {
+                renderTrainingView();
             }
         }
 
@@ -1293,18 +1359,89 @@
 
         function renderCalendarView() {
             const container = document.getElementById('calendarContainer');
-            const tasksByDate = {};
-            const today = new Date().toISOString().split('T')[0];
+            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
             
-            projects.forEach((project) => {
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDay = (firstDay.getDay() + 6) % 7;
+            const daysInMonth = lastDay.getDate();
+            
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            let calendarHTML = `
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀</button>
+                        <div class="calendar-month">${monthNames[currentMonth]} ${currentYear}</div>
+                        <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
+                    </div>
+                    <div class="calendar-grid">
+                        ${weekdays.map(day => `<div class="calendar-weekday">${day}</div>`).join('')}
+            `;
+            
+            for (let i = 0; i < startDay; i++) {
+                calendarHTML += `<div class="calendar-day other-month"></div>`;
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasTasks = checkTasksForDate(dateStr);
+                const isToday = dateStr === todayStr;
+                
+                calendarHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" 
+                         onclick="selectDate('${dateStr}')">
+                        ${day}
+                        ${hasTasks ? '<div class="calendar-day-indicator"></div>' : ''}
+                    </div>
+                `;
+            }
+            
+            calendarHTML += `
+                    </div>
+                    <div class="calendar-tasks-panel" id="calendarTasksPanel">
+                        <div id="calendarTasksList"></div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = calendarHTML;
+        }
+
+        function checkTasksForDate(dateStr) {
+            let hasTasks = false;
+            projects.forEach(project => {
                 if (project.tasks) {
-                    project.tasks.forEach((task) => {
-                        if (task.date) {
-                            const dateKey = task.date.split('T')[0];
-                            if (!tasksByDate[dateKey]) {
-                                tasksByDate[dateKey] = [];
-                            }
-                            tasksByDate[dateKey].push({
+                    project.tasks.forEach(task => {
+                        if (task.date && task.date.split('T')[0] === dateStr) {
+                            hasTasks = true;
+                        }
+                        if (task.subtasks) {
+                            task.subtasks.forEach(subtask => {
+                                if (subtask.date && subtask.date.split('T')[0] === dateStr) {
+                                    hasTasks = true;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            return hasTasks;
+        }
+
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            const panel = document.getElementById('calendarTasksPanel');
+            const list = document.getElementById('calendarTasksList');
+            
+            const tasksForDate = [];
+            projects.forEach(project => {
+                if (project.tasks) {
+                    project.tasks.forEach(task => {
+                        if (task.date && task.date.split('T')[0] === dateStr) {
+                            tasksForDate.push({
                                 name: task.name,
                                 projectName: project.name,
                                 completed: task.completed,
@@ -1312,13 +1449,9 @@
                             });
                         }
                         if (task.subtasks) {
-                            task.subtasks.forEach((subtask) => {
-                                if (subtask.date) {
-                                    const dateKey = subtask.date.split('T')[0];
-                                    if (!tasksByDate[dateKey]) {
-                                        tasksByDate[dateKey] = [];
-                                    }
-                                    tasksByDate[dateKey].push({
+                            task.subtasks.forEach(subtask => {
+                                if (subtask.date && subtask.date.split('T')[0] === dateStr) {
+                                    tasksForDate.push({
                                         name: subtask.name,
                                         projectName: project.name,
                                         completed: subtask.completed,
@@ -1331,45 +1464,77 @@
                 }
             });
             
-            const sortedDates = Object.keys(tasksByDate).sort();
-            
-            if (sortedDates.length === 0) {
-                container.innerHTML = '<div class="empty-state">📅 Нет задач с датами</div>';
-                return;
+            if (tasksForDate.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999;">Нет задач на эту дату</p>';
+            } else {
+                list.innerHTML = tasksForDate.sort((a, b) => a.time.localeCompare(b.time)).map(task => `
+                    <div class="calendar-task-item ${task.completed ? 'completed' : ''}">
+                        ${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}
+                        ${task.name} 
+                        <small>(${task.projectName})</small>
+                    </div>
+                `).join('');
             }
             
-            container.innerHTML = sortedDates.map(date => {
-                const isToday = date === today;
-                return `
-                    <div class="calendar-day" ${isToday ? 'style="border: 2px solid #2196F3;"' : ''}>
-                        <div class="calendar-date">
-                            📅 ${date}
-                            ${isToday ? '<span class="today-badge">Сегодня</span>' : ''}
-                        </div>
-                        ${tasksByDate[date].sort((a, b) => a.time.localeCompare(b.time)).map(task => `
-                            <div class="calendar-task ${task.completed ? 'completed' : ''}">
-                                ${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}
-                                ${task.name} 
-                                <small>(${task.projectName})</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }).join('');
+            panel.classList.add('active');
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendarView();
+        }
+
+        function render3DView() {
+            const container = document.getElementById('container3d');
+            container.innerHTML = '<div class="empty-state">🖨️ Раздел 3Д печать</div>';
+        }
+
+        function renderMarketplacesView() {
+            const container = document.getElementById('containerMarketplaces');
+            container.innerHTML = '<div class="empty-state">🛒 Раздел Маркетплейсы</div>';
+        }
+
+        function renderTrainingView() {
+            const container = document.getElementById('containerTraining');
+            container.innerHTML = '<div class="empty-state">💪 Раздел Тренеровки</div>';
         }
 
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Скрываем все view
+            document.getElementById('listView').style.display = 'none';
+            document.getElementById('calendarView').classList.remove('active');
+            document.getElementById('view3d').classList.remove('active');
+            document.getElementById('viewMarketplaces').classList.remove('active');
+            document.getElementById('viewTraining').classList.remove('active');
+            
+            // Показываем нужный view
             if (view === 'list') {
                 document.getElementById('listView').style.display = 'block';
-                document.getElementById('calendarView').classList.remove('active');
                 document.querySelectorAll('.view-btn')[0].classList.add('active');
-            } else {
-                document.getElementById('listView').style.display = 'none';
+            } else if (view === 'calendar') {
                 document.getElementById('calendarView').classList.add('active');
                 document.querySelectorAll('.view-btn')[1].classList.add('active');
+            } else if (view === '3d') {
+                document.getElementById('view3d').classList.add('active');
+                document.querySelectorAll('.view-btn')[2].classList.add('active');
+            } else if (view === 'marketplaces') {
+                document.getElementById('viewMarketplaces').classList.add('active');
+                document.querySelectorAll('.view-btn')[3].classList.add('active');
+            } else if (view === 'training') {
+                document.getElementById('viewTraining').classList.add('active');
+                document.querySelectorAll('.view-btn')[4].classList.add('active');
             }
+            
             renderProjects();
         }
 
@@ -1585,7 +1750,6 @@
                 document.getElementById('voiceBtn').classList.remove('recording');
                 document.getElementById('voiceBtn').textContent = '🎤';
                 
-                // Останавливаем все дорожки
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
         }
@@ -1849,16 +2013,8 @@
             if (e.key === 'Enter') login();
         });
 
-        // Инициализация
         updateUserInfo();
         syncWithFirebase();
-        
-        // Все проекты свернуты по умолчанию
-        if (projects.length > 0) {
-            projects.forEach((project, index) => {
-                collapsedProjects.add(index);
-            });
-        }
     </script>
 </body>
 </html>
