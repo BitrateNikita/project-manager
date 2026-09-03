@@ -1045,20 +1045,15 @@
     </div>
 
     <!-- Модальные окна -->
-    <div class="modal" id="loginModal">
+        <div class="modal" id="loginModal">
         <div class="modal-content">
-            <div class="modal-title">Профиль</div>
-            <div class="form-group">
-                <label class="form-label">Ваше имя</label>
-                <input type="text" class="form-input" id="userName" placeholder="Введите имя">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Аватар</label>
-                <input type="file" class="form-input" id="userAvatarInput" accept="image/*" onchange="previewAvatar(this)">
-            </div>
-            <div class="modal-actions">
-                <button class="btn-primary" onclick="saveProfile()">Сохранить</button>
-            </div>
+            <div class="modal-title">Вход</div>
+            <button class="btn-primary" onclick="signInWithGoogle()" style="margin-bottom: 10px;">
+                🚀 Войти через Google
+            </button>
+            <button class="btn-secondary" onclick="signOut()" style="display: none;" id="logoutBtn">
+                Выйти
+            </button>
         </div>
     </div>
 
@@ -1201,6 +1196,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBY9efVcObtOc7NFy8pcxRNiImL_Keka6Y",
@@ -1241,6 +1237,52 @@
 
         // Загрузка пользовательских разделов
 
+
+        // Функция для сохранения профиля в Firebase
+        function saveProfileToFirebase() {
+            const profileRef = database.ref('profile');
+            profileRef.set({
+                name: currentUser,
+                avatar: userAvatar,
+                updatedAt: new Date().toISOString()
+            });
+        }
+
+        // Слушатель уведомлений
+        function setupNotifications() {
+            const projectsRef = database.ref('projects');
+            projectsRef.on('child_changed', (snapshot) => {
+                showNotification('📝 Обновление данных');
+            });
+            projectsRef.on('child_added', (snapshot) => {
+                showNotification('➕ Добавлен новый проект');
+            });
+            projectsRef.on('child_removed', (snapshot) => {
+                showNotification('🗑️ Удален проект');
+            });
+        }
+
+        
+        // Функция для загрузки профиля из Firebase
+        function loadProfileFromFirebase() {
+            const profileRef = database.ref('profile');
+            profileRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.name) {
+                        currentUser = data.name;
+                        localStorage.setItem('userName', data.name);
+                    }
+                    if (data.avatar) {
+                        userAvatar = data.avatar;
+                        localStorage.setItem('userAvatar', data.avatar);
+                    }
+                    updateUserInfo();
+                }
+            });
+        }
+
+        
         // Скрытие хедера при скроле
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
@@ -1412,6 +1454,7 @@
         function updateUserInfo() {
             const userNameDisplay = document.getElementById('userNameDisplay');
             const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            const logoutBtn = document.getElementById('logoutBtn');
             
             if (currentUser) {
                 userNameDisplay.textContent = currentUser;
@@ -1420,9 +1463,11 @@
                 } else {
                     avatarPlaceholder.textContent = currentUser.charAt(0).toUpperCase();
                 }
+                if (logoutBtn) logoutBtn.style.display = 'block';
             } else {
                 userNameDisplay.textContent = 'Войти';
                 avatarPlaceholder.textContent = '👤';
+                if (logoutBtn) logoutBtn.style.display = 'none';
             }
         }
 
@@ -1450,6 +1495,7 @@
                 if (userAvatar) {
                     localStorage.setItem('userAvatar', userAvatar);
                 }
+                saveProfileToFirebase();  // ← Добавь эту строку
                 updateUserInfo();
                 closeModal('loginModal');
                 renderProjects();
@@ -2325,11 +2371,73 @@
             if (e.key === 'Enter') saveSection();
         });
 
+
+        // Инициализация Auth
+        const auth = firebase.auth();
+        
+        // Вход через Google
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    const user = result.user;
+                    currentUser = user.displayName;
+                    userAvatar = user.photoURL;
+                    
+                    localStorage.setItem('userName', currentUser);
+                    localStorage.setItem('userAvatar', userAvatar);
+                    
+                    updateUserInfo();
+                    closeModal('loginModal');
+                    renderProjects();
+                    showNotification('✅ Вход выполнен');
+                })
+                .catch((error) => {
+                    console.error('Ошибка входа:', error);
+                    alert('Ошибка входа: ' + error.message);
+                });
+        }
+        
+        // Выход
+        function signOut() {
+            auth.signOut()
+                .then(() => {
+                    currentUser = null;
+                    userAvatar = null;
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userAvatar');
+                    updateUserInfo();
+                    showNotification('👋 Вы вышли');
+                })
+                .catch((error) => {
+                    console.error('Ошибка выхода:', error);
+                });
+        }
+        
+        // Слушатель состояния авторизации
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user.displayName;
+                userAvatar = user.photoURL;
+                localStorage.setItem('userName', currentUser);
+                localStorage.setItem('userAvatar', userAvatar);
+            } else {
+                currentUser = null;
+                userAvatar = null;
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userAvatar');
+            }
+            updateUserInfo();
+        });
+
         // Инициализация
         loadCustomSections();
         updateUserInfo();
+        loadProfileFromFirebase();  // ← Добавь эту строку
         syncWithFirebase();
         renderViewToggle();
+        
     </script>
 </body>
 </html>
