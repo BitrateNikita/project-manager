@@ -56,6 +56,7 @@
             margin: 0 auto;
             padding: 10px;
             padding-bottom: 120px;
+            padding-top: 90px;  /* ← Отступ сверху под хедер */
         }
 
         header {
@@ -66,15 +67,21 @@
             padding: 10px;
             margin-bottom: 15px;
             box-shadow: var(--shadow);
-            position: sticky;
+            position: fixed;  /* ← Меняем на fixed */
             top: 0;
             z-index: 100;
             height: 150px;
             display: flex;
             justify-content: flex-start;  /* ← Прижать к левому краю */
             gap: 15px;  /* ← Расстояние между элементами */
+            width: 100%;
             align-items: center;
             /*height: 100%; ← Добавь эту строку */
+            transition: transform 0.3s ease;  /* ← Плавное скрытие */
+        }
+
+        header.hidden {
+            transform: translateY(-100%);  /* ← Уезжает вверх */
         }
 
         header::before {
@@ -103,7 +110,7 @@
             align-items: flex-end;  /* ← Прижать к низу */
             gap: 10px;
             cursor: pointer;
-            margin-top: 20px;  /* ← Добавь отступ сверху */
+            margin-right: auto;  /* ← Прижать к левому краю */
         }
 
         .user-avatar {
@@ -1233,6 +1240,25 @@
         let currentYear = new Date().getFullYear();
 
         // Загрузка пользовательских разделов
+
+        // Скрытие хедера при скроле
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (currentScroll > lastScrollTop && currentScroll > 80) {
+                // Скроллим вниз - скрываем хедер
+                header.classList.add('hidden');
+            } else {
+                // Скроллим вверх - показываем хедер
+                header.classList.remove('hidden');
+            }
+            
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+        }, { passive: true });
+
+        
         function loadCustomSections() {
             const saved = localStorage.getItem('customSections');
             if (saved) {
@@ -1345,7 +1371,7 @@
             isEditing = true;
             document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
             document.getElementById('sectionName').value = section.name.split(' ').slice(1).join(' ');
-            document.getElementById('sectionIcon').value = section.name.split(' ')[0];
+            document.getElementById('sectionIcon').value = section.name.split(' ')[0];  // ← Эмодзи в поле
             closeModal('sectionsManagerModal');
             openModal('sectionModal');
         }
