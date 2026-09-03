@@ -72,6 +72,23 @@
             height: 120px;
             display: flex;
             align-items: center;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.25);
+            z-index: 1;
+        }
+
+        header > * {
+            position: relative;
+            z-index: 2;
         }
 
         h1 {
@@ -824,18 +841,22 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 150;
             padding: 10px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .footer-icons {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .footer-icon {
-            width: 35px;
-            height: 35px;
+            width: 28px;
+            height: 28px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -852,12 +873,12 @@
 
         .footer-call-btn {
             flex: 1;
-            padding: 8px;
+            padding: 4px;
             background: #f5f5f5;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 0.75em;
+            font-size: 0.65em;
             text-align: center;
             text-decoration: none;
             color: var(--text);
@@ -1012,9 +1033,19 @@
             <div class="form-group">
                 <label class="form-label">Назначить</label>
                 <select class="form-select" id="taskAssignee">
-                    <option value="me">Я</option>
-                    <option value="wife">Супруга</option>
+                    <option value="me">Никита</option>
+                    <option value="wife">Виктория</option>
+                    <option value="nika">Ника</option>
                     <option value="both">Оба</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Раздел</label>
+                <select class="form-select" id="taskTag">
+                    <option value="">📋 Список (общее)</option>
+                    <option value="3d">🖨️ 3Д печать</option>
+                    <option value="marketplaces">🛒 Маркетплейсы</option>
+                    <option value="training">💪 Тренировки</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1180,7 +1211,6 @@
                     }
                     lastProjectsData = data;
                     projects = data;
-                    // Все проекты свернуты
                     projects.forEach((project, index) => {
                         collapsedProjects.add(index);
                     });
@@ -1286,6 +1316,7 @@
             }
             
             container.innerHTML = projects.map((project, index) => {
+                const listTasks = (project.tasks || []).filter(task => !task.tag);
                 const progress = calculateProgress(project);
                 const priorityClass = `priority-${project.priority}`;
                 const priorityText = {
@@ -1314,43 +1345,46 @@
                             </div>
                             
                             <div class="tasks-list">
-                                ${(project.tasks || []).map((task, taskIndex) => `
+                                ${listTasks.map((task, taskIndex) => {
+                                    const originalIndex = project.tasks.indexOf(task);
+                                    return `
                                     <div>
-                                        <div class="task-item" onclick="toggleTask(${index}, ${taskIndex})">
+                                        <div class="task-item" onclick="toggleTask(${index}, ${originalIndex})">
                                             <div class="task-checkbox ${task.completed ? 'checked' : ''}">
                                                 ${task.completed ? '✓' : ''}
                                             </div>
                                             <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
                                             ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${index}, ${taskIndex})">${task.assignee === 'me' ? 'Я' : task.assignee === 'wife' ? 'Супруга' : 'Оба'}</span>` : ''}
+                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${index}, ${originalIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
                                             ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
-                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${index}, ${taskIndex})">✏️</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, -1)">↑</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, 1)">↓</button>
+                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${index}, ${originalIndex})">✏️</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${originalIndex}, -1)">↑</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${originalIndex}, 1)">↓</button>
                                             <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
-                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${index}, ${taskIndex})">💬</button>
-                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${index}, ${taskIndex})">✕</button>
+                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${index}, ${originalIndex})">💬</button>
+                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${index}, ${originalIndex})">✕</button>
                                         </div>
                                         ${task.subtasks && task.subtasks.length > 0 ? `
                                             <div class="subtasks">
                                                 ${task.subtasks.map((subtask, subtaskIndex) => `
-                                                    <div class="subtask-item" onclick="toggleSubtask(${index}, ${taskIndex}, ${subtaskIndex})">
+                                                    <div class="subtask-item" onclick="toggleSubtask(${index}, ${originalIndex}, ${subtaskIndex})">
                                                         <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}">
                                                             ${subtask.completed ? '✓' : ''}
                                                         </div>
                                                         <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
                                                         ${subtask.date ? `<span class="date-badge">📅 ${formatDate(subtask.date)}</span>` : ''}
-                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${index}, ${taskIndex}, ${subtaskIndex})">✏️</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${taskIndex}, ${subtaskIndex}, -1)">↑</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${taskIndex}, ${subtaskIndex}, 1)">↓</button>
-                                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${index}, ${taskIndex}, ${subtaskIndex})">✕</button>
+                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${index}, ${originalIndex}, ${subtaskIndex})">✏️</button>
+                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${originalIndex}, ${subtaskIndex}, -1)">↑</button>
+                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${originalIndex}, ${subtaskIndex}, 1)">↓</button>
+                                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${index}, ${originalIndex}, ${subtaskIndex})">✕</button>
                                                     </div>
                                                 `).join('')}
                                             </div>
                                         ` : ''}
-                                        <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${index}, ${taskIndex})">+ Подзадача</button>
+                                        <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${index}, ${originalIndex})">+ Подзадача</button>
                                     </div>
-                                `).join('')}
+                                `;
+                                }).join('')}
                             </div>
                             
                             <button class="add-btn" onclick="openAddTaskModal(${index})">+ Добавить задачу</button>
@@ -1498,31 +1532,128 @@
 
         function render3DView() {
             const container = document.getElementById('container3d');
-            container.innerHTML = '<div class="empty-state">🖨️ Раздел 3Д печать</div>';
+            const tasks3d = [];
+            
+            projects.forEach((project, projectIndex) => {
+                if (project.tasks) {
+                    project.tasks.forEach((task, taskIndex) => {
+                        if (task.tag === '3d') {
+                            tasks3d.push({
+                                ...task,
+                                projectName: project.name,
+                                projectIndex: projectIndex,
+                                taskIndex: taskIndex
+                            });
+                        }
+                    });
+                }
+            });
+            
+            if (tasks3d.length === 0) {
+                container.innerHTML = '<div class="empty-state">🖨️ Нет задач в разделе 3Д печать</div>';
+            } else {
+                container.innerHTML = tasks3d.map(task => `
+                    <div class="project-card">
+                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
+                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                ${task.completed ? '✓' : ''}
+                            </div>
+                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                            <small>(${task.projectName})</small>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         function renderMarketplacesView() {
             const container = document.getElementById('containerMarketplaces');
-            container.innerHTML = '<div class="empty-state">🛒 Раздел Маркетплейсы</div>';
+            const tasksMarket = [];
+            
+            projects.forEach((project, projectIndex) => {
+                if (project.tasks) {
+                    project.tasks.forEach((task, taskIndex) => {
+                        if (task.tag === 'marketplaces') {
+                            tasksMarket.push({
+                                ...task,
+                                projectName: project.name,
+                                projectIndex: projectIndex,
+                                taskIndex: taskIndex
+                            });
+                        }
+                    });
+                }
+            });
+            
+            if (tasksMarket.length === 0) {
+                container.innerHTML = '<div class="empty-state">🛒 Нет задач в разделе Маркетплейсы</div>';
+            } else {
+                container.innerHTML = tasksMarket.map(task => `
+                    <div class="project-card">
+                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
+                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                ${task.completed ? '✓' : ''}
+                            </div>
+                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                            <small>(${task.projectName})</small>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         function renderTrainingView() {
             const container = document.getElementById('containerTraining');
-            container.innerHTML = '<div class="empty-state">💪 Раздел Тренеровки</div>';
+            const tasksTraining = [];
+            
+            projects.forEach((project, projectIndex) => {
+                if (project.tasks) {
+                    project.tasks.forEach((task, taskIndex) => {
+                        if (task.tag === 'training') {
+                            tasksTraining.push({
+                                ...task,
+                                projectName: project.name,
+                                projectIndex: projectIndex,
+                                taskIndex: taskIndex
+                            });
+                        }
+                    });
+                }
+            });
+            
+            if (tasksTraining.length === 0) {
+                container.innerHTML = '<div class="empty-state">💪 Нет задач в разделе Тренировки</div>';
+            } else {
+                container.innerHTML = tasksTraining.map(task => `
+                    <div class="project-card">
+                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
+                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                ${task.completed ? '✓' : ''}
+                            </div>
+                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                            <small>(${task.projectName})</small>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
             
-            // Скрываем все view
             document.getElementById('listView').style.display = 'none';
             document.getElementById('calendarView').classList.remove('active');
             document.getElementById('view3d').classList.remove('active');
             document.getElementById('viewMarketplaces').classList.remove('active');
             document.getElementById('viewTraining').classList.remove('active');
             
-            // Показываем нужный view
             if (view === 'list') {
                 document.getElementById('listView').style.display = 'block';
                 document.querySelectorAll('.view-btn')[0].classList.add('active');
@@ -1610,7 +1741,7 @@
 
         function changeAssignee(projectId, taskId) {
             const task = projects[projectId].tasks[taskId];
-            const assignees = ['me', 'wife', 'both'];
+            const assignees = ['me', 'wife', 'nika', 'both'];
             const currentIndex = assignees.indexOf(task.assignee || 'me');
             task.assignee = assignees[(currentIndex + 1) % assignees.length];
             saveToFirebase();
@@ -1800,6 +1931,7 @@
             document.getElementById('taskName').value = task.name;
             document.getElementById('taskDate').value = task.date || '';
             document.getElementById('taskAssignee').value = task.assignee || 'me';
+            document.getElementById('taskTag').value = task.tag || '';
             if (task.image) {
                 selectedImage = task.image;
                 document.getElementById('imagePreview').src = task.image;
@@ -1858,6 +1990,7 @@
             document.getElementById('taskDate').value = '';
             document.getElementById('taskImage').value = '';
             document.getElementById('taskAssignee').value = 'me';
+            document.getElementById('taskTag').value = '';
             openModal('taskModal');
         }
 
@@ -1898,6 +2031,7 @@
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
             const assignee = document.getElementById('taskAssignee').value;
+            const tag = document.getElementById('taskTag').value;
             
             if (!name) return;
             
@@ -1905,6 +2039,7 @@
                 projects[currentProjectId].tasks[currentTaskId].name = name;
                 projects[currentProjectId].tasks[currentTaskId].date = date;
                 projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
+                projects[currentProjectId].tasks[currentTaskId].tag = tag;
                 if (selectedImage) {
                     projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
                 }
@@ -1920,6 +2055,7 @@
                     subtasks: [],
                     date: date,
                     assignee: assignee,
+                    tag: tag,
                     image: selectedImage,
                     comments: [],
                     createdAt: new Date().toISOString()
