@@ -1063,19 +1063,11 @@
                 <input type="text" class="form-input" id="sectionName" placeholder="Введите название" autocomplete="off">
             </div>
             <div class="form-group">
-                <label class="form-label">Иконка</label>
-                <select class="form-select" id="sectionIcon">
-                    <option value="📋">📋 Список</option>
-                    <option value="🖨️">🖨️ Печать</option>
-                    <option value="🛒">🛒 Покупки</option>
-                    <option value="💪">💪 Спорт</option>
-                    <option value="🏠">🏠 Дом</option>
-                    <option value="🚗">🚗 Авто</option>
-                    <option value="📚">📚 Учеба</option>
-                    <option value="💰">💰 Финансы</option>
-                    <option value="🎨">🎨 Творчество</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label class="form-label">Иконка (эмодзи)</label>
+                    <input type="text" class="form-input" id="sectionIcon" placeholder="📋" maxlength="4">
+                    <small style="color: #999;">Вставьте любой эмодзи с клавиатуры</small>
+                </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('sectionModal')">Отмена</button>
                 <button class="btn-primary" onclick="saveSection()">Сохранить</button>
@@ -1300,17 +1292,31 @@
 
         function saveSection() {
             const name = document.getElementById('sectionName').value.trim();
-            const icon = document.getElementById('sectionIcon').value;
+            let icon = document.getElementById('sectionIcon').value.trim();
             
             if (!name) return;
             
+            // Если эмодзи не введен, используем 📋 по умолчанию
+            if (!icon) {
+                icon = '📋';
+            }
+            
+            // Берем только первый символ (эмодзи)
+            icon = icon.charAt(0);
+            
             const tag = 'custom_' + Date.now();
             
-            customSections.push({
-                id: tag,
-                name: icon + ' ' + name,
-                tag: tag
-            });
+            if (isEditing && currentSectionId !== null) {
+                // Редактирование существующего раздела
+                customSections[currentSectionId].name = icon + ' ' + name;
+            } else {
+                // Новый раздел
+                customSections.push({
+                    id: tag,
+                    name: icon + ' ' + name,
+                    tag: tag
+                });
+            }
             
             saveCustomSections();
             renderViewToggle();
