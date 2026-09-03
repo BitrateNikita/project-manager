@@ -1239,41 +1239,6 @@
         // Загрузка пользовательских разделов
 
 
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    const user = result.user;
-                    const email = user.email;
-                    
-                    // Проверка разрешенных email
-                    const allowedEmails = [
-                        'bitrate.motiondesign@gmail.com',  // Твой email
-                        'vikanikitapetrovi@gmail.com'      // Email жены
-                    ];
-                    
-                    if (allowedEmails.includes(email)) {
-                        currentUser = user.displayName;
-                        userAvatar = user.photoURL;
-                        localStorage.setItem('userName', currentUser);
-                        localStorage.setItem('userAvatar', userAvatar);
-                        updateUserInfo();
-                        closeModal('loginModal');
-                        renderProjects();
-                        showNotification('✅ Вход выполнен');
-                    } else {
-                        alert('Доступ запрещен');
-                        auth.signOut();
-                    }
-                })
-                .catch((error) => {
-                    alert('Ошибка входа: ' + error.message);
-                });
-        }
-
-
-        
 
         // Функция для сохранения профиля в Firebase
         function saveProfileToFirebase() {
@@ -2413,22 +2378,39 @@
         const auth = firebase.auth();
         
         // Вход через Google
+        // Инициализация Auth
+        const auth = firebase.auth();
+        
+        // Вход через Google
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
             auth.signInWithPopup(provider)
                 .then((result) => {
                     const user = result.user;
-                    currentUser = user.displayName;
-                    userAvatar = user.photoURL;
+                    const email = user.email;
                     
-                    localStorage.setItem('userName', currentUser);
-                    localStorage.setItem('userAvatar', userAvatar);
+                    // Проверка разрешенных email
+                    const allowedEmails = [
+                        'bitrate.motiondesign@gmail.com',
+                        'vikanikitapetrovi@gmail.com'
+                    ];
                     
-                    updateUserInfo();
-                    closeModal('loginModal');
-                    renderProjects();
-                    showNotification('✅ Вход выполнен');
+                    if (allowedEmails.includes(email)) {
+                        currentUser = user.displayName;
+                        userAvatar = user.photoURL;
+                        
+                        localStorage.setItem('userName', currentUser);
+                        localStorage.setItem('userAvatar', userAvatar);
+                        
+                        updateUserInfo();
+                        closeModal('loginModal');
+                        renderProjects();
+                        showNotification('✅ Вход выполнен');
+                    } else {
+                        alert('Доступ запрещен');
+                        auth.signOut();
+                    }
                 })
                 .catch((error) => {
                     console.error('Ошибка входа:', error);
