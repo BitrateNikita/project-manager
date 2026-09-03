@@ -72,7 +72,6 @@
             height: 120px;
             display: flex;
             align-items: center;
-            position: relative;
         }
 
         header::before {
@@ -82,7 +81,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(24, 224, 164, 0.733);
             z-index: 1;
         }
 
@@ -840,8 +839,8 @@
             background: rgb(50, 81, 102);
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 150;
-            padding: 10px;
-            height: 70px;
+            padding: 5px;
+            height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -968,7 +967,6 @@
     <div class="footer">
         <div class="footer-icons">
             <a href="https://t.me" target="_blank"><img src="icons/tg.png" class="footer-icon" alt="Телеграм"></a>
-            <a href="https://www.instagram.com/" target="_blank"><img src="icons/instagram.png" class="footer-icon" alt="Телеграм"></a>
             <a href="https://max.ru" target="_blank"><img src="icons/max.png" class="footer-icon" alt="Макс"></a>
             <a href="https://wa.me" target="_blank"><img src="icons/whatsapp.png" class="footer-icon" alt="Ватсап"></a>
             <a href="https://vk.com" target="_blank"><img src="icons/vk.png" class="footer-icon" alt="ВК"></a>
@@ -1013,6 +1011,15 @@
                     <option value="high">🔴 Высокий</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label class="form-label">Раздел</label>
+                <select class="form-select" id="projectTag">
+                    <option value="">📋 Список (общее)</option>
+                    <option value="3d">🖨️ 3Д печать</option>
+                    <option value="marketplaces">🛒 Маркетплейсы</option>
+                    <option value="training">💪 Тренировки</option>
+                </select>
+            </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
                 <button class="btn-primary" onclick="saveProject()">Сохранить</button>
@@ -1038,15 +1045,6 @@
                     <option value="wife">Виктория</option>
                     <option value="nika">Ника</option>
                     <option value="both">Оба</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Раздел</label>
-                <select class="form-select" id="taskTag">
-                    <option value="">📋 Список (общее)</option>
-                    <option value="3d">🖨️ 3Д печать</option>
-                    <option value="marketplaces">🛒 Маркетплейсы</option>
-                    <option value="training">💪 Тренировки</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1303,8 +1301,9 @@
 
         function renderListView() {
             const container = document.getElementById('projectsContainer');
+            const listProjects = projects.filter(project => !project.tag);
             
-            if (!projects || projects.length === 0) {
+            if (!listProjects || listProjects.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🚀</div>
@@ -1316,8 +1315,8 @@
                 return;
             }
             
-            container.innerHTML = projects.map((project, index) => {
-                const listTasks = (project.tasks || []).filter(task => !task.tag);
+            container.innerHTML = listProjects.map((project) => {
+                const originalIndex = projects.indexOf(project);
                 const progress = calculateProgress(project);
                 const priorityClass = `priority-${project.priority}`;
                 const priorityText = {
@@ -1325,16 +1324,16 @@
                     medium: '🟡 Средний',
                     low: '🟢 Низкий'
                 }[project.priority] || '🟡 Средний';
-                const isCollapsed = collapsedProjects.has(index);
+                const isCollapsed = collapsedProjects.has(originalIndex);
                 
                 return `
                     <div class="project-card">
                         <div class="project-header">
-                            <div class="project-title" onclick="toggleProject(${index})">${project.name}</div>
+                            <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
                             <span class="priority-badge ${priorityClass}">${priorityText}</span>
-                            <button class="edit-btn" onclick="editProject(${index})">✏️</button>
-                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${index})">▼</button>
-                            <button class="delete-btn" onclick="deleteProject(${index})">🗑️</button>
+                            <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
+                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
+                            <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
                         </div>
                         
                         <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
@@ -1346,49 +1345,46 @@
                             </div>
                             
                             <div class="tasks-list">
-                                ${listTasks.map((task, taskIndex) => {
-                                    const originalIndex = project.tasks.indexOf(task);
-                                    return `
+                                ${(project.tasks || []).map((task, taskIndex) => `
                                     <div>
-                                        <div class="task-item" onclick="toggleTask(${index}, ${originalIndex})">
+                                        <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
                                             <div class="task-checkbox ${task.completed ? 'checked' : ''}">
                                                 ${task.completed ? '✓' : ''}
                                             </div>
                                             <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
                                             ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${index}, ${originalIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
+                                            ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${originalIndex}, ${taskIndex})">${task.assignee === 'me' ? 'Никита' : task.assignee === 'wife' ? 'Виктория' : task.assignee === 'nika' ? 'Ника' : 'Оба'}</span>` : ''}
                                             ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
-                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${index}, ${originalIndex})">✏️</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${originalIndex}, -1)">↑</button>
-                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${originalIndex}, 1)">↓</button>
+                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${originalIndex}, ${taskIndex})">✏️</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, -1)">↑</button>
+                                            <button class="move-btn" onclick="event.stopPropagation(); moveTask(${originalIndex}, ${taskIndex}, 1)">↓</button>
                                             <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
-                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${index}, ${originalIndex})">💬</button>
-                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${index}, ${originalIndex})">✕</button>
+                                            <button class="voice-btn" onclick="event.stopPropagation(); openComments(${originalIndex}, ${taskIndex})">💬</button>
+                                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
                                         </div>
                                         ${task.subtasks && task.subtasks.length > 0 ? `
                                             <div class="subtasks">
                                                 ${task.subtasks.map((subtask, subtaskIndex) => `
-                                                    <div class="subtask-item" onclick="toggleSubtask(${index}, ${originalIndex}, ${subtaskIndex})">
+                                                    <div class="subtask-item" onclick="toggleSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">
                                                         <div class="subtask-checkbox ${subtask.completed ? 'checked' : ''}">
                                                             ${subtask.completed ? '✓' : ''}
                                                         </div>
                                                         <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
                                                         ${subtask.date ? `<span class="date-badge">📅 ${formatDate(subtask.date)}</span>` : ''}
-                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${index}, ${originalIndex}, ${subtaskIndex})">✏️</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${originalIndex}, ${subtaskIndex}, -1)">↑</button>
-                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${originalIndex}, ${subtaskIndex}, 1)">↓</button>
-                                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${index}, ${originalIndex}, ${subtaskIndex})">✕</button>
+                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✏️</button>
+                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, -1)">↑</button>
+                                                        <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex}, 1)">↓</button>
+                                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${originalIndex}, ${taskIndex}, ${subtaskIndex})">✕</button>
                                                     </div>
                                                 `).join('')}
                                             </div>
                                         ` : ''}
-                                        <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${index}, ${originalIndex})">+ Подзадача</button>
+                                        <button class="add-btn" style="background: #2196F3; margin-top: 5px;" onclick="event.stopPropagation(); openAddSubtaskModal(${originalIndex}, ${taskIndex})">+ Подзадача</button>
                                     </div>
-                                `;
-                                }).join('')}
+                                `).join('')}
                             </div>
                             
-                            <button class="add-btn" onclick="openAddTaskModal(${index})">+ Добавить задачу</button>
+                            <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
                         </div>
                     </div>
                 `;
@@ -1531,118 +1527,60 @@
             renderCalendarView();
         }
 
-        function render3DView() {
-            const container = document.getElementById('container3d');
-            const tasks3d = [];
+        function renderTaggedView(containerId, tag, emptyMessage) {
+            const container = document.getElementById(containerId);
+            const taggedProjects = projects.filter(project => project.tag === tag);
             
-            projects.forEach((project, projectIndex) => {
-                if (project.tasks) {
-                    project.tasks.forEach((task, taskIndex) => {
-                        if (task.tag === '3d') {
-                            tasks3d.push({
-                                ...task,
-                                projectName: project.name,
-                                projectIndex: projectIndex,
-                                taskIndex: taskIndex
-                            });
-                        }
-                    });
-                }
-            });
-            
-            if (tasks3d.length === 0) {
-                container.innerHTML = '<div class="empty-state">🖨️ Нет задач в разделе 3Д печать</div>';
-            } else {
-                container.innerHTML = tasks3d.map(task => `
-                    <div class="project-card">
-                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
-                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                ${task.completed ? '✓' : ''}
-                            </div>
-                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                            <small>(${task.projectName})</small>
-                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
+            if (taggedProjects.length === 0) {
+                container.innerHTML = `<div class="empty-state">${emptyMessage}</div>`;
+                return;
             }
+            
+            container.innerHTML = taggedProjects.map(project => {
+                const originalIndex = projects.indexOf(project);
+                const progress = calculateProgress(project);
+                
+                return `
+                    <div class="project-card">
+                        <div class="project-header">
+                            <div class="project-title">${project.name}</div>
+                            <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
+                            <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-percent">${progress}%</div>
+                        </div>
+                        <div class="tasks-list">
+                            ${(project.tasks || []).map((task, taskIndex) => `
+                                <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
+                                    <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                        ${task.completed ? '✓' : ''}
+                                    </div>
+                                    <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                                    ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                                    <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function render3DView() {
+            renderTaggedView('container3d', '3d', '🖨️ Нет проектов в разделе 3Д печать');
         }
 
         function renderMarketplacesView() {
-            const container = document.getElementById('containerMarketplaces');
-            const tasksMarket = [];
-            
-            projects.forEach((project, projectIndex) => {
-                if (project.tasks) {
-                    project.tasks.forEach((task, taskIndex) => {
-                        if (task.tag === 'marketplaces') {
-                            tasksMarket.push({
-                                ...task,
-                                projectName: project.name,
-                                projectIndex: projectIndex,
-                                taskIndex: taskIndex
-                            });
-                        }
-                    });
-                }
-            });
-            
-            if (tasksMarket.length === 0) {
-                container.innerHTML = '<div class="empty-state">🛒 Нет задач в разделе Маркетплейсы</div>';
-            } else {
-                container.innerHTML = tasksMarket.map(task => `
-                    <div class="project-card">
-                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
-                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                ${task.completed ? '✓' : ''}
-                            </div>
-                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                            <small>(${task.projectName})</small>
-                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            renderTaggedView('containerMarketplaces', 'marketplaces', '🛒 Нет проектов в разделе Маркетплейсы');
         }
 
         function renderTrainingView() {
-            const container = document.getElementById('containerTraining');
-            const tasksTraining = [];
-            
-            projects.forEach((project, projectIndex) => {
-                if (project.tasks) {
-                    project.tasks.forEach((task, taskIndex) => {
-                        if (task.tag === 'training') {
-                            tasksTraining.push({
-                                ...task,
-                                projectName: project.name,
-                                projectIndex: projectIndex,
-                                taskIndex: taskIndex
-                            });
-                        }
-                    });
-                }
-            });
-            
-            if (tasksTraining.length === 0) {
-                container.innerHTML = '<div class="empty-state">💪 Нет задач в разделе Тренировки</div>';
-            } else {
-                container.innerHTML = tasksTraining.map(task => `
-                    <div class="project-card">
-                        <div class="task-item" onclick="toggleTask(${task.projectIndex}, ${task.taskIndex})">
-                            <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                ${task.completed ? '✓' : ''}
-                            </div>
-                            <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                            ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                            <small>(${task.projectName})</small>
-                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${task.projectIndex}, ${task.taskIndex})">✕</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
+            renderTaggedView('containerTraining', 'training', '💪 Нет проектов в разделе Тренировки');
         }
 
         function switchView(view) {
@@ -1920,6 +1858,7 @@
             document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
             document.getElementById('projectName').value = project.name;
             document.getElementById('projectPriority').value = project.priority || 'medium';
+            document.getElementById('projectTag').value = project.tag || '';
             openModal('projectModal');
         }
 
@@ -1932,7 +1871,6 @@
             document.getElementById('taskName').value = task.name;
             document.getElementById('taskDate').value = task.date || '';
             document.getElementById('taskAssignee').value = task.assignee || 'me';
-            document.getElementById('taskTag').value = task.tag || '';
             if (task.image) {
                 selectedImage = task.image;
                 document.getElementById('imagePreview').src = task.image;
@@ -1980,6 +1918,7 @@
             document.getElementById('projectModalTitle').textContent = 'Новый проект';
             document.getElementById('projectName').value = '';
             document.getElementById('projectPriority').value = 'medium';
+            document.getElementById('projectTag').value = '';
             openModal('projectModal');
         }
 
@@ -1991,7 +1930,6 @@
             document.getElementById('taskDate').value = '';
             document.getElementById('taskImage').value = '';
             document.getElementById('taskAssignee').value = 'me';
-            document.getElementById('taskTag').value = '';
             openModal('taskModal');
         }
 
@@ -2008,17 +1946,20 @@
         function saveProject() {
             const name = document.getElementById('projectName').value.trim();
             const priority = document.getElementById('projectPriority').value;
+            const tag = document.getElementById('projectTag').value;
             
             if (!name) return;
             
             if (isEditing) {
                 projects[currentProjectId].name = name;
                 projects[currentProjectId].priority = priority;
+                projects[currentProjectId].tag = tag;
             } else {
                 projects.push({
                     id: Date.now(),
                     name: name,
                     priority: priority,
+                    tag: tag,
                     tasks: [],
                     createdAt: new Date().toISOString()
                 });
@@ -2032,7 +1973,6 @@
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
             const assignee = document.getElementById('taskAssignee').value;
-            const tag = document.getElementById('taskTag').value;
             
             if (!name) return;
             
@@ -2040,7 +1980,6 @@
                 projects[currentProjectId].tasks[currentTaskId].name = name;
                 projects[currentProjectId].tasks[currentTaskId].date = date;
                 projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
-                projects[currentProjectId].tasks[currentTaskId].tag = tag;
                 if (selectedImage) {
                     projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
                 }
@@ -2056,7 +1995,6 @@
                     subtasks: [],
                     date: date,
                     assignee: assignee,
-                    tag: tag,
                     image: selectedImage,
                     comments: [],
                     createdAt: new Date().toISOString()
