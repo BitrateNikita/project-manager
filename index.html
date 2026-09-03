@@ -1167,10 +1167,23 @@
         
         // Новая функция для перехода к задаче из календаря
         function openTaskFromCalendar(projectIndex, taskIndex) {
-            // Переключаемся на список
-            switchView('list');
+            const project = projects[projectIndex];
             
-            // Находим проект и разворачиваем его
+            if (!project) return;
+            
+            // Определяем куда переключиться
+            if (project.tag && project.tag.startsWith('custom_')) {
+                // Переключаемся на кастомный раздел
+                switchView(project.tag);
+            } else if (project.tag === 'calendar') {
+                // Если это календарь - остаемся в календаре
+                switchView('calendar');
+            } else {
+                // Без тега - список
+                switchView('list');
+            }
+            
+            // Разворачиваем проект
             collapsedProjects.delete(projectIndex);
             
             // Перерисовываем
@@ -1179,13 +1192,23 @@
             // Прокручиваем к проекту
             setTimeout(() => {
                 const projectCards = document.querySelectorAll('.project-card');
-                if (projectCards[projectIndex]) {
-                    projectCards[projectIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Подсвечиваем
-                    projectCards[projectIndex].style.border = '2px solid var(--info)';
-                    setTimeout(() => {
-                        projectCards[projectIndex].style.border = 'none';
-                    }, 2000);
+                if (projectCards.length > 0) {
+                    // Находим нужный проект
+                    let targetCard = null;
+                    projectCards.forEach(card => {
+                        const title = card.querySelector('.project-title');
+                        if (title && title.textContent === project.name) {
+                            targetCard = card;
+                        }
+                    });
+                    
+                    if (targetCard) {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetCard.style.border = '2px solid var(--info)';
+                        setTimeout(() => {
+                            targetCard.style.border = 'none';
+                        }, 2000);
+                    }
                 }
             }, 300);
             
