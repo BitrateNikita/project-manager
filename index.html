@@ -1118,15 +1118,78 @@
             const panel = document.getElementById('calendarTasksPanel');
             const list = document.getElementById('calendarTasksList');
             const tasks = [];
-            projects.forEach(p => {
-                if (p.tasks) p.tasks.forEach(t => {
-                    if (t.date && t.date.split('T')[0] === dateStr) tasks.push({ name: t.name, projectName: p.name, completed: t.completed, time: t.date.split('T')[1] || '' });
-                    if (t.subtasks) t.subtasks.forEach(st => { if (st.date && st.date.split('T')[0] === dateStr) tasks.push({ name: st.name, projectName: p.name, completed: st.completed, time: st.date.split('T')[1] || '' }); });
+            
+            projects.forEach((p, pIndex) => {
+                if (p.tasks) p.tasks.forEach((t, tIndex) => {
+                    if (t.date && t.date.split('T')[0] === dateStr) {
+                        tasks.push({ 
+                            name: t.name, 
+                            projectName: p.name, 
+                            completed: t.completed, 
+                            time: t.date.split('T')[1] || '',
+                            projectIndex: pIndex,
+                            taskIndex: tIndex,
+                            type: 'task'
+                        });
+                    }
+                    if (t.subtasks) t.subtasks.forEach((st, stIndex) => {
+                        if (st.date && st.date.split('T')[0] === dateStr) {
+                            tasks.push({ 
+                                name: st.name, 
+                                projectName: p.name, 
+                                completed: st.completed, 
+                                time: st.date.split('T')[1] || '',
+                                projectIndex: pIndex,
+                                taskIndex: tIndex,
+                                subtaskIndex: stIndex,
+                                type: 'subtask'
+                            });
+                        }
+                    });
                 });
             });
-            if (!tasks.length) list.innerHTML = '<p style="text-align:center;color:#999;">Нет задач на эту дату</p>';
-            else list.innerHTML = tasks.sort((a, b) => a.time.localeCompare(b.time)).map(t => `<div class="calendar-task-item ${t.completed ? 'completed' : ''}">${t.time ? `<small>${t.time.slice(0,5)}</small> ` : ''}${t.name} <small>(${t.projectName})</small></div>`).join('');
+            
+            if (!tasks.length) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">Нет задач на эту дату</p>';
+            } else {
+                list.innerHTML = tasks.sort((a, b) => a.time.localeCompare(b.time)).map(task => `
+                    <div class="calendar-task-item ${task.completed ? 'completed' : ''}" 
+                         onclick="openTaskFromCalendar(${task.projectIndex}, ${task.taskIndex})">
+                        ${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}
+                        ${task.name} 
+                        <small>(${task.projectName})</small>
+                    </div>
+                `).join('');
+            }
+            
             panel.classList.add('active');
+        }
+        
+        // Новая функция для перехода к задаче из календаря
+        function openTaskFromCalendar(projectIndex, taskIndex) {
+            // Переключаемся на список
+            switchView('list');
+            
+            // Находим проект и разворачиваем его
+            collapsedProjects.delete(projectIndex);
+            
+            // Перерисовываем
+            renderProjects();
+            
+            // Прокручиваем к проекту
+            setTimeout(() => {
+                const projectCards = document.querySelectorAll('.project-card');
+                if (projectCards[projectIndex]) {
+                    projectCards[projectIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Подсвечиваем
+                    projectCards[projectIndex].style.border = '2px solid var(--info)';
+                    setTimeout(() => {
+                        projectCards[projectIndex].style.border = 'none';
+                    }, 2000);
+                }
+            }, 300);
+            
+            showNotification('📂 Проект открыт');
         }
 
         function changeMonth(delta) {
