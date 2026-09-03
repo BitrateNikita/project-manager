@@ -69,7 +69,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            height: 120px;
+            height: 80px;
             display: flex;
             align-items: center;
         }
@@ -81,7 +81,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(24, 224, 164, 0.733);
+            background: rgba(255, 255, 255, 0.25);
             z-index: 1;
         }
 
@@ -91,22 +91,41 @@
         }
 
         h1 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
+            font-size: 1.3em;
+            margin: 0;
         }
 
-        .stats {
+        .user-avatar-container {
             display: flex;
+            align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            cursor: pointer;
         }
 
-        .stat-item {
-            background: rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            backdrop-filter: blur(10px);
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            overflow: hidden;
+            cursor: pointer;
+            flex-shrink: 0;
+            border: 2px solid white;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 0.9em;
+            font-weight: 500;
         }
 
         .sync-status {
@@ -121,19 +140,6 @@
             z-index: 200;
         }
 
-        .user-info {
-            position: fixed;
-            top: 40px;
-            right: 10px;
-            background: white;
-            border-radius: 15px;
-            padding: 5px 10px;
-            font-size: 0.75em;
-            box-shadow: var(--shadow);
-            z-index: 200;
-            cursor: pointer;
-        }
-
         .view-toggle {
             display: flex;
             gap: 5px;
@@ -141,6 +147,7 @@
             overflow-x: auto;
             padding-bottom: 5px;
             -webkit-overflow-scrolling: touch;
+            align-items: center;
         }
 
         .view-btn {
@@ -153,12 +160,45 @@
             font-size: 0.85em;
             transition: all 0.3s;
             white-space: nowrap;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .view-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+        }
+
+        .task-count {
+            background: var(--info);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .add-section-btn {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .add-section-btn:active {
+            transform: scale(0.9);
         }
 
         .project-card {
@@ -661,7 +701,7 @@
 
         .floating-btn {
             position: fixed;
-            bottom: 120px;
+            bottom: 80px;
             right: 20px;
             width: 56px;
             height: 56px;
@@ -680,6 +720,30 @@
         }
 
         .floating-btn:active {
+            transform: scale(0.9);
+        }
+
+        .edit-sections-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 90px;
+            width: 56px;
+            height: 56px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .edit-sections-btn:active {
             transform: scale(0.9);
         }
 
@@ -840,7 +904,7 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 150;
             padding: 5px;
-            height: 80px;
+            height: 65px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -919,26 +983,22 @@
 </head>
 <body>
     <div class="sync-status" id="syncStatus">🔄 Синхронизация...</div>
-    <div class="user-info" id="userInfo" onclick="showLoginModal()">👤 Войти</div>
     
     <header>
-        <div class="container">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
             <h1>📊 Планнер</h1>
-            <div class="stats">
-                <div class="stat-item">📁 <span id="totalProjects">0</span></div>
-                <div class="stat-item">✅ <span id="totalTasks">0</span></div>
-                <div class="stat-item">📈 <span id="completedTasks">0</span></div>
+            <div class="user-avatar-container" onclick="showLoginModal()">
+                <div class="user-avatar" id="userAvatar">
+                    <span id="avatarPlaceholder">👤</span>
+                </div>
+                <div class="user-name" id="userNameDisplay">Войти</div>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <div class="view-toggle">
-            <button class="view-btn active" onclick="switchView('list')">📋 Список</button>
-            <button class="view-btn" onclick="switchView('calendar')">📅 Календарь</button>
-            <button class="view-btn" onclick="switchView('3d')">🖨️ 3Д печать</button>
-            <button class="view-btn" onclick="switchView('marketplaces')">🛒 Маркетплейсы</button>
-            <button class="view-btn" onclick="switchView('training')">💪 Тренеровки</button>
+        <div class="view-toggle" id="viewToggle">
+            <!-- Кнопки разделов будут генерироваться динамически -->
         </div>
         
         <div id="listView">
@@ -949,20 +1009,11 @@
             <div id="calendarContainer"></div>
         </div>
         
-        <div id="view3d" class="calendar-view">
-            <div id="container3d"></div>
-        </div>
-        
-        <div id="viewMarketplaces" class="calendar-view">
-            <div id="containerMarketplaces"></div>
-        </div>
-        
-        <div id="viewTraining" class="calendar-view">
-            <div id="containerTraining"></div>
-        </div>
+        <div id="dynamicViews"></div>
     </div>
 
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
+    <button class="edit-sections-btn" onclick="openSectionsManager()">⚙️</button>
 
     <div class="footer">
         <div class="footer-icons">
@@ -985,13 +1036,55 @@
     <!-- Модальные окна -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <div class="modal-title">Вход</div>
+            <div class="modal-title">Профиль</div>
             <div class="form-group">
                 <label class="form-label">Ваше имя</label>
                 <input type="text" class="form-input" id="userName" placeholder="Введите имя">
             </div>
+            <div class="form-group">
+                <label class="form-label">Аватар</label>
+                <input type="file" class="form-input" id="userAvatarInput" accept="image/*" onchange="previewAvatar(this)">
+            </div>
             <div class="modal-actions">
-                <button class="btn-primary" onclick="login()">Войти</button>
+                <button class="btn-primary" onclick="saveProfile()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="sectionModal">
+        <div class="modal-content">
+            <div class="modal-title" id="sectionModalTitle">Новый раздел</div>
+            <div class="form-group">
+                <label class="form-label">Название раздела</label>
+                <input type="text" class="form-input" id="sectionName" placeholder="Введите название" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Иконка</label>
+                <select class="form-select" id="sectionIcon">
+                    <option value="📋">📋 Список</option>
+                    <option value="🖨️">🖨️ Печать</option>
+                    <option value="🛒">🛒 Покупки</option>
+                    <option value="💪">💪 Спорт</option>
+                    <option value="🏠">🏠 Дом</option>
+                    <option value="🚗">🚗 Авто</option>
+                    <option value="📚">📚 Учеба</option>
+                    <option value="💰">💰 Финансы</option>
+                    <option value="🎨">🎨 Творчество</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('sectionModal')">Отмена</button>
+                <button class="btn-primary" onclick="saveSection()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="sectionsManagerModal">
+        <div class="modal-content">
+            <div class="modal-title">Управление разделами</div>
+            <div id="sectionsList"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('sectionsManagerModal')">Закрыть</button>
             </div>
         </div>
     </div>
@@ -1015,9 +1108,6 @@
                 <label class="form-label">Раздел</label>
                 <select class="form-select" id="projectTag">
                     <option value="">📋 Список (общее)</option>
-                    <option value="3d">🖨️ 3Д печать</option>
-                    <option value="marketplaces">🛒 Маркетплейсы</option>
-                    <option value="training">💪 Тренировки</option>
                 </select>
             </div>
             <div class="modal-actions">
@@ -1123,13 +1213,16 @@
         const database = firebase.database();
 
         let projects = [];
+        let customSections = [];
         let currentProjectId = null;
         let currentTaskId = null;
         let currentSubtaskId = null;
         let currentView = 'list';
+        let currentSectionId = null;
         let collapsedProjects = new Set();
         let selectedImage = null;
         let currentUser = localStorage.getItem('userName') || null;
+        let userAvatar = localStorage.getItem('userAvatar') || null;
         let timerInterval = null;
         let timerSeconds = 0;
         let recognition = null;
@@ -1142,6 +1235,122 @@
         let selectedDate = null;
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
+
+        // Загрузка пользовательских разделов
+        function loadCustomSections() {
+            const saved = localStorage.getItem('customSections');
+            if (saved) {
+                customSections = JSON.parse(saved);
+            }
+        }
+
+        function saveCustomSections() {
+            localStorage.setItem('customSections', JSON.stringify(customSections));
+        }
+
+        // Все разделы (стандартные + пользовательские)
+        function getAllSections() {
+            return [
+                { id: '', name: '📋 Список', tag: '' },
+                { id: 'calendar', name: '📅 Календарь', tag: 'calendar' },
+                ...customSections
+            ];
+        }
+
+        function renderViewToggle() {
+            const container = document.getElementById('viewToggle');
+            const sections = getAllSections();
+            
+            container.innerHTML = sections.map(section => {
+                const count = countTasksInSection(section.tag);
+                const isActive = currentView === (section.tag || 'list');
+                return `
+                    <button class="view-btn ${isActive ? 'active' : ''}" onclick="switchView('${section.tag || 'list'}')">
+                        ${section.name}
+                        ${count > 0 ? `<span class="task-count">${count}</span>` : ''}
+                    </button>
+                `;
+            }).join('') + `
+                <button class="add-section-btn" onclick="openAddSectionModal()">+</button>
+            `;
+        }
+
+        function countTasksInSection(tag) {
+            let count = 0;
+            projects.forEach(project => {
+                if (project.tag === tag) {
+                    count += (project.tasks || []).length;
+                }
+            });
+            return count;
+        }
+
+        function openAddSectionModal() {
+            isEditing = false;
+            currentSectionId = null;
+            document.getElementById('sectionModalTitle').textContent = 'Новый раздел';
+            document.getElementById('sectionName').value = '';
+            document.getElementById('sectionIcon').value = '📋';
+            openModal('sectionModal');
+        }
+
+        function saveSection() {
+            const name = document.getElementById('sectionName').value.trim();
+            const icon = document.getElementById('sectionIcon').value;
+            
+            if (!name) return;
+            
+            const tag = 'custom_' + Date.now();
+            
+            customSections.push({
+                id: tag,
+                name: icon + ' ' + name,
+                tag: tag
+            });
+            
+            saveCustomSections();
+            renderViewToggle();
+            closeModal('sectionModal');
+        }
+
+        function openSectionsManager() {
+            const container = document.getElementById('sectionsList');
+            
+            container.innerHTML = customSections.map((section, index) => `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f0f0f0;">
+                    <span>${section.name}</span>
+                    <div>
+                        <button class="edit-btn" onclick="editSection(${index})">✏️</button>
+                        <button class="delete-btn" onclick="deleteSection(${index})">🗑️</button>
+                    </div>
+                </div>
+            `).join('') || '<p style="text-align: center; color: #999;">Нет пользовательских разделов</p>';
+            
+            openModal('sectionsManagerModal');
+        }
+
+        function editSection(index) {
+            const section = customSections[index];
+            currentSectionId = index;
+            isEditing = true;
+            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
+            document.getElementById('sectionName').value = section.name.split(' ').slice(1).join(' ');
+            document.getElementById('sectionIcon').value = section.name.split(' ')[0];
+            closeModal('sectionsManagerModal');
+            openModal('sectionModal');
+        }
+
+        function deleteSection(index) {
+            if (confirm('Удалить раздел?')) {
+                customSections.splice(index, 1);
+                saveCustomSections();
+                renderViewToggle();
+                closeModal('sectionsManagerModal');
+                if (currentView.startsWith('custom_')) {
+                    switchView('list');
+                }
+            }
+        }
 
         if ('webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
@@ -1165,23 +1374,46 @@
         }
 
         function updateUserInfo() {
-            const userInfo = document.getElementById('userInfo');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            
             if (currentUser) {
-                userInfo.textContent = '👤 ' + currentUser;
+                userNameDisplay.textContent = currentUser;
+                if (userAvatar) {
+                    avatarPlaceholder.innerHTML = `<img src="${userAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                } else {
+                    avatarPlaceholder.textContent = currentUser.charAt(0).toUpperCase();
+                }
             } else {
-                userInfo.textContent = '👤 Войти';
+                userNameDisplay.textContent = 'Войти';
+                avatarPlaceholder.textContent = '👤';
             }
         }
 
         function showLoginModal() {
+            document.getElementById('userName').value = currentUser || '';
             openModal('loginModal');
         }
 
-        function login() {
+        function previewAvatar(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userAvatar = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveProfile() {
             const name = document.getElementById('userName').value.trim();
             if (name) {
                 currentUser = name;
                 localStorage.setItem('userName', name);
+                if (userAvatar) {
+                    localStorage.setItem('userAvatar', userAvatar);
+                }
                 updateUserInfo();
                 closeModal('loginModal');
                 renderProjects();
@@ -1214,11 +1446,13 @@
                         collapsedProjects.add(index);
                     });
                     renderProjects();
+                    renderViewToggle();
                     document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
                     document.getElementById('syncStatus').style.color = '#4CAF50';
                 } else {
                     projects = [];
                     renderProjects();
+                    renderViewToggle();
                     document.getElementById('syncStatus').textContent = '📭 Пусто';
                     document.getElementById('syncStatus').style.color = '#999';
                 }
@@ -1236,31 +1470,6 @@
                     document.getElementById('syncStatus').textContent = '❌ Ошибка';
                     document.getElementById('syncStatus').style.color = '#f44336';
                 });
-        }
-
-        function updateStats() {
-            let totalTasks = 0;
-            let completedTasks = 0;
-            
-            projects.forEach(project => {
-                if (project.tasks) {
-                    project.tasks.forEach(task => {
-                        totalTasks++;
-                        if (task.completed) completedTasks++;
-                        
-                        if (task.subtasks) {
-                            task.subtasks.forEach(subtask => {
-                                totalTasks++;
-                                if (subtask.completed) completedTasks++;
-                            });
-                        }
-                    });
-                }
-            });
-            
-            document.getElementById('totalProjects').textContent = projects.length;
-            document.getElementById('totalTasks').textContent = totalTasks;
-            document.getElementById('completedTasks').textContent = completedTasks;
         }
 
         function calculateProgress(project) {
@@ -1290,18 +1499,14 @@
                 renderListView();
             } else if (currentView === 'calendar') {
                 renderCalendarView();
-            } else if (currentView === '3d') {
-                render3DView();
-            } else if (currentView === 'marketplaces') {
-                renderMarketplacesView();
-            } else if (currentView === 'training') {
-                renderTrainingView();
+            } else if (currentView.startsWith('custom_')) {
+                renderTaggedView('dynamicViews', currentView, '');
             }
         }
 
         function renderListView() {
             const container = document.getElementById('projectsContainer');
-            const listProjects = projects.filter(project => !project.tag);
+            const listProjects = projects.filter(project => !project.tag || project.tag === '');
             
             if (!listProjects || listProjects.length === 0) {
                 container.innerHTML = `
@@ -1311,7 +1516,6 @@
                         <p style="color: #666; margin: 10px 0;">Нажмите + чтобы создать</p>
                     </div>
                 `;
-                updateStats();
                 return;
             }
             
@@ -1389,8 +1593,6 @@
                     </div>
                 `;
             }).join('');
-            
-            updateStats();
         }
 
         function renderCalendarView() {
@@ -1532,84 +1734,66 @@
             const taggedProjects = projects.filter(project => project.tag === tag);
             
             if (taggedProjects.length === 0) {
-                container.innerHTML = `<div class="empty-state">${emptyMessage}</div>`;
+                container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`;
                 return;
             }
             
             container.innerHTML = taggedProjects.map(project => {
                 const originalIndex = projects.indexOf(project);
                 const progress = calculateProgress(project);
+                const isCollapsed = collapsedProjects.has(originalIndex);
                 
                 return `
                     <div class="project-card">
                         <div class="project-header">
-                            <div class="project-title">${project.name}</div>
+                            <div class="project-title" onclick="toggleProject(${originalIndex})">${project.name}</div>
                             <button class="edit-btn" onclick="editProject(${originalIndex})">✏️</button>
+                            <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${originalIndex})">▼</button>
                             <button class="delete-btn" onclick="deleteProject(${originalIndex})">🗑️</button>
                         </div>
-                        <div class="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progress}%"></div>
-                            </div>
-                            <div class="progress-percent">${progress}%</div>
-                        </div>
-                        <div class="tasks-list">
-                            ${(project.tasks || []).map((task, taskIndex) => `
-                                <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
-                                    <div class="task-checkbox ${task.completed ? 'checked' : ''}">
-                                        ${task.completed ? '✓' : ''}
-                                    </div>
-                                    <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
-                                    ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                                    <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
+                        <div class="project-content ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : '99999px'}">
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
                                 </div>
-                            `).join('')}
+                                <div class="progress-percent">${progress}%</div>
+                            </div>
+                            <div class="tasks-list">
+                                ${(project.tasks || []).map((task, taskIndex) => `
+                                    <div class="task-item" onclick="toggleTask(${originalIndex}, ${taskIndex})">
+                                        <div class="task-checkbox ${task.completed ? 'checked' : ''}">
+                                            ${task.completed ? '✓' : ''}
+                                        </div>
+                                        <div class="task-text ${task.completed ? 'completed' : ''}">${task.name}</div>
+                                        ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
+                                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${originalIndex}, ${taskIndex})">✕</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
                         </div>
-                        <button class="add-btn" onclick="openAddTaskModal(${originalIndex})">+ Добавить задачу</button>
                     </div>
                 `;
             }).join('');
         }
 
-        function render3DView() {
-            renderTaggedView('container3d', '3d', '🖨️ Нет проектов в разделе 3Д печать');
-        }
-
-        function renderMarketplacesView() {
-            renderTaggedView('containerMarketplaces', 'marketplaces', '🛒 Нет проектов в разделе Маркетплейсы');
-        }
-
-        function renderTrainingView() {
-            renderTaggedView('containerTraining', 'training', '💪 Нет проектов в разделе Тренировки');
-        }
-
         function switchView(view) {
             currentView = view;
-            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
             
+            // Скрываем все view
             document.getElementById('listView').style.display = 'none';
             document.getElementById('calendarView').classList.remove('active');
-            document.getElementById('view3d').classList.remove('active');
-            document.getElementById('viewMarketplaces').classList.remove('active');
-            document.getElementById('viewTraining').classList.remove('active');
+            document.getElementById('dynamicViews').style.display = 'none';
             
             if (view === 'list') {
                 document.getElementById('listView').style.display = 'block';
-                document.querySelectorAll('.view-btn')[0].classList.add('active');
             } else if (view === 'calendar') {
                 document.getElementById('calendarView').classList.add('active');
-                document.querySelectorAll('.view-btn')[1].classList.add('active');
-            } else if (view === '3d') {
-                document.getElementById('view3d').classList.add('active');
-                document.querySelectorAll('.view-btn')[2].classList.add('active');
-            } else if (view === 'marketplaces') {
-                document.getElementById('viewMarketplaces').classList.add('active');
-                document.querySelectorAll('.view-btn')[3].classList.add('active');
-            } else if (view === 'training') {
-                document.getElementById('viewTraining').classList.add('active');
-                document.querySelectorAll('.view-btn')[4].classList.add('active');
+            } else {
+                document.getElementById('dynamicViews').style.display = 'block';
             }
             
+            renderViewToggle();
             renderProjects();
         }
 
@@ -1619,7 +1803,7 @@
             } else {
                 collapsedProjects.add(index);
             }
-            renderListView();
+            renderProjects();
         }
 
         function formatDate(dateString) {
@@ -1918,6 +2102,14 @@
             document.getElementById('projectModalTitle').textContent = 'Новый проект';
             document.getElementById('projectName').value = '';
             document.getElementById('projectPriority').value = 'medium';
+            
+            // Заполняем select разделов
+            const tagSelect = document.getElementById('projectTag');
+            tagSelect.innerHTML = '<option value="">📋 Список (общее)</option>';
+            customSections.forEach(section => {
+                tagSelect.innerHTML += `<option value="${section.tag}">${section.name}</option>`;
+            });
+            
             document.getElementById('projectTag').value = '';
             openModal('projectModal');
         }
@@ -2090,11 +2282,18 @@
         });
 
         document.getElementById('userName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
+            if (e.key === 'Enter') saveProfile();
         });
 
+        document.getElementById('sectionName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') saveSection();
+        });
+
+        // Инициализация
+        loadCustomSections();
         updateUserInfo();
         syncWithFirebase();
+        renderViewToggle();
     </script>
 </body>
 </html>
