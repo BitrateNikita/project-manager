@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#667eea">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-    <title>📊 Менеджер проектов</title>
+    <title>📊 Планнер</title>
     <style>
         :root {
             --primary: #4CAF50;
@@ -27,12 +27,27 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
             color: var(--text);
             line-height: 1.6;
             padding-bottom: 80px;
             user-select: none;
             -webkit-user-select: none;
+            background-image: url('bg.png');
+            background-repeat: repeat;
+            background-size: 50% auto;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.85);
+            z-index: -1;
         }
 
         .container {
@@ -142,6 +157,15 @@
             flex: 1;
             margin-right: 10px;
             word-wrap: break-word;
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 5px;
+            flex-shrink: 0;
         }
 
         .collapse-btn {
@@ -463,6 +487,22 @@
 
         .voice-btn.recording {
             animation: pulse 1s infinite;
+            color: var(--danger);
+        }
+
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            margin: 3px 0;
+        }
+
+        .voice-message audio {
+            max-width: 200px;
+            height: 30px;
         }
 
         @keyframes pulse {
@@ -660,6 +700,113 @@
             margin-top: 10px;
             border-radius: 10px;
         }
+
+        .today-badge {
+            background: var(--info);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+            padding: 20px 10px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .footer-links h3 {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .footer-links-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .footer-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .footer-link:active {
+            transform: scale(0.95);
+        }
+
+        .footer-link-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .footer-link-text {
+            font-size: 0.75em;
+        }
+
+        .call-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .call-btn {
+            display: block;
+            padding: 12px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .call-btn:active {
+            transform: scale(0.95);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 3000;
+            animation: slideDown 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -668,7 +815,7 @@
     
     <header>
         <div class="container">
-            <h1>📊 Менеджер проектов</h1>
+            <h1>📊 Планнер</h1>
             <div class="stats">
                 <div class="stat-item">📁 <span id="totalProjects">0</span></div>
                 <div class="stat-item">✅ <span id="totalTasks">0</span></div>
@@ -690,6 +837,51 @@
         <div id="calendarView" class="calendar-view">
             <div id="calendarContainer"></div>
         </div>
+        
+        <div class="footer-links">
+            <h3>📱 Для перехода</h3>
+            <div class="footer-links-grid">
+                <a href="https://t.me" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">✈️</span>
+                    <span class="footer-link-text">Телеграм</span>
+                </a>
+                <a href="https://max.ru" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">💬</span>
+                    <span class="footer-link-text">Макс</span>
+                </a>
+                <a href="https://wa.me" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">📞</span>
+                    <span class="footer-link-text">Ватсап</span>
+                </a>
+                <a href="https://vk.com" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">🌐</span>
+                    <span class="footer-link-text">ВК</span>
+                </a>
+                <a href="https://youtube.com" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">▶️</span>
+                    <span class="footer-link-text">Ютуб</span>
+                </a>
+                <a href="https://raketa.ru" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">🚀</span>
+                    <span class="footer-link-text">Ракета</span>
+                </a>
+                <a href="https://ozon.ru" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">🛒</span>
+                    <span class="footer-link-text">Озон</span>
+                </a>
+                <a href="https://wildberries.ru" class="footer-link" target="_blank">
+                    <span class="footer-link-icon">🛍️</span>
+                    <span class="footer-link-text">Валдберис</span>
+                </a>
+            </div>
+            
+            <h3>📞 Позвонить</h3>
+            <div class="call-buttons">
+                <a href="tel:+79186468822" class="call-btn">👨‍💼 Разработчик</a>
+                <a href="tel:+79933213302" class="call-btn">👧 Дочка</a>
+                <a href="tel:+79186468833" class="call-btn">👩 Приматка</a>
+            </div>
+        </div>
     </div>
 
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
@@ -710,7 +902,7 @@
 
     <div class="modal" id="projectModal">
         <div class="modal-content">
-            <div class="modal-title">Новый проект</div>
+            <div class="modal-title" id="projectModalTitle">Новый проект</div>
             <div class="form-group">
                 <label class="form-label">Название</label>
                 <input type="text" class="form-input" id="projectName" placeholder="Введите название" autocomplete="off">
@@ -725,14 +917,14 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('projectModal')">Отмена</button>
-                <button class="btn-primary" onclick="addProject()">Создать</button>
+                <button class="btn-primary" onclick="saveProject()">Сохранить</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="taskModal">
         <div class="modal-content">
-            <div class="modal-title">Новая задача</div>
+            <div class="modal-title" id="taskModalTitle">Новая задача</div>
             <div class="form-group">
                 <label class="form-label">Название</label>
                 <input type="text" class="form-input" id="taskName" placeholder="Введите название" autocomplete="off">
@@ -756,14 +948,14 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('taskModal')">Отмена</button>
-                <button class="btn-primary" onclick="addTask()">Добавить</button>
+                <button class="btn-primary" onclick="saveTask()">Сохранить</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="subtaskModal">
         <div class="modal-content">
-            <div class="modal-title">Новая подзадача</div>
+            <div class="modal-title" id="subtaskModalTitle">Новая подзадача</div>
             <div class="form-group">
                 <label class="form-label">Название</label>
                 <input type="text" class="form-input" id="subtaskName" placeholder="Введите название" autocomplete="off">
@@ -774,7 +966,7 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('subtaskModal')">Отмена</button>
-                <button class="btn-primary" onclick="addSubtask()">Добавить</button>
+                <button class="btn-primary" onclick="saveSubtask()">Сохранить</button>
             </div>
         </div>
     </div>
@@ -827,6 +1019,7 @@
         let projects = [];
         let currentProjectId = null;
         let currentTaskId = null;
+        let currentSubtaskId = null;
         let currentView = 'list';
         let collapsedProjects = new Set();
         let selectedImage = null;
@@ -835,6 +1028,11 @@
         let timerSeconds = 0;
         let recognition = null;
         let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecordingVoice = false;
+        let lastProjectsData = null;
+        let isEditing = false;
 
         // Инициализация распознавания речи
         if ('webkitSpeechRecognition' in window) {
@@ -882,12 +1080,28 @@
             }
         }
 
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
             
             projectsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    // Проверяем, были ли изменения
+                    if (lastProjectsData && JSON.stringify(lastProjectsData) !== JSON.stringify(data)) {
+                        showNotification('📝 Обновление данных');
+                    }
+                    lastProjectsData = data;
                     projects = data;
                     renderProjects();
                     document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
@@ -906,6 +1120,7 @@
                 .then(() => {
                     document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
                     document.getElementById('syncStatus').style.color = '#4CAF50';
+                    showNotification('✅ Сохранено');
                 })
                 .catch((error) => {
                     document.getElementById('syncStatus').textContent = '❌ Ошибка';
@@ -998,6 +1213,7 @@
                         <div class="project-header">
                             <div class="project-title" onclick="toggleProject(${index})">${project.name}</div>
                             <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                            <button class="edit-btn" onclick="editProject(${index})">✏️</button>
                             <button class="collapse-btn ${isCollapsed ? 'collapsed' : ''}" onclick="toggleProject(${index})">▼</button>
                             <button class="delete-btn" onclick="deleteProject(${index})">🗑️</button>
                         </div>
@@ -1021,6 +1237,7 @@
                                             ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
                                             ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}" onclick="event.stopPropagation(); changeAssignee(${index}, ${taskIndex})">${task.assignee === 'me' ? 'Я' : task.assignee === 'wife' ? 'Супруга' : 'Оба'}</span>` : ''}
                                             ${task.image ? `<img src="${task.image}" class="task-image" onclick="event.stopPropagation(); showImage('${task.image}')">` : ''}
+                                            <button class="edit-btn" onclick="event.stopPropagation(); editTask(${index}, ${taskIndex})">✏️</button>
                                             <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, -1)">↑</button>
                                             <button class="move-btn" onclick="event.stopPropagation(); moveTask(${index}, ${taskIndex}, 1)">↓</button>
                                             <button class="voice-btn" onclick="event.stopPropagation(); openTimer()">⏱️</button>
@@ -1036,6 +1253,7 @@
                                                         </div>
                                                         <div class="task-text ${subtask.completed ? 'completed' : ''}">${subtask.name}</div>
                                                         ${subtask.date ? `<span class="date-badge">📅 ${formatDate(subtask.date)}</span>` : ''}
+                                                        <button class="edit-btn" onclick="event.stopPropagation(); editSubtask(${index}, ${taskIndex}, ${subtaskIndex})">✏️</button>
                                                         <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${taskIndex}, ${subtaskIndex}, -1)">↑</button>
                                                         <button class="move-btn" onclick="event.stopPropagation(); moveSubtask(${index}, ${taskIndex}, ${subtaskIndex}, 1)">↓</button>
                                                         <button class="delete-btn" onclick="event.stopPropagation(); deleteSubtask(${index}, ${taskIndex}, ${subtaskIndex})">✕</button>
@@ -1060,10 +1278,11 @@
         function renderCalendarView() {
             const container = document.getElementById('calendarContainer');
             const tasksByDate = {};
+            const today = new Date().toISOString().split('T')[0];
             
-            projects.forEach((project, projectIndex) => {
+            projects.forEach((project) => {
                 if (project.tasks) {
-                    project.tasks.forEach((task, taskIndex) => {
+                    project.tasks.forEach((task) => {
                         if (task.date) {
                             const dateKey = task.date.split('T')[0];
                             if (!tasksByDate[dateKey]) {
@@ -1072,7 +1291,8 @@
                             tasksByDate[dateKey].push({
                                 name: task.name,
                                 projectName: project.name,
-                                completed: task.completed
+                                completed: task.completed,
+                                time: task.date.split('T')[1] || ''
                             });
                         }
                         if (task.subtasks) {
@@ -1085,7 +1305,8 @@
                                     tasksByDate[dateKey].push({
                                         name: subtask.name,
                                         projectName: project.name,
-                                        completed: subtask.completed
+                                        completed: subtask.completed,
+                                        time: subtask.date.split('T')[1] || ''
                                     });
                                 }
                             });
@@ -1101,16 +1322,24 @@
                 return;
             }
             
-            container.innerHTML = sortedDates.map(date => `
-                <div class="calendar-day">
-                    <div class="calendar-date">📅 ${date}</div>
-                    ${tasksByDate[date].map(task => `
-                        <div class="calendar-task ${task.completed ? 'completed' : ''}">
-                            ${task.name} <small>(${task.projectName})</small>
+            container.innerHTML = sortedDates.map(date => {
+                const isToday = date === today;
+                return `
+                    <div class="calendar-day" ${isToday ? 'style="border: 2px solid #2196F3;"' : ''}>
+                        <div class="calendar-date">
+                            📅 ${date}
+                            ${isToday ? '<span class="today-badge">Сегодня</span>' : ''}
                         </div>
-                    `).join('')}
-                </div>
-            `).join('');
+                        ${tasksByDate[date].sort((a, b) => a.time.localeCompare(b.time)).map(task => `
+                            <div class="calendar-task ${task.completed ? 'completed' : ''}">
+                                ${task.time ? `<small>${task.time.slice(0,5)}</small> ` : ''}
+                                ${task.name} 
+                                <small>(${task.projectName})</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
         }
 
         function switchView(view) {
@@ -1253,7 +1482,12 @@
             container.innerHTML = comments.map(comment => `
                 <div class="comment-item">
                     <div class="comment-author">${comment.author}</div>
-                    <div>${comment.text}</div>
+                    ${comment.text ? `<div>${comment.text}</div>` : ''}
+                    ${comment.voice ? `
+                        <div class="voice-message">
+                            <audio controls src="${comment.voice}"></audio>
+                        </div>
+                    ` : ''}
                     <div class="comment-time">${new Date(comment.timestamp).toLocaleString('ru-RU')}</div>
                 </div>
             `).join('');
@@ -1286,28 +1520,119 @@
         }
 
         function toggleVoiceInput() {
-            if (!recognition) {
-                alert('Голосовой ввод не поддерживается');
+            if (isRecordingVoice) {
+                stopVoiceRecording();
+            } else {
+                startVoiceRecording();
+            }
+        }
+
+        function startVoiceRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Запись голоса не поддерживается');
                 return;
             }
             
-            if (isRecording) {
-                stopRecording();
-            } else {
-                startRecording();
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = function(event) {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = function() {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const audioBase64 = e.target.result;
+                            addVoiceComment(audioBase64);
+                        };
+                        reader.readAsDataURL(audioBlob);
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecordingVoice = true;
+                    document.getElementById('voiceBtn').classList.add('recording');
+                    document.getElementById('voiceBtn').textContent = '⏹️';
+                })
+                .catch(error => {
+                    alert('Не удалось получить доступ к микрофону');
+                });
+        }
+
+        function stopVoiceRecording() {
+            if (mediaRecorder && isRecordingVoice) {
+                mediaRecorder.stop();
+                isRecordingVoice = false;
+                document.getElementById('voiceBtn').classList.remove('recording');
+                document.getElementById('voiceBtn').textContent = '🎤';
+                
+                // Останавливаем все дорожки
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
         }
 
-        function startRecording() {
-            isRecording = true;
-            document.getElementById('voiceBtn').classList.add('recording');
-            recognition.start();
+        function addVoiceComment(audioBase64) {
+            if (!currentUser) {
+                alert('Сначала войдите');
+                showLoginModal();
+                return;
+            }
+            
+            const task = projects[currentProjectId].tasks[currentTaskId];
+            if (!task.comments) {
+                task.comments = [];
+            }
+            
+            task.comments.push({
+                author: currentUser,
+                voice: audioBase64,
+                timestamp: new Date().toISOString()
+            });
+            
+            saveToFirebase();
+            renderComments();
         }
 
-        function stopRecording() {
-            isRecording = false;
-            document.getElementById('voiceBtn').classList.remove('recording');
-            recognition.stop();
+        function editProject(projectId) {
+            isEditing = true;
+            currentProjectId = projectId;
+            const project = projects[projectId];
+            document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
+            document.getElementById('projectName').value = project.name;
+            document.getElementById('projectPriority').value = project.priority || 'medium';
+            openModal('projectModal');
+        }
+
+        function editTask(projectId, taskId) {
+            isEditing = true;
+            currentProjectId = projectId;
+            currentTaskId = taskId;
+            const task = projects[projectId].tasks[taskId];
+            document.getElementById('taskModalTitle').textContent = 'Редактировать задачу';
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskDate').value = task.date || '';
+            document.getElementById('taskAssignee').value = task.assignee || 'me';
+            if (task.image) {
+                selectedImage = task.image;
+                document.getElementById('imagePreview').src = task.image;
+                document.getElementById('imagePreview').style.display = 'block';
+            }
+            openModal('taskModal');
+        }
+
+        function editSubtask(projectId, taskId, subtaskId) {
+            isEditing = true;
+            currentProjectId = projectId;
+            currentTaskId = taskId;
+            currentSubtaskId = subtaskId;
+            const subtask = projects[projectId].tasks[taskId].subtasks[subtaskId];
+            document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу';
+            document.getElementById('subtaskName').value = subtask.name;
+            document.getElementById('subtaskDate').value = subtask.date || '';
+            openModal('subtaskModal');
         }
 
         function openModal(modalId) {
@@ -1328,15 +1653,22 @@
             if (modalId === 'timerModal') {
                 stopTimer();
             }
+            isEditing = false;
+            currentSubtaskId = null;
         }
 
         function openAddProjectModal() {
+            isEditing = false;
+            document.getElementById('projectModalTitle').textContent = 'Новый проект';
             document.getElementById('projectName').value = '';
+            document.getElementById('projectPriority').value = 'medium';
             openModal('projectModal');
         }
 
         function openAddTaskModal(projectId) {
+            isEditing = false;
             currentProjectId = projectId;
+            document.getElementById('taskModalTitle').textContent = 'Новая задача';
             document.getElementById('taskName').value = '';
             document.getElementById('taskDate').value = '';
             document.getElementById('taskImage').value = '';
@@ -1345,59 +1677,75 @@
         }
 
         function openAddSubtaskModal(projectId, taskId) {
+            isEditing = false;
             currentProjectId = projectId;
             currentTaskId = taskId;
+            document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача';
             document.getElementById('subtaskName').value = '';
             document.getElementById('subtaskDate').value = '';
             openModal('subtaskModal');
         }
 
-        function addProject() {
+        function saveProject() {
             const name = document.getElementById('projectName').value.trim();
             const priority = document.getElementById('projectPriority').value;
             
             if (!name) return;
             
-            projects.push({
-                id: Date.now(),
-                name: name,
-                priority: priority,
-                tasks: [],
-                createdAt: new Date().toISOString()
-            });
+            if (isEditing) {
+                projects[currentProjectId].name = name;
+                projects[currentProjectId].priority = priority;
+            } else {
+                projects.push({
+                    id: Date.now(),
+                    name: name,
+                    priority: priority,
+                    tasks: [],
+                    createdAt: new Date().toISOString()
+                });
+            }
             
             saveToFirebase();
             closeModal('projectModal');
         }
 
-        function addTask() {
+        function saveTask() {
             const name = document.getElementById('taskName').value.trim();
             const date = document.getElementById('taskDate').value;
             const assignee = document.getElementById('taskAssignee').value;
             
             if (!name) return;
             
-            if (!projects[currentProjectId].tasks) {
-                projects[currentProjectId].tasks = [];
+            if (isEditing) {
+                projects[currentProjectId].tasks[currentTaskId].name = name;
+                projects[currentProjectId].tasks[currentTaskId].date = date;
+                projects[currentProjectId].tasks[currentTaskId].assignee = assignee;
+                if (selectedImage) {
+                    projects[currentProjectId].tasks[currentTaskId].image = selectedImage;
+                }
+            } else {
+                if (!projects[currentProjectId].tasks) {
+                    projects[currentProjectId].tasks = [];
+                }
+                
+                projects[currentProjectId].tasks.push({
+                    id: Date.now(),
+                    name: name,
+                    completed: false,
+                    subtasks: [],
+                    date: date,
+                    assignee: assignee,
+                    image: selectedImage,
+                    comments: [],
+                    createdAt: new Date().toISOString()
+                });
             }
-            
-            projects[currentProjectId].tasks.push({
-                id: Date.now(),
-                name: name,
-                completed: false,
-                subtasks: [],
-                date: date,
-                assignee: assignee,
-                image: selectedImage,
-                comments: [],
-                createdAt: new Date().toISOString()
-            });
             
             saveToFirebase();
             closeModal('taskModal');
         }
 
-        function addSubtask() {
+        function saveSubtask() {
             const name = document.getElementById('subtaskName').value.trim();
             const date = document.getElementById('subtaskDate').value;
             
@@ -1408,12 +1756,17 @@
                 task.subtasks = [];
             }
             
-            task.subtasks.push({
-                id: Date.now(),
-                name: name,
-                completed: false,
-                date: date
-            });
+            if (isEditing && currentSubtaskId !== null) {
+                task.subtasks[currentSubtaskId].name = name;
+                task.subtasks[currentSubtaskId].date = date;
+            } else {
+                task.subtasks.push({
+                    id: Date.now(),
+                    name: name,
+                    completed: false,
+                    date: date
+                });
+            }
             
             saveToFirebase();
             closeModal('subtaskModal');
@@ -1461,15 +1814,15 @@
         });
 
         document.getElementById('projectName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addProject();
+            if (e.key === 'Enter') saveProject();
         });
 
         document.getElementById('taskName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addTask();
+            if (e.key === 'Enter') saveTask();
         });
 
         document.getElementById('subtaskName').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addSubtask();
+            if (e.key === 'Enter') saveSubtask();
         });
 
         document.getElementById('commentInput').addEventListener('keypress', (e) => {
@@ -1480,8 +1833,16 @@
             if (e.key === 'Enter') login();
         });
 
+        // Инициализация
         updateUserInfo();
         syncWithFirebase();
+        
+        // Все проекты свернуты по умолчанию
+        if (projects.length > 0) {
+            projects.forEach((project, index) => {
+                collapsedProjects.add(index);
+            });
+        }
     </script>
 </body>
 </html>
