@@ -597,7 +597,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 15px;
@@ -989,6 +989,14 @@
                 transform: translate(-50%, 0);
                 opacity: 1;
             }
+        }
+        #loginModal {
+            z-index: 9999 !important;
+        }
+        
+        #loginModal .modal-content {
+            position: relative;
+            z-index: 10000;
         }
     </style>
 </head>
@@ -1474,7 +1482,6 @@
         }
 
         function showLoginModal() {
-            document.getElementById('userName').value = currentUser || '';
             openModal('loginModal');
         }
 
@@ -2024,8 +2031,7 @@
                 return;
             }
             
-            const text = document.getElementById('commentInput').value.trim();
-            if (!text) return;
+        
             
             const task = projects[currentProjectId].tasks[currentTaskId];
             if (!task.comments) {
