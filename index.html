@@ -58,7 +58,6 @@
             padding-top: 70px;
         }
 
-        /* Шапка */
         header {
             background-image: url('bg-header.jpg');
             background-size: cover;
@@ -147,7 +146,6 @@
             z-index: 200;
         }
 
-        /* Кнопки разделов */
         .view-toggle {
             display: flex;
             gap: 5px;
@@ -203,7 +201,6 @@
             justify-content: center;
         }
 
-        /* Карточки проектов */
         .project-card {
             background: var(--card);
             border-radius: 15px;
@@ -233,14 +230,15 @@
             border: none;
             cursor: pointer;
             flex-shrink: 0;
+            padding: 5px;
         }
 
-        .edit-btn { font-size: 1em; padding: 5px; }
-        .collapse-btn { font-size: 1.1em; padding: 5px; transition: transform 0.3s; }
+        .edit-btn { font-size: 1em; }
+        .collapse-btn { font-size: 1.1em; transition: transform 0.3s; }
         .collapse-btn.collapsed { transform: rotate(-90deg); }
-        .delete-btn { font-size: 1em; padding: 5px; color: #999; }
-        .move-btn { font-size: 0.8em; padding: 3px; color: #999; }
-        .voice-btn { font-size: 1.1em; padding: 5px; }
+        .delete-btn { color: #999; font-size: 1em; }
+        .move-btn { color: #999; font-size: 0.8em; padding: 3px; }
+        .voice-btn { font-size: 1.1em; }
 
         .project-content {
             transition: max-height 0.3s ease;
@@ -251,7 +249,6 @@
             max-height: 0 !important;
         }
 
-        /* Приоритеты */
         .priority-badge {
             padding: 3px 8px;
             border-radius: 10px;
@@ -264,14 +261,13 @@
         .priority-medium { background: #fff3e0; color: var(--warning); }
         .priority-low { background: #e8f5e9; color: var(--primary); }
 
-        /* Прогресс */
         .progress-container { margin: 10px 0; }
         .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; transition: width 0.3s ease; }
         .progress-percent { font-size: 0.75em; color: #666; margin-top: 3px; text-align: right; }
 
-        /* Задачи */
         .tasks-list { margin-top: 10px; }
+
         .task-item {
             display: flex;
             align-items: center;
@@ -282,6 +278,7 @@
         }
 
         .task-item:active { background: #f0f0f0; }
+
         .task-checkbox {
             width: 22px;
             height: 22px;
@@ -298,11 +295,19 @@
         }
 
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
+
         .task-text { flex: 1; margin: 0 5px; word-wrap: break-word; font-size: 0.9em; }
         .task-text.completed { text-decoration: line-through; color: #999; }
-        .task-image { width: 35px; height: 35px; object-fit: cover; border-radius: 8px; margin: 0 3px; cursor: pointer; }
 
-        /* Подзадачи */
+        .task-image {
+            width: 35px;
+            height: 35px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 0 3px;
+            cursor: pointer;
+        }
+
         .subtasks {
             margin-left: 30px;
             padding-left: 8px;
@@ -335,7 +340,6 @@
 
         .subtask-checkbox.checked { background: var(--info); border-color: var(--info); }
 
-        /* Кнопки */
         .add-btn {
             background: var(--primary);
             color: white;
@@ -349,7 +353,6 @@
             font-weight: 500;
         }
 
-        /* Бейджи */
         .date-badge {
             font-size: 0.65em;
             color: #666;
@@ -370,7 +373,6 @@
         .assignee-me { background: #e3f2fd; color: #1976d2; }
         .assignee-wife { background: #fce4ec; color: #c2185b; }
 
-        /* Таймер */
         .timer-display { font-size: 2em; font-weight: bold; text-align: center; margin: 10px 0; color: var(--primary); }
         .timer-controls { display: flex; gap: 10px; justify-content: center; }
         .timer-btn { padding: 8px 15px; border: none; border-radius: 15px; cursor: pointer; font-size: 0.9em; }
@@ -378,14 +380,29 @@
         .timer-stop { background: var(--danger); color: white; }
         .timer-reset { background: #f5f5f5; color: #666; }
 
-        /* Комментарии */
-        .comment-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
+        .comment-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
         .comment-author { font-weight: 600; color: var(--info); }
         .comment-time { font-size: 0.75em; color: #999; }
-        .voice-message { display: flex; align-items: center; gap: 5px; padding: 5px; background: #f0f0f0; border-radius: 15px; margin: 3px 0; }
+
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            margin: 3px 0;
+        }
+
         .voice-message audio { max-width: 180px; height: 30px; }
 
-        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -402,6 +419,7 @@
         }
 
         .modal.active { display: flex; }
+
         .modal-content {
             background: white;
             border-radius: 20px;
@@ -422,6 +440,7 @@
         .modal-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; margin-bottom: 5px; font-weight: 500; color: #666; font-size: 0.9em; }
+
         .form-input {
             width: 100%;
             padding: 10px;
@@ -430,7 +449,9 @@
             font-size: 0.95em;
             background: #f9f9f9;
         }
+
         .form-input:focus { outline: none; border-color: var(--primary); background: white; }
+
         .form-select {
             width: 100%;
             padding: 10px;
@@ -441,7 +462,6 @@
             cursor: pointer;
         }
 
-        /* Эмодзи пикер */
         .emoji-picker {
             display: flex;
             flex-wrap: wrap;
@@ -450,15 +470,18 @@
             max-height: 150px;
             overflow-y: auto;
         }
+
         .emoji-option {
             font-size: 1.5em;
             cursor: pointer;
             padding: 5px;
             border-radius: 5px;
         }
+
         .emoji-option.selected { background: var(--primary); }
 
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
         .btn-primary {
             flex: 1;
             background: var(--primary);
@@ -470,6 +493,7 @@
             font-size: 0.95em;
             font-weight: 500;
         }
+
         .btn-secondary {
             flex: 1;
             background: #f5f5f5;
@@ -481,7 +505,6 @@
             font-size: 0.95em;
         }
 
-        /* Плавающие кнопки */
         .floating-btn {
             position: fixed;
             bottom: 110px;
@@ -520,11 +543,9 @@
             z-index: 50;
         }
 
-        /* Пустое состояние */
         .empty-state { text-align: center; padding: 50px 20px; }
         .empty-state-icon { font-size: 4em; margin-bottom: 20px; }
 
-        /* Календарь */
         .calendar-view { display: none; }
         .calendar-view.active { display: block; }
         .calendar-container { background: white; border-radius: 15px; padding: 15px; box-shadow: var(--shadow); }
@@ -554,6 +575,7 @@
             background: #f5f5f5;
             border-radius: 6px;
             cursor: pointer;
+            position: relative;
             font-size: 0.85em;
         }
         .calendar-day.today { background: var(--info); color: white; font-weight: bold; }
@@ -579,7 +601,6 @@
 
         .image-preview { max-width: 100%; margin-top: 10px; border-radius: 10px; }
 
-        /* Футер */
         .footer {
             position: fixed;
             bottom: 0;
@@ -594,14 +615,18 @@
             flex-direction: column;
             justify-content: center;
         }
+
         .footer-icons {
             display: flex;
             justify-content: space-around;
             align-items: center;
             margin-bottom: 3px;
         }
+
         .footer-icon { width: 25px; height: 25px; cursor: pointer; }
+
         .footer-calls { display: flex; justify-content: space-around; gap: 5px; }
+
         .footer-call-btn {
             flex: 1;
             padding: 4px;
@@ -615,7 +640,6 @@
             color: var(--text);
         }
 
-        /* Уведомления */
         .notification {
             position: fixed;
             top: 20px;
@@ -639,11 +663,23 @@
         }
 
         #loginModal { z-index: 9999 !important; }
+
+        .voice-btn.recording {
+            animation: pulse 1s infinite;
+            color: var(--danger);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
+
     <div class="sync-status" id="syncStatus">🔄</div>
-    
+
     <header>
         <div class="user-avatar-container" onclick="showLoginModal()">
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
@@ -679,7 +715,8 @@
         </div>
     </div>
 
-    <!-- Модальные окна -->
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-title">Вход</div>
@@ -827,7 +864,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
     <script>
+        // ==================== КОНФИГУРАЦИЯ ====================
         const firebaseConfig = {
             apiKey: "AIzaSyBY9efVcObtOc7NFy8pcxRNiImL_Keka6Y",
             authDomain: "project-manager-da9a5.firebaseapp.com",
@@ -837,11 +876,12 @@
             messagingSenderId: "1016609389948",
             appId: "1:1016609389948:web:a3fbaca5e88f7da521b8f9"
         };
-        
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
+        // ==================== ПЕРЕМЕННЫЕ ====================
         let projects = [];
         let customSections = [];
         let currentProjectId = null;
@@ -864,11 +904,12 @@
         let currentYear = new Date().getFullYear();
         let selectedEmoji = '📋';
 
-        const emojiList = ['📋','📅','🖨️','🛒','💪','🏠','🚗','📚','💰','🎨','🎮','🎵','📷','✈️','🌍','🔥','💡','⭐','❤️','🎯','📌','📎','🗂️','📁','📊','📈','📉','🎁','🎉','🎊','🌸','🌺','🍀','🌈','☀️','🌙','⚡','💧','🌊','🍎','🍕','🍔','☕','🍺','🏆','🎖️','🥇','🚀','🛸','🏰','🗿','🎪','🎭','🎨','🎬','📺','💻','📱','🔧','🔨','⚙️','🧰','🧲','🧪','🔬','💊','💉','🩺','🧬','🦷','👁️','🧠','🫀','🫁','💪','🦴','👶','👧','👦','👩','👨','👵','👴','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐍','🦎','🐙','🦑','🦐','🦀','🐠','🐟','🐡','🐬','🐳','🦈','🐊','🦕','🦖','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️','🍀','🍁','🍂','🍃','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','⭐','🌟','💫','✨','⚡','🔥','💥','☄️','🌊','💦','💧','🫧','🌪️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌫️','🌪️'];
+        const emojiList = ['📋','📅','🖨️','🛒','💪','🏠','🚗','📚','💰','🎨','🎮','🎵','📷','✈️','🌍','🔥','💡','⭐','❤️','🎯','📌','📎','🗂️','📁','📊','📈','📉','🎁','🎉','🎊','🌸','🌺','🍀','🌈','☀️','🌙','⚡','💧','🌊','🍎','🍕','🍔','☕','🍺','🏆','🎖️','🥇','🚀','🛸','🏰','🗿','🎪','🎭','🎬','📺','💻','📱','🔧','🔨','⚙️','🧰','🧲','🧪','🔬','💊','💉','🩺','🧬','🦷','👁️','🧠','🫀','💪','🦴','👶','👧','👦','👩','👨','👵','👴','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐍','🦎','🐙','🦑','🦐','🦀','🐠','🐟','🐡','🐬','🐳','🦈','🐊','🦕','🦖','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️','🍁','🍂','🍃','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','⭐','🌟','💫','✨','🔥','💥','☄️','🌊','💦','💧','🫧','🌪️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌫️'];
 
+        // ==================== ЭМОДЗИ ПИКЕР ====================
         function renderEmojiPicker() {
             const container = document.getElementById('emojiPicker');
-            container.innerHTML = emojiList.map(emoji => 
+            container.innerHTML = emojiList.map(emoji =>
                 `<span class="emoji-option ${emoji === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${emoji}')">${emoji}</span>`
             ).join('');
         }
@@ -879,7 +920,7 @@
             renderEmojiPicker();
         }
 
-        // Скрытие хедера
+        // ==================== ХЕДЕР СКРОЛЛ ====================
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
             const header = document.querySelector('header');
@@ -889,13 +930,12 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        // СИНХРОНИЗАЦИЯ РАЗДЕЛОВ ЧЕРЕЗ FIREBASE
+        // ==================== СИНХРОНИЗАЦИЯ РАЗДЕЛОВ ====================
         function loadCustomSections() {
             const sectionsRef = database.ref('customSections');
             sectionsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    // Firebase Realtime Database возвращает объект, преобразуем в массив
                     customSections = Object.values(data);
                 } else {
                     customSections = [];
@@ -905,17 +945,15 @@
         }
 
         function saveCustomSections() {
-            // Преобразуем массив в объект для Firebase
             const sectionsObject = {};
             customSections.forEach((section, index) => {
                 sectionsObject[index] = section;
             });
             database.ref('customSections').set(sectionsObject)
                 .then(() => {
-                    console.log('Разделы сохранены:', sectionsObject);
                     showNotification('✅ Разделы сохранены');
                 })
-                .catch((error) => { 
+                .catch((error) => {
                     console.error('Ошибка сохранения разделов:', error);
                     showNotification('❌ Ошибка сохранения');
                 });
@@ -945,6 +983,7 @@
             return count;
         }
 
+        // ==================== ПОЛЬЗОВАТЕЛЬ ====================
         function updateUserInfo() {
             const userNameDisplay = document.getElementById('userNameDisplay');
             const avatarPlaceholder = document.getElementById('avatarPlaceholder');
@@ -971,6 +1010,7 @@
             setTimeout(() => notification.remove(), 3000);
         }
 
+        // ==================== FIREBASE СИНХРОНИЗАЦИЯ ====================
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
             projectsRef.on('value', (snapshot) => {
@@ -1005,6 +1045,7 @@
                 });
         }
 
+        // ==================== ПРОГРЕСС ====================
         function calculateProgress(project) {
             let total = 0, done = 0;
             if (project.tasks) {
@@ -1024,6 +1065,7 @@
             else if (currentView.startsWith('custom_')) renderTaggedView('dynamicViews', currentView, '');
         }
 
+        // ==================== РЕНДЕР СПИСКА ====================
         function renderListView() {
             const container = document.getElementById('projectsContainer');
             const listProjects = projects.filter(p => !p.tag || p.tag === '');
@@ -1084,6 +1126,7 @@
             }).join('');
         }
 
+        // ==================== РЕНДЕР КАЛЕНДАРЯ ====================
         function renderCalendarView() {
             const container = document.getElementById('calendarContainer');
             const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -1232,6 +1275,7 @@
             saveToFirebase(); renderProjects();
         }
 
+        // ==================== ТАЙМЕР ====================
         function openTimer() { openModal('timerModal'); }
         function startTimer() { if (timerInterval) return; timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); }
         function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
@@ -1243,6 +1287,7 @@
             document.getElementById('timerDisplay').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
+        // ==================== КОММЕНТАРИИ ====================
         function openComments(pid, tid) { currentProjectId = pid; currentTaskId = tid; renderComments(); openModal('commentsModal'); }
 
         function renderComments() {
@@ -1264,6 +1309,7 @@
             saveToFirebase(); renderComments();
         }
 
+        // ==================== ГОЛОСОВЫЕ СООБЩЕНИЯ ====================
         function toggleVoiceInput() { if (isRecordingVoice) stopVoiceRecording(); else startVoiceRecording(); }
 
         function startVoiceRecording() {
@@ -1303,6 +1349,7 @@
             saveToFirebase(); renderComments();
         }
 
+        // ==================== РЕДАКТИРОВАНИЕ ====================
         function editProject(pid) {
             isEditing = true; currentProjectId = pid;
             const p = projects[pid];
@@ -1349,6 +1396,7 @@
             currentSubtaskId = null;
         }
 
+        // ==================== ДОБАВЛЕНИЕ ====================
         function openAddProjectModal() {
             isEditing = false;
             document.getElementById('projectModalTitle').textContent = 'Новый проект';
@@ -1389,6 +1437,7 @@
             openModal('sectionModal');
         }
 
+        // ==================== СОХРАНЕНИЕ ====================
         function saveSection() {
             const name = document.getElementById('sectionName').value.trim();
             const icon = document.getElementById('sectionIcon').value;
@@ -1402,34 +1451,6 @@
             saveCustomSections();
             renderViewToggle();
             closeModal('sectionModal');
-        }
-
-        function openSectionsManager() {
-            const container = document.getElementById('sectionsList');
-            container.innerHTML = customSections.map((s, i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;"><span>${s.name}</span><div><button class="edit-btn" onclick="editSection(${i})">✏️</button><button class="delete-btn" onclick="deleteSection(${i})">🗑️</button></div></div>`).join('') || '<p style="text-align:center;color:#999;">Нет пользовательских разделов</p>';
-            openModal('sectionsManagerModal');
-        }
-
-        function editSection(i) {
-            const s = customSections[i];
-            currentSectionId = i; isEditing = true;
-            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
-            document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' ');
-            selectedEmoji = s.name.split(' ')[0];
-            document.getElementById('sectionIcon').value = selectedEmoji;
-            renderEmojiPicker();
-            closeModal('sectionsManagerModal');
-            openModal('sectionModal');
-        }
-
-        function deleteSection(i) {
-            if (confirm('Удалить раздел?')) {
-                customSections.splice(i, 1);
-                saveCustomSections();
-                renderViewToggle();
-                closeModal('sectionsManagerModal');
-                if (currentView.startsWith('custom_')) switchView('list');
-            }
         }
 
         function saveProject() {
@@ -1479,6 +1500,7 @@
             saveToFirebase(); closeModal('subtaskModal');
         }
 
+        // ==================== УДАЛЕНИЕ / ПЕРЕКЛЮЧЕНИЕ ====================
         function toggleTask(pid, tid) {
             projects[pid].tasks[tid].completed = !projects[pid].tasks[tid].completed;
             saveToFirebase(); renderProjects();
@@ -1496,7 +1518,35 @@
         function deleteTask(pid, tid) { projects[pid].tasks.splice(tid, 1); saveToFirebase(); renderProjects(); }
         function deleteSubtask(pid, tid, sid) { projects[pid].tasks[tid].subtasks.splice(sid, 1); saveToFirebase(); renderProjects(); }
 
-        // Обработчики Enter
+        function openSectionsManager() {
+            const container = document.getElementById('sectionsList');
+            container.innerHTML = customSections.map((s, i) => `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid #f0f0f0;"><span>${s.name}</span><div><button class="edit-btn" onclick="editSection(${i})">✏️</button><button class="delete-btn" onclick="deleteSection(${i})">🗑️</button></div></div>`).join('') || '<p style="text-align:center;color:#999;">Нет пользовательских разделов</p>';
+            openModal('sectionsManagerModal');
+        }
+
+        function editSection(i) {
+            const s = customSections[i];
+            currentSectionId = i; isEditing = true;
+            document.getElementById('sectionModalTitle').textContent = 'Редактировать раздел';
+            document.getElementById('sectionName').value = s.name.split(' ').slice(1).join(' ');
+            selectedEmoji = s.name.split(' ')[0];
+            document.getElementById('sectionIcon').value = selectedEmoji;
+            renderEmojiPicker();
+            closeModal('sectionsManagerModal');
+            openModal('sectionModal');
+        }
+
+        function deleteSection(i) {
+            if (confirm('Удалить раздел?')) {
+                customSections.splice(i, 1);
+                saveCustomSections();
+                renderViewToggle();
+                closeModal('sectionsManagerModal');
+                if (currentView.startsWith('custom_')) switchView('list');
+            }
+        }
+
+        // ==================== ОБРАБОТЧИКИ ====================
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
         });
@@ -1506,7 +1556,7 @@
         document.getElementById('commentInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addComment(); });
         document.getElementById('sectionName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSection(); });
 
-        // АВТОРИЗАЦИЯ
+        // ==================== АВТОРИЗАЦИЯ ====================
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -1542,7 +1592,7 @@
             }).catch((error) => { console.error('Ошибка выхода:', error); });
         }
 
-        // ИНИЦИАЛИЗАЦИЯ
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
         renderEmojiPicker();
         initApp();
 
