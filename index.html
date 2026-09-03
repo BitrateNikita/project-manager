@@ -11,59 +11,59 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); line-height: 1.6; padding-bottom: 100px; user-select: none; -webkit-user-select: none; background-image: url('bg.png'); background-repeat: repeat; background-size: 50% auto; background-attachment: fixed; position: relative; min-height: 100vh; }
         body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0); z-index: -1; }
-        .container { max-width: 100%; margin: 0 auto; padding: 10px; padding-bottom: 120px; padding-top: 90px; }
-        header { background-image: url('bg-header.jpg'); background-size: cover; background-position: center; color: white; padding: 10px; margin-bottom: 15px; box-shadow: var(--shadow); position: fixed; top: 0; z-index: 100; height: 150px; display: flex; justify-content: flex-start; gap: 15px; width: 100%; align-items: center; transition: transform 0.3s ease; }
+        .container { max-width: 100%; margin: 0 auto; padding: 10px; padding-bottom: 120px; padding-top: 70px; }
+        header { background-image: url('bg-header.jpg'); background-size: cover; background-position: center; color: white; padding: 8px 10px; margin-bottom: 10px; box-shadow: var(--shadow); position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; display: flex; align-items: center; transition: transform 0.3s ease; }
         header.hidden { transform: translateY(-100%); }
         header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.25); z-index: 1; }
         header > * { position: relative; z-index: 2; }
-        .user-avatar-container { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-right: auto; }
-        .user-avatar { width: 100px; height: 100px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.5em; overflow: hidden; cursor: pointer; flex-shrink: 0; border: 2px solid white; }
+        .user-avatar-container { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 1.2em; overflow: hidden; cursor: pointer; flex-shrink: 0; border: 2px solid white; }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-name { font-size: 0.9em; font-weight: 500; }
-        .sync-status { position: fixed; top: 10px; right: 10px; background: white; border-radius: 15px; padding: 5px 10px; font-size: 0.75em; box-shadow: var(--shadow); z-index: 200; }
+        .user-name { font-size: 0.8em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .sync-status { position: fixed; top: 8px; right: 8px; background: white; border-radius: 12px; padding: 3px 8px; font-size: 0.65em; box-shadow: var(--shadow); z-index: 200; }
         .view-toggle { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; align-items: center; }
-        .view-btn { flex-shrink: 0; padding: 10px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: all 0.3s; white-space: nowrap; position: relative; display: flex; align-items: center; gap: 5px; }
+        .view-btn { flex-shrink: 0; padding: 8px 12px; background: white; border: 2px solid #e0e0e0; border-radius: 18px; cursor: pointer; font-size: 0.8em; transition: all 0.3s; white-space: nowrap; position: relative; display: flex; align-items: center; gap: 4px; }
         .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .task-count { background: var(--info); color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.7em; font-weight: bold; }
-        .add-section-btn { flex-shrink: 0; width: 40px; height: 40px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.5em; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .task-count { background: var(--info); color: white; border-radius: 10px; padding: 1px 5px; font-size: 0.65em; font-weight: bold; }
+        .add-section-btn { flex-shrink: 0; width: 35px; height: 35px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .add-section-btn:active { transform: scale(0.9); }
         .project-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: var(--shadow); transition: all 0.3s; }
         .project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer; }
-        .project-title { font-size: 1.2em; font-weight: 600; flex: 1; margin-right: 10px; word-wrap: break-word; }
-        .edit-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px; flex-shrink: 0; }
-        .collapse-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; padding: 5px; transition: transform 0.3s; }
+        .project-title { font-size: 1.1em; font-weight: 600; flex: 1; margin-right: 10px; word-wrap: break-word; }
+        .edit-btn { background: none; border: none; cursor: pointer; font-size: 1em; padding: 5px; flex-shrink: 0; }
+        .collapse-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px; transition: transform 0.3s; }
         .collapse-btn.collapsed { transform: rotate(-90deg); }
         .project-content { transition: max-height 0.3s ease; overflow: hidden; }
         .project-content.collapsed { max-height: 0 !important; }
-        .priority-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 500; white-space: nowrap; }
+        .priority-badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 500; white-space: nowrap; }
         .priority-high { background: #ffebee; color: var(--danger); }
         .priority-medium { background: #fff3e0; color: var(--warning); }
         .priority-low { background: #e8f5e9; color: var(--primary); }
         .progress-container { margin: 10px 0; }
         .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 4px; transition: width 0.3s ease; }
-        .progress-percent { font-size: 0.8em; color: #666; margin-top: 3px; text-align: right; font-weight: 500; }
+        .progress-percent { font-size: 0.75em; color: #666; margin-top: 3px; text-align: right; font-weight: 500; }
         .tasks-list { margin-top: 10px; }
-        .task-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; border-radius: 8px; position: relative; }
+        .task-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; border-radius: 8px; position: relative; }
         .task-item:active { background: #f0f0f0; }
-        .task-checkbox { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; margin-right: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 14px; color: white; }
+        .task-checkbox { width: 22px; height: 22px; border: 2px solid #ddd; border-radius: 50%; margin-right: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 12px; color: white; }
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
-        .task-text { flex: 1; margin: 0 8px; word-wrap: break-word; }
+        .task-text { flex: 1; margin: 0 5px; word-wrap: break-word; font-size: 0.9em; }
         .task-text.completed { text-decoration: line-through; color: #999; }
-        .task-image { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; margin: 0 5px; cursor: pointer; }
-        .subtasks { margin-left: 32px; padding-left: 10px; border-left: 2px solid #e0e0e0; }
-        .subtask-item { display: flex; align-items: center; padding: 8px; font-size: 0.85em; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
+        .task-image { width: 35px; height: 35px; object-fit: cover; border-radius: 8px; margin: 0 3px; cursor: pointer; }
+        .subtasks { margin-left: 30px; padding-left: 8px; border-left: 2px solid #e0e0e0; }
+        .subtask-item { display: flex; align-items: center; padding: 6px; font-size: 0.8em; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
         .subtask-item:active { background: #f5f5f5; }
-        .subtask-checkbox { width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 4px; margin-right: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 12px; color: white; }
+        .subtask-checkbox { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 4px; margin-right: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; font-size: 10px; color: white; }
         .subtask-checkbox.checked { background: var(--info); border-color: var(--info); }
-        .add-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: all 0.3s; margin-top: 10px; width: 100%; font-weight: 500; }
+        .add-btn { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 18px; cursor: pointer; font-size: 0.8em; transition: all 0.3s; margin-top: 8px; width: 100%; font-weight: 500; }
         .add-btn:active { transform: scale(0.95); }
-        .delete-btn { background: none; border: none; color: #999; cursor: pointer; padding: 8px; font-size: 1.1em; transition: color 0.2s; flex-shrink: 0; }
+        .delete-btn { background: none; border: none; color: #999; cursor: pointer; padding: 5px; font-size: 1em; transition: color 0.2s; flex-shrink: 0; }
         .delete-btn:active { color: var(--danger); }
-        .move-btn { background: none; border: none; color: #999; cursor: pointer; padding: 5px; font-size: 0.9em; flex-shrink: 0; }
+        .move-btn { background: none; border: none; color: #999; cursor: pointer; padding: 3px; font-size: 0.8em; flex-shrink: 0; }
         .move-btn:active { color: var(--primary); }
-        .date-badge { font-size: 0.7em; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 8px; margin: 0 5px; }
-        .assignee-badge { font-size: 0.7em; padding: 2px 6px; border-radius: 8px; margin: 0 5px; cursor: pointer; }
+        .date-badge { font-size: 0.65em; color: #666; background: #f0f0f0; padding: 2px 5px; border-radius: 8px; margin: 0 3px; }
+        .assignee-badge { font-size: 0.65em; padding: 2px 5px; border-radius: 8px; margin: 0 3px; cursor: pointer; }
         .assignee-me { background: #e3f2fd; color: #1976d2; }
         .assignee-wife { background: #fce4ec; color: #c2185b; }
         .timer-display { font-size: 2em; font-weight: bold; text-align: center; margin: 10px 0; color: var(--primary); }
@@ -75,28 +75,28 @@
         .comment-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
         .comment-author { font-weight: 600; color: var(--info); }
         .comment-time { font-size: 0.75em; color: #999; }
-        .voice-btn { background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 5px; }
+        .voice-btn { background: none; border: none; font-size: 1.1em; cursor: pointer; padding: 5px; }
         .voice-btn.recording { animation: pulse 1s infinite; color: var(--danger); }
         .voice-message { display: flex; align-items: center; gap: 5px; padding: 5px; background: #f0f0f0; border-radius: 15px; margin: 3px 0; }
-        .voice-message audio { max-width: 200px; height: 30px; }
+        .voice-message audio { max-width: 180px; height: 30px; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 20px; padding: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-title { font-size: 1.2em; font-weight: 600; margin-bottom: 15px; }
+        .modal-title { font-size: 1.1em; font-weight: 600; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: 500; color: #666; font-size: 1em; }
-        .form-input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; transition: border-color 0.3s; background: #f9f9f9; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: 500; color: #666; font-size: 0.9em; }
+        .form-input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; transition: border-color 0.3s; background: #f9f9f9; }
         .form-input:focus { outline: none; border-color: var(--primary); background: white; }
-        .form-select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; background: white; cursor: pointer; }
+        .form-select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 0.95em; background: white; cursor: pointer; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-primary { flex: 1; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 1em; transition: background 0.3s; font-weight: 500; }
+        .btn-primary { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 0.95em; transition: background 0.3s; font-weight: 500; }
         .btn-primary:active { transform: scale(0.95); }
-        .btn-secondary { flex: 1; background: #f5f5f5; color: #666; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 1em; }
-        .floating-btn { position: fixed; bottom: 110px; right: 20px; width: 56px; height: 56px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.8em; cursor: pointer; box-shadow: 0 4px 20px rgba(76,175,80,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
+        .btn-secondary { flex: 1; background: #f5f5f5; color: #666; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 0.95em; }
+        .floating-btn { position: fixed; bottom: 110px; right: 15px; width: 50px; height: 50px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.6em; cursor: pointer; box-shadow: 0 4px 20px rgba(76,175,80,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
         .floating-btn:active { transform: scale(0.9); }
-        .edit-sections-btn { position: fixed; bottom: 110px; right: 90px; width: 56px; height: 56px; background: var(--info); color: white; border: none; border-radius: 50%; font-size: 1.3em; cursor: pointer; box-shadow: 0 4px 20px rgba(33,150,243,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
+        .edit-sections-btn { position: fixed; bottom: 110px; right: 75px; width: 50px; height: 50px; background: var(--info); color: white; border: none; border-radius: 50%; font-size: 1.2em; cursor: pointer; box-shadow: 0 4px 20px rgba(33,150,243,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 50; }
         .edit-sections-btn:active { transform: scale(0.9); }
         .empty-state { text-align: center; padding: 50px 20px; }
         .empty-state-icon { font-size: 4em; margin-bottom: 20px; }
@@ -104,27 +104,27 @@
         .calendar-view.active { display: block; }
         .calendar-container { background: white; border-radius: 15px; padding: 15px; box-shadow: var(--shadow); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .calendar-nav-btn { background: var(--info); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2em; display: flex; align-items: center; justify-content: center; }
-        .calendar-month { font-size: 1.2em; font-weight: 600; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px; }
-        .calendar-weekday { text-align: center; font-weight: 600; font-size: 0.8em; color: #666; padding: 5px; }
-        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 8px; cursor: pointer; position: relative; font-size: 0.9em; transition: all 0.3s; }
+        .calendar-nav-btn { background: var(--info); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1em; display: flex; align-items: center; justify-content: center; }
+        .calendar-month { font-size: 1.1em; font-weight: 600; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 10px; }
+        .calendar-weekday { text-align: center; font-weight: 600; font-size: 0.75em; color: #666; padding: 4px; }
+        .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 6px; cursor: pointer; position: relative; font-size: 0.85em; transition: all 0.3s; }
         .calendar-day:active { transform: scale(0.9); }
         .calendar-day.today { background: var(--info); color: white; font-weight: bold; }
         .calendar-day.has-tasks { background: #e8f5e9; border: 2px solid var(--primary); }
         .calendar-day.other-month { opacity: 0.3; }
-        .calendar-day-indicator { position: absolute; bottom: 3px; width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
+        .calendar-day-indicator { position: absolute; bottom: 3px; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
         .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
         .calendar-tasks-panel.active { display: block; }
         .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
         .image-preview { max-width: 100%; margin-top: 10px; border-radius: 10px; }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgb(50, 81, 102); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 150; padding: 5px; height: 100px; display: flex; flex-direction: column; justify-content: center; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgb(50, 81, 102); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 150; padding: 5px; height: 90px; display: flex; flex-direction: column; justify-content: center; }
         .footer-icons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 3px; }
-        .footer-icon { width: 28px; height: 28px; cursor: pointer; transition: all 0.3s; }
+        .footer-icon { width: 25px; height: 25px; cursor: pointer; transition: all 0.3s; }
         .footer-icon:active { transform: scale(0.8); }
         .footer-calls { display: flex; justify-content: space-around; gap: 5px; }
-        .footer-call-btn { flex: 1; padding: 4px; background: #f5f5f5; border: none; border-radius: 12px; cursor: pointer; font-size: 0.65em; text-align: center; text-decoration: none; color: var(--text); transition: all 0.3s; }
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 3000; animation: slideDown 0.5s ease; max-width: 90%; text-align: center; }
+        .footer-call-btn { flex: 1; padding: 4px; background: #f5f5f5; border: none; border-radius: 10px; cursor: pointer; font-size: 0.6em; text-align: center; text-decoration: none; color: var(--text); transition: all 0.3s; }
+        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 18px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 3000; animation: slideDown 0.5s ease; max-width: 90%; text-align: center; font-size: 0.9em; }
         @keyframes slideDown { from { transform: translate(-50%, -100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         #loginModal { z-index: 9999 !important; }
     </style>
@@ -132,11 +132,9 @@
 <body>
     <div class="sync-status" id="syncStatus">🔄 Синхронизация...</div>
     <header>
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="user-avatar-container" onclick="showLoginModal()">
-                <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
-                <div class="user-name" id="userNameDisplay">Войти</div>
-            </div>
+        <div class="user-avatar-container" onclick="showLoginModal()">
+            <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
+            <div class="user-name" id="userNameDisplay">Войти</div>
         </div>
     </header>
     <div class="container">
@@ -280,15 +278,12 @@
         window.addEventListener('scroll', function() {
             const header = document.querySelector('header');
             const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-            if (currentScroll > lastScrollTop && currentScroll > 80) header.classList.add('hidden');
+            if (currentScroll > lastScrollTop && currentScroll > 60) header.classList.add('hidden');
             else header.classList.remove('hidden');
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        function loadCustomSections() {
-            const saved = localStorage.getItem('customSections');
-            if (saved) customSections = JSON.parse(saved);
-        }
+        function loadCustomSections() { const saved = localStorage.getItem('customSections'); if (saved) customSections = JSON.parse(saved); }
         function saveCustomSections() { localStorage.setItem('customSections', JSON.stringify(customSections)); }
         function getAllSections() { return [{ id: '', name: '📋 Список', tag: '' }, { id: 'calendar', name: '📅 Календарь', tag: 'calendar' }, ...customSections]; }
 
@@ -336,21 +331,21 @@
                     projects.forEach((p, i) => collapsedProjects.add(i));
                     renderProjects();
                     renderViewToggle();
-                    document.getElementById('syncStatus').textContent = '✅ Синхронизировано';
+                    document.getElementById('syncStatus').textContent = '✅';
                     document.getElementById('syncStatus').style.color = '#4CAF50';
                 } else {
                     projects = [];
                     renderProjects();
                     renderViewToggle();
-                    document.getElementById('syncStatus').textContent = '📭 Пусто';
+                    document.getElementById('syncStatus').textContent = '📭';
                     document.getElementById('syncStatus').style.color = '#999';
                 }
             });
         }
         function saveToFirebase() {
             database.ref('projects').set(projects)
-                .then(() => { document.getElementById('syncStatus').textContent = '✅ Синхронизировано'; document.getElementById('syncStatus').style.color = '#4CAF50'; showNotification('✅ Сохранено'); })
-                .catch((error) => { document.getElementById('syncStatus').textContent = '❌ Ошибка'; document.getElementById('syncStatus').style.color = '#f44336'; });
+                .then(() => { document.getElementById('syncStatus').textContent = '✅'; document.getElementById('syncStatus').style.color = '#4CAF50'; showNotification('✅ Сохранено'); })
+                .catch(() => { document.getElementById('syncStatus').textContent = '❌'; document.getElementById('syncStatus').style.color = '#f44336'; });
         }
 
         function calculateProgress(project) {
@@ -602,7 +597,7 @@
         document.getElementById('commentInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addComment(); });
         document.getElementById('sectionName').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveSection(); });
 
-        // АВТОРИЗАЦИЯ (используем POPUP вместо redirect)
+        // АВТОРИЗАЦИЯ (POPUP)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
