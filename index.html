@@ -986,6 +986,21 @@
             };
             
             database.ref('notifications').push(logEntry);
+            
+            // ДОБАВЬ ЭТО — дублируем запись для самого автора
+            const selfEntry = {
+                id: Date.now() + 1,
+                action: action,
+                projectId: projectId,
+                projectName: projectName,
+                details: details + ' (вы)',
+                fromEmail: myEmail,
+                toEmail: myEmail,
+                read: true,
+                timestamp: new Date().toISOString()
+            };
+            
+            database.ref('notifications').push(selfEntry);
         }
 
         function loadNotifications() {
@@ -1026,6 +1041,7 @@
             const list = document.getElementById('notificationsList');
             const myEmail = getCurrentUserEmail();
             
+            // Показываем ВСЕ записи, где я получатель (и от других, и свои)
             const myNotifications = notifications.filter(n => n.toEmail === myEmail);
             
             if (!myNotifications.length) {
@@ -1037,7 +1053,7 @@
                         <div class="notification-content">
                             <div class="notification-title">${n.projectName}</div>
                             <div class="notification-task">${n.details}</div>
-                            <div class="notification-time">${new Date(n.timestamp).toLocaleString('ru-RU')}</div>
+                            <div class="notification-time">${new Date(n.timestamp).toLocaleString('ru-RU')} • ${n.fromEmail === myEmail ? 'Вы' : 'Партнер'}</div>
                         </div>
                         ${!n.read ? '<div class="notification-dot"></div>' : ''}
                     </div>
