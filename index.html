@@ -973,7 +973,8 @@
                 ? 'vikanikitapetrovi@gmail.com' 
                 : 'bitrate.motiondesign@gmail.com';
             
-            const logEntry = {
+            // Запись для партнера (непрочитанная)
+            const partnerEntry = {
                 id: Date.now(),
                 action: action,
                 projectId: projectId,
@@ -985,9 +986,9 @@
                 timestamp: new Date().toISOString()
             };
             
-            database.ref('notifications').push(logEntry);
+            database.ref('notifications').push(partnerEntry);
             
-            // ДОБАВЬ ЭТО — дублируем запись для самого автора
+            // Запись для себя (сразу прочитанная)
             const selfEntry = {
                 id: Date.now() + 1,
                 action: action,
@@ -1041,7 +1042,7 @@
             const list = document.getElementById('notificationsList');
             const myEmail = getCurrentUserEmail();
             
-            // Показываем ВСЕ записи, где я получатель (и от других, и свои)
+            // Показываем все записи адресованные мне (и свои, и от партнера)
             const myNotifications = notifications.filter(n => n.toEmail === myEmail);
             
             if (!myNotifications.length) {
@@ -1053,7 +1054,10 @@
                         <div class="notification-content">
                             <div class="notification-title">${n.projectName}</div>
                             <div class="notification-task">${n.details}</div>
-                            <div class="notification-time">${new Date(n.timestamp).toLocaleString('ru-RU')} • ${n.fromEmail === myEmail ? 'Вы' : 'Партнер'}</div>
+                            <div class="notification-time">
+                                ${new Date(n.timestamp).toLocaleString('ru-RU')} • 
+                                ${n.fromEmail === myEmail ? 'Вы' : 'Партнер'}
+                            </div>
                         </div>
                         ${!n.read ? '<div class="notification-dot"></div>' : ''}
                     </div>
