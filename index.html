@@ -112,7 +112,39 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 150px;
+            max-width: 120px;
+        }
+
+        /* Кнопка уведомлений */
+        .notification-btn {
+            position: relative;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            font-size: 1.3em;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.6em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         .sync-status {
@@ -357,6 +389,55 @@
         }
         .voice-message audio { max-width: 180px; height: 30px; }
 
+        /* Стили для уведомлений */
+        .notification-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+            border-radius: 8px;
+        }
+
+        .notification-item:hover { background: #f5f5f5; }
+        .notification-item.unread { background: #e3f2fd; }
+
+        .notification-icon { font-size: 1.5em; flex-shrink: 0; }
+
+        .notification-content { flex: 1; min-width: 0; }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-task {
+            font-size: 0.8em;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notification-time {
+            font-size: 0.7em;
+            color: #999;
+        }
+
+        .notification-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -527,7 +608,8 @@
         }
         .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
         .calendar-tasks-panel.active { display: block; }
-        .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
+        .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; cursor: pointer; }
+        .calendar-task-item:hover { background: #f0f0f0; }
 
         .image-preview { max-width: 100%; margin-top: 10px; border-radius: 10px; }
 
@@ -602,6 +684,10 @@
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
             <div class="user-name" id="userNameDisplay">Войти</div>
         </div>
+        <button class="notification-btn" onclick="showNotifications()">
+            🔔
+            <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
     </header>
 
     <div class="container">
@@ -638,6 +724,16 @@
             <div class="modal-title">Вход</div>
             <button class="btn-primary" onclick="signInWithGoogle()">🚀 Войти через Google</button>
             <button class="btn-secondary" onclick="signOut()" style="display:none;" id="logoutBtn">Выйти</button>
+        </div>
+    </div>
+
+    <div class="modal" id="notificationsModal">
+        <div class="modal-content">
+            <div class="modal-title">🔔 Уведомления</div>
+            <div id="notificationsList"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('notificationsModal')">Закрыть</button>
+            </div>
         </div>
     </div>
 
@@ -820,6 +916,7 @@
         // ==================== ПЕРЕМЕННЫЕ ====================
         let projects = [];
         let customSections = [];
+        let notifications = [];
         let currentProjectId = null;
         let currentTaskId = null;
         let currentSubtaskId = null;
@@ -870,7 +967,138 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        // ==================== РАЗДЕЛЫ (Firebase) ====================
+        // ==================== УВЕДОМЛЕНИЯ ====================
+        function loadNotifications() {
+            const notificationsRef = database.ref('notifications');
+            notificationsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    notifications = Object.values(data);
+                } else {
+                    notifications = [];
+                }
+                updateNotificationBadge();
+            });
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const myEmail = getCurrentUserEmail();
+            const unread = notifications.filter(n => n.toEmail === myEmail && !n.read);
+            
+            if (badge) {
+                if (unread.length > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = unread.length;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function getCurrentUserEmail() {
+            const user = auth.currentUser;
+            return user ? user.email : localStorage.getItem('userName') || '';
+        }
+
+        function sendNotification(projectId, projectName, taskName, authorEmail) {
+            const toEmail = authorEmail === 'bitrate.motiondesign@gmail.com' 
+                ? 'vikanikitapetrovi@gmail.com' 
+                : 'bitrate.motiondesign@gmail.com';
+            
+            const notification = {
+                id: Date.now(),
+                toEmail: toEmail,
+                fromEmail: authorEmail,
+                projectId: projectId,
+                projectName: projectName,
+                taskName: taskName,
+                read: false,
+                timestamp: new Date().toISOString()
+            };
+            
+            database.ref('notifications').push(notification);
+        }
+
+        function showNotifications() {
+            const modal = document.getElementById('notificationsModal');
+            const list = document.getElementById('notificationsList');
+            const myEmail = getCurrentUserEmail();
+            
+            const myNotifications = notifications.filter(n => n.toEmail === myEmail);
+            
+            if (!myNotifications.length) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">Нет уведомлений</p>';
+            } else {
+                list.innerHTML = myNotifications.sort((a, b) => b.timestamp.localeCompare(a.timestamp)).map(n => `
+                    <div class="notification-item ${n.read ? '' : 'unread'}" onclick="openNotification('${n.id}', '${n.projectId}', '${n.toEmail}')">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-content">
+                            <div class="notification-title">${n.projectName}</div>
+                            <div class="notification-task">${n.taskName}</div>
+                            <div class="notification-time">${new Date(n.timestamp).toLocaleString('ru-RU')}</div>
+                        </div>
+                        ${!n.read ? '<div class="notification-dot"></div>' : ''}
+                    </div>
+                `).join('');
+            }
+            
+            openModal('notificationsModal');
+        }
+
+        function openNotification(notificationId, projectId, toEmail) {
+            // Отмечаем как прочитанное
+            const notificationsRef = database.ref('notifications');
+            notificationsRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        if (data[key].id == notificationId) {
+                            notificationsRef.child(key).update({ read: true });
+                        }
+                    });
+                }
+            });
+            
+            closeModal('notificationsModal');
+            
+            // Находим проект
+            const projectIndex = projects.findIndex(p => p.id == projectId);
+            if (projectIndex === -1) {
+                showNotification('❌ Проект не найден');
+                return;
+            }
+            
+            const project = projects[projectIndex];
+            
+            // Переключаемся на нужный раздел
+            if (project.tag && project.tag.startsWith('custom_')) {
+                switchView(project.tag);
+            } else {
+                switchView('list');
+            }
+            
+            // Разворачиваем проект
+            collapsedProjects.delete(projectIndex);
+            renderProjects();
+            
+            // Прокручиваем к проекту
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    const title = card.querySelector('.project-title');
+                    if (title && title.textContent === project.name) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.border = '2px solid var(--info)';
+                        setTimeout(() => card.style.border = 'none', 2000);
+                    }
+                });
+            }, 300);
+            
+            showNotification('📂 Переход к задаче');
+        }
+
+        // ==================== РАЗДЕЛЫ ====================
         function loadCustomSections() {
             const sectionsRef = database.ref('customSections');
             sectionsRef.on('value', (snapshot) => {
@@ -1165,51 +1393,31 @@
             panel.classList.add('active');
         }
         
-        // Новая функция для перехода к задаче из календаря
         function openTaskFromCalendar(projectIndex, taskIndex) {
             const project = projects[projectIndex];
-            
             if (!project) return;
             
-            // Определяем куда переключиться
             if (project.tag && project.tag.startsWith('custom_')) {
-                // Переключаемся на кастомный раздел
                 switchView(project.tag);
             } else if (project.tag === 'calendar') {
-                // Если это календарь - остаемся в календаре
                 switchView('calendar');
             } else {
-                // Без тега - список
                 switchView('list');
             }
             
-            // Разворачиваем проект
             collapsedProjects.delete(projectIndex);
-            
-            // Перерисовываем
             renderProjects();
             
-            // Прокручиваем к проекту
             setTimeout(() => {
-                const projectCards = document.querySelectorAll('.project-card');
-                if (projectCards.length > 0) {
-                    // Находим нужный проект
-                    let targetCard = null;
-                    projectCards.forEach(card => {
-                        const title = card.querySelector('.project-title');
-                        if (title && title.textContent === project.name) {
-                            targetCard = card;
-                        }
-                    });
-                    
-                    if (targetCard) {
-                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        targetCard.style.border = '2px solid var(--info)';
-                        setTimeout(() => {
-                            targetCard.style.border = 'none';
-                        }, 2000);
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    const title = card.querySelector('.project-title');
+                    if (title && title.textContent === project.name) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.border = '2px solid var(--info)';
+                        setTimeout(() => card.style.border = 'none', 2000);
                     }
-                }
+                });
             }, 300);
             
             showNotification('📂 Проект открыт');
@@ -1347,7 +1555,6 @@
                 };
                 mediaRecorder.start();
                 isRecordingVoice = true;
-                document.getElementById('voiceBtn').classList.add('recording');
             }).catch(() => alert('Не удалось получить доступ к микрофону'));
         }
 
@@ -1355,7 +1562,6 @@
             if (mediaRecorder && isRecordingVoice) {
                 mediaRecorder.stop();
                 isRecordingVoice = false;
-                document.getElementById('voiceBtn').classList.remove('recording');
                 mediaRecorder.stream.getTracks().forEach(t => t.stop());
             }
         }
@@ -1438,7 +1644,6 @@
             document.getElementById('projectComment').value = '';
             projectVoiceBase64 = null;
             
-            // Если мы в кастомном разделе - скрываем выбор раздела
             if (currentView.startsWith('custom_')) {
                 document.getElementById('projectTagGroup').style.display = 'none';
                 document.getElementById('projectTag').value = currentView;
@@ -1505,7 +1710,6 @@
             
             if (!name) return;
             
-            // Если выбран "Создать новый раздел"
             if (tag === '__new__') {
                 const newSectionName = prompt('Название нового раздела:');
                 if (newSectionName) {
@@ -1519,24 +1723,23 @@
             }
             
             const comments = [];
-            if (commentText) {
-                comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
-            }
-            if (projectVoiceBase64) {
-                comments.push({ author: currentUser || 'Пользователь', voice: projectVoiceBase64, timestamp: new Date().toISOString() });
-            }
+            if (commentText) comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
+            if (projectVoiceBase64) comments.push({ author: currentUser || 'Пользователь', voice: projectVoiceBase64, timestamp: new Date().toISOString() });
+            
+            let newProjectId = Date.now();
             
             if (isEditing) {
                 projects[currentProjectId].name = name;
                 projects[currentProjectId].priority = priority;
                 projects[currentProjectId].tag = tag;
+                newProjectId = projects[currentProjectId].id;
                 if (comments.length) {
                     if (!projects[currentProjectId].comments) projects[currentProjectId].comments = [];
                     projects[currentProjectId].comments.push(...comments);
                 }
             } else {
                 projects.push({
-                    id: Date.now(),
+                    id: newProjectId,
                     name,
                     priority,
                     tag,
@@ -1545,7 +1748,16 @@
                     createdAt: new Date().toISOString()
                 });
             }
-            saveToFirebase(); closeModal('projectModal'); renderViewToggle();
+            
+            saveToFirebase();
+            
+            // Отправляем уведомление
+            if (currentUser) {
+                sendNotification(newProjectId, name, 'Новый проект: ' + name, getCurrentUserEmail());
+            }
+            
+            closeModal('projectModal');
+            renderViewToggle();
         }
 
         function saveTask() {
@@ -1575,7 +1787,16 @@
                     image: selectedImage, comments: comments, createdAt: new Date().toISOString()
                 });
             }
-            saveToFirebase(); closeModal('taskModal');
+            
+            saveToFirebase();
+            
+            // Отправляем уведомление
+            if (currentUser) {
+                const project = projects[currentProjectId];
+                sendNotification(project.id, project.name, name, getCurrentUserEmail());
+            }
+            
+            closeModal('taskModal');
         }
 
         function saveSubtask() {
@@ -1601,7 +1822,9 @@
             } else {
                 task.subtasks.push({ id: Date.now(), name, completed: false, date, comments });
             }
-            saveToFirebase(); closeModal('subtaskModal');
+            
+            saveToFirebase();
+            closeModal('subtaskModal');
         }
 
         // ==================== УДАЛЕНИЕ / ПЕРЕКЛЮЧЕНИЕ ====================
@@ -1710,6 +1933,7 @@
             updateUserInfo();
             syncWithFirebase();
             loadCustomSections();
+            loadNotifications();
             renderViewToggle();
 
             auth.onAuthStateChanged((user) => {
