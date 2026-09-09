@@ -112,38 +112,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 120px;
-        }
-
-        .notification-btn {
-            position: relative;
-            background: rgba(255,255,255,0.3);
-            border: none;
-            font-size: 1.3em;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            margin-left: 10px;
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -3px;
-            right: -3px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.6em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            max-width: 150px;
         }
 
         .sync-status {
@@ -388,55 +357,6 @@
         }
         .voice-message audio { max-width: 180px; height: 30px; }
 
-        /* Уведомления */
-        .notification-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background 0.2s;
-            position: relative;
-            border-radius: 8px;
-        }
-
-        .notification-item:hover { background: #f5f5f5; }
-        .notification-item.unread { background: #e3f2fd; }
-
-        .notification-icon { font-size: 1.5em; flex-shrink: 0; }
-
-        .notification-content { flex: 1; min-width: 0; }
-
-        .notification-title {
-            font-weight: 600;
-            font-size: 0.9em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .notification-task {
-            font-size: 0.8em;
-            color: #666;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .notification-time {
-            font-size: 0.7em;
-            color: #999;
-        }
-
-        .notification-dot {
-            width: 10px;
-            height: 10px;
-            background: var(--danger);
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -607,8 +527,7 @@
         }
         .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
         .calendar-tasks-panel.active { display: block; }
-        .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; cursor: pointer; }
-        .calendar-task-item:hover { background: #f0f0f0; }
+        .calendar-task-item { padding: 8px; margin: 5px 0; background: white; border-radius: 8px; font-size: 0.85em; }
 
         .image-preview { max-width: 100%; margin-top: 10px; border-radius: 10px; }
 
@@ -683,10 +602,6 @@
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
             <div class="user-name" id="userNameDisplay">Войти</div>
         </div>
-        <button class="notification-btn" onclick="showNotifications()">
-            🔔
-            <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
-        </button>
     </header>
 
     <div class="container">
@@ -723,16 +638,6 @@
             <div class="modal-title">Вход</div>
             <button class="btn-primary" onclick="signInWithGoogle()">🚀 Войти через Google</button>
             <button class="btn-secondary" onclick="signOut()" style="display:none;" id="logoutBtn">Выйти</button>
-        </div>
-    </div>
-
-    <div class="modal" id="notificationsModal">
-        <div class="modal-content">
-            <div class="modal-title">🔔 Журнал действий</div>
-            <div id="notificationsList"></div>
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeModal('notificationsModal')">Закрыть</button>
-            </div>
         </div>
     </div>
 
@@ -915,7 +820,6 @@
         // ==================== ПЕРЕМЕННЫЕ ====================
         let projects = [];
         let customSections = [];
-        let notifications = [];
         let currentProjectId = null;
         let currentTaskId = null;
         let currentSubtaskId = null;
@@ -966,172 +870,7 @@
             lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, { passive: true });
 
-        // ==================== ЖУРНАЛ ДЕЙСТВИЙ ====================
-        function logAction(action, projectId, projectName, details) {
-            const myEmail = getCurrentUserEmail();
-            const otherEmail = myEmail === 'bitrate.motiondesign@gmail.com' 
-                ? 'vikanikitapetrovi@gmail.com' 
-                : 'bitrate.motiondesign@gmail.com';
-            
-            // Запись для партнера (непрочитанная)
-            const partnerEntry = {
-                id: Date.now(),
-                action: action,
-                projectId: projectId,
-                projectName: projectName,
-                details: details,
-                fromEmail: myEmail,
-                toEmail: otherEmail,
-                read: false,
-                timestamp: new Date().toISOString()
-            };
-            
-            database.ref('notifications').push(partnerEntry);
-            
-            // Запись для себя (сразу прочитанная)
-            const selfEntry = {
-                id: Date.now() + 1,
-                action: action,
-                projectId: projectId,
-                projectName: projectName,
-                details: details + ' (вы)',
-                fromEmail: myEmail,
-                toEmail: myEmail,
-                read: true,
-                timestamp: new Date().toISOString()
-            };
-            
-            database.ref('notifications').push(selfEntry);
-        }
-
-        function loadNotifications() {
-            const notificationsRef = database.ref('notifications');
-            notificationsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    notifications = Object.values(data);
-                } else {
-                    notifications = [];
-                }
-                updateNotificationBadge();
-            });
-        }
-
-        function updateNotificationBadge() {
-            const badge = document.getElementById('notificationBadge');
-            const myEmail = getCurrentUserEmail();
-            const unread = notifications.filter(n => n.toEmail === myEmail && !n.read);
-            
-            if (badge) {
-                if (unread.length > 0) {
-                    badge.style.display = 'flex';
-                    badge.textContent = unread.length;
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-        }
-
-        function getCurrentUserEmail() {
-            const user = auth.currentUser;
-            return user ? user.email : localStorage.getItem('userName') || '';
-        }
-
-        function showNotifications() {
-            const modal = document.getElementById('notificationsModal');
-            const list = document.getElementById('notificationsList');
-            const myEmail = getCurrentUserEmail();
-            
-            // Показываем все записи адресованные мне (и свои, и от партнера)
-            const myNotifications = notifications.filter(n => n.toEmail === myEmail);
-            
-            if (!myNotifications.length) {
-                list.innerHTML = '<p style="text-align:center;color:#999;">Нет записей</p>';
-            } else {
-                list.innerHTML = myNotifications.sort((a, b) => b.timestamp.localeCompare(a.timestamp)).map(n => `
-                    <div class="notification-item ${n.read ? '' : 'unread'}" onclick="openNotification('${n.id}', '${n.projectId}')">
-                        <div class="notification-icon">${getActionIcon(n.action)}</div>
-                        <div class="notification-content">
-                            <div class="notification-title">${n.projectName}</div>
-                            <div class="notification-task">${n.details}</div>
-                            <div class="notification-time">
-                                ${new Date(n.timestamp).toLocaleString('ru-RU')} • 
-                                ${n.fromEmail === myEmail ? 'Вы' : 'Партнер'}
-                            </div>
-                        </div>
-                        ${!n.read ? '<div class="notification-dot"></div>' : ''}
-                    </div>
-                `).join('');
-            }
-            
-            openModal('notificationsModal');
-        }
-
-        function getActionIcon(action) {
-            const icons = {
-                'project_created': '📁',
-                'project_edited': '✏️',
-                'task_created': '✅',
-                'task_edited': '📝',
-                'task_completed': '🎉',
-                'subtask_created': '📎',
-                'subtask_edited': '📌',
-                'comment_added': '💬',
-                'voice_added': '🎤',
-                'project_deleted': '🗑️',
-                'task_deleted': '❌'
-            };
-            return icons[action] || '🔔';
-        }
-
-        function openNotification(notificationId, projectId) {
-            const notificationsRef = database.ref('notifications');
-            notificationsRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        if (data[key].id == notificationId) {
-                            notificationsRef.child(key).update({ read: true });
-                        }
-                    });
-                }
-            });
-            
-            closeModal('notificationsModal');
-            
-            const projectIndex = projects.findIndex(p => p.id == projectId);
-            if (projectIndex === -1) {
-                showNotification('❌ Проект не найден');
-                return;
-            }
-            
-            const project = projects[projectIndex];
-            
-            if (project.tag && project.tag.startsWith('custom_')) {
-                switchView(project.tag);
-            } else {
-                switchView('list');
-            }
-            
-            collapsedProjects.delete(projectIndex);
-            renderProjects();
-            
-            setTimeout(() => {
-                const cards = document.querySelectorAll('.project-card');
-                cards.forEach(card => {
-                    const title = card.querySelector('.project-title');
-                    if (title && title.textContent === project.name) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.style.border = '2px solid var(--info)';
-                        setTimeout(() => card.style.border = 'none', 2000);
-                    }
-                });
-            }, 300);
-            
-            showNotification('📂 Переход к проекту');
-        }
-
-        // ==================== РАЗДЕЛЫ ====================
+        // ==================== РАЗДЕЛЫ (Firebase) ====================
         function loadCustomSections() {
             const sectionsRef = database.ref('customSections');
             sectionsRef.on('value', (snapshot) => {
@@ -1426,31 +1165,51 @@
             panel.classList.add('active');
         }
         
+        // Новая функция для перехода к задаче из календаря
         function openTaskFromCalendar(projectIndex, taskIndex) {
             const project = projects[projectIndex];
+            
             if (!project) return;
             
+            // Определяем куда переключиться
             if (project.tag && project.tag.startsWith('custom_')) {
+                // Переключаемся на кастомный раздел
                 switchView(project.tag);
             } else if (project.tag === 'calendar') {
+                // Если это календарь - остаемся в календаре
                 switchView('calendar');
             } else {
+                // Без тега - список
                 switchView('list');
             }
             
+            // Разворачиваем проект
             collapsedProjects.delete(projectIndex);
+            
+            // Перерисовываем
             renderProjects();
             
+            // Прокручиваем к проекту
             setTimeout(() => {
-                const cards = document.querySelectorAll('.project-card');
-                cards.forEach(card => {
-                    const title = card.querySelector('.project-title');
-                    if (title && title.textContent === project.name) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.style.border = '2px solid var(--info)';
-                        setTimeout(() => card.style.border = 'none', 2000);
+                const projectCards = document.querySelectorAll('.project-card');
+                if (projectCards.length > 0) {
+                    // Находим нужный проект
+                    let targetCard = null;
+                    projectCards.forEach(card => {
+                        const title = card.querySelector('.project-title');
+                        if (title && title.textContent === project.name) {
+                            targetCard = card;
+                        }
+                    });
+                    
+                    if (targetCard) {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetCard.style.border = '2px solid var(--info)';
+                        setTimeout(() => {
+                            targetCard.style.border = 'none';
+                        }, 2000);
                     }
-                });
+                }
             }, 300);
             
             showNotification('📂 Проект открыт');
@@ -1727,13 +1486,7 @@
             if (!task.comments) task.comments = [];
             task.comments.push({ author: currentUser, text: text, timestamp: new Date().toISOString() });
             document.getElementById('commentInput').value = '';
-            saveToFirebase();
-            
-            // Логируем
-            const project = projects[currentProjectId];
-            logAction('comment_added', project.id, project.name, '💬 ' + text);
-            
-            renderComments();
+            saveToFirebase(); renderComments();
         }
 
         // ==================== ГОЛОСОВЫЕ ====================
@@ -1764,6 +1517,7 @@
                 };
                 mediaRecorder.start();
                 isRecordingVoice = true;
+                document.getElementById('voiceBtn').classList.add('recording');
             }).catch(() => alert('Не удалось получить доступ к микрофону'));
         }
 
@@ -1771,6 +1525,7 @@
             if (mediaRecorder && isRecordingVoice) {
                 mediaRecorder.stop();
                 isRecordingVoice = false;
+                document.getElementById('voiceBtn').classList.remove('recording');
                 mediaRecorder.stream.getTracks().forEach(t => t.stop());
             }
         }
@@ -1780,12 +1535,7 @@
             const task = projects[currentProjectId].tasks[currentTaskId];
             if (!task.comments) task.comments = [];
             task.comments.push({ author: currentUser, voice: audioBase64, timestamp: new Date().toISOString() });
-            saveToFirebase();
-            
-            const project = projects[currentProjectId];
-            logAction('voice_added', project.id, project.name, '🎤 Голосовое сообщение');
-            
-            renderComments();
+            saveToFirebase(); renderComments();
         }
 
         // ==================== РЕДАКТИРОВАНИЕ ====================
@@ -1858,6 +1608,7 @@
             document.getElementById('projectComment').value = '';
             projectVoiceBase64 = null;
             
+            // Если мы в кастомном разделе - скрываем выбор раздела
             if (currentView.startsWith('custom_')) {
                 document.getElementById('projectTagGroup').style.display = 'none';
                 document.getElementById('projectTag').value = currentView;
@@ -1924,6 +1675,7 @@
             
             if (!name) return;
             
+            // Если выбран "Создать новый раздел"
             if (tag === '__new__') {
                 const newSectionName = prompt('Название нового раздела:');
                 if (newSectionName) {
@@ -1937,23 +1689,24 @@
             }
             
             const comments = [];
-            if (commentText) comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
-            if (projectVoiceBase64) comments.push({ author: currentUser || 'Пользователь', voice: projectVoiceBase64, timestamp: new Date().toISOString() });
-            
-            let newProjectId = Date.now();
+            if (commentText) {
+                comments.push({ author: currentUser || 'Пользователь', text: commentText, timestamp: new Date().toISOString() });
+            }
+            if (projectVoiceBase64) {
+                comments.push({ author: currentUser || 'Пользователь', voice: projectVoiceBase64, timestamp: new Date().toISOString() });
+            }
             
             if (isEditing) {
                 projects[currentProjectId].name = name;
                 projects[currentProjectId].priority = priority;
                 projects[currentProjectId].tag = tag;
-                newProjectId = projects[currentProjectId].id;
                 if (comments.length) {
                     if (!projects[currentProjectId].comments) projects[currentProjectId].comments = [];
                     projects[currentProjectId].comments.push(...comments);
                 }
             } else {
                 projects.push({
-                    id: newProjectId,
+                    id: Date.now(),
                     name,
                     priority,
                     tag,
@@ -1962,14 +1715,7 @@
                     createdAt: new Date().toISOString()
                 });
             }
-            
-            saveToFirebase();
-            
-            // Логируем
-            logAction(isEditing ? 'project_edited' : 'project_created', newProjectId, name, (isEditing ? '✏️ Изменен проект' : '📁 Создан проект') + ': ' + name);
-            
-            closeModal('projectModal');
-            renderViewToggle();
+            saveToFirebase(); closeModal('projectModal'); renderViewToggle();
         }
 
         function saveTask() {
@@ -1999,14 +1745,7 @@
                     image: selectedImage, comments: comments, createdAt: new Date().toISOString()
                 });
             }
-            
-            saveToFirebase();
-            
-            // Логируем
-            const project = projects[currentProjectId];
-            logAction(isEditing ? 'task_edited' : 'task_created', project.id, project.name, (isEditing ? '📝 Изменена задача' : '✅ Добавлена задача') + ': ' + name);
-            
-            closeModal('taskModal');
+            saveToFirebase(); closeModal('taskModal');
         }
 
         function saveSubtask() {
@@ -2032,28 +1771,13 @@
             } else {
                 task.subtasks.push({ id: Date.now(), name, completed: false, date, comments });
             }
-            
-            saveToFirebase();
-            
-            // Логируем
-            const project = projects[currentProjectId];
-            logAction(isEditing ? 'subtask_edited' : 'subtask_created', project.id, project.name, (isEditing ? '📌 Изменена подзадача' : '📎 Добавлена подзадача') + ': ' + name);
-            
-            closeModal('subtaskModal');
+            saveToFirebase(); closeModal('subtaskModal');
         }
 
         // ==================== УДАЛЕНИЕ / ПЕРЕКЛЮЧЕНИЕ ====================
         function toggleTask(pid, tid) {
             projects[pid].tasks[tid].completed = !projects[pid].tasks[tid].completed;
-            saveToFirebase();
-            
-            // Логируем выполнение
-            if (projects[pid].tasks[tid].completed) {
-                const project = projects[pid];
-                logAction('task_completed', project.id, project.name, '🎉 Выполнена задача: ' + projects[pid].tasks[tid].name);
-            }
-            
-            renderProjects();
+            saveToFirebase(); renderProjects();
         }
 
         function toggleSubtask(pid, tid, sid) {
@@ -2062,24 +1786,10 @@
         }
 
         function deleteProject(pid) {
-            if (confirm('Удалить проект?')) {
-                const project = projects[pid];
-                projects.splice(pid, 1);
-                saveToFirebase();
-                logAction('project_deleted', project.id, project.name, '🗑️ Удален проект: ' + project.name);
-                renderProjects();
-            }
+            if (confirm('Удалить проект?')) { projects.splice(pid, 1); saveToFirebase(); renderProjects(); }
         }
 
-        function deleteTask(pid, tid) {
-            const task = projects[pid].tasks[tid];
-            const project = projects[pid];
-            projects[pid].tasks.splice(tid, 1);
-            saveToFirebase();
-            logAction('task_deleted', project.id, project.name, '❌ Удалена задача: ' + task.name);
-            renderProjects();
-        }
-
+        function deleteTask(pid, tid) { projects[pid].tasks.splice(tid, 1); saveToFirebase(); renderProjects(); }
         function deleteSubtask(pid, tid, sid) { projects[pid].tasks[tid].subtasks.splice(sid, 1); saveToFirebase(); renderProjects(); }
 
         function openSectionsManager() {
@@ -2170,7 +1880,6 @@
             updateUserInfo();
             syncWithFirebase();
             loadCustomSections();
-            loadNotifications();
             renderViewToggle();
 
             auth.onAuthStateChanged((user) => {
@@ -2183,8 +1892,6 @@
                 }
             });
         }
-
-
         // ==================== ЖУРНАЛ (бессрочный) ====================
         function logAction(action, projectId, projectName, details) {
             const myEmail = getCurrentUserEmail();
