@@ -994,18 +994,14 @@
             setTimeout(() => notification.remove(), 3000);
         }
 
-        // ==================== FIREBASE ====================
+        // ==================== FIREBASE СИНХРОНИЗАЦИЯ ====================
         function syncWithFirebase() {
             const projectsRef = database.ref('projects');
             projectsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    // Преобразуем объект в массив
-                    if (Array.isArray(data)) {
-                        projects = data;
-                    } else {
-                        projects = Object.values(data);
-                    }
+                    // Firebase возвращает объект, преобразуем в массив
+                    projects = Array.isArray(data) ? data : Object.values(data);
                     projects.forEach((p, i) => collapsedProjects.add(i));
                     renderProjects();
                     renderViewToggle();
@@ -1020,8 +1016,35 @@
                 }
             });
         }
-
+        
+        function loadCustomSections() {
+            const sectionsRef = database.ref('customSections');
+            sectionsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    customSections = Object.values(data);
+                } else {
+                    customSections = [];
+                }
+                renderViewToggle();
+            });
+        }
+        
+        function loadNotifications() {
+            const notificationsRef = database.ref('notifications');
+            notificationsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    notifications = Object.values(data);
+                } else {
+                    notifications = [];
+                }
+                updateNotificationBadge();
+            });
+        }
+        
         function saveToFirebase() {
+            // Сохраняем как массив
             database.ref('projects').set(projects)
                 .then(() => {
                     document.getElementById('syncStatus').textContent = '✅';
@@ -1032,6 +1055,16 @@
                     document.getElementById('syncStatus').textContent = '❌';
                     document.getElementById('syncStatus').style.color = '#f44336';
                 });
+        }
+        
+        function saveCustomSections() {
+            const sectionsObject = {};
+            customSections.forEach((section, index) => {
+                sectionsObject[index] = section;
+            });
+            database.ref('customSections').set(sectionsObject)
+                .then(() => showNotification('✅ Разделы сохранены'))
+                .catch(() => showNotification('❌ Ошибка сохранения'));
         }
 
         // ==================== ПРОГРЕСС ====================
