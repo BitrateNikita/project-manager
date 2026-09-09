@@ -561,6 +561,37 @@
             color: var(--text);
         }
 
+        .notification-btn {
+            position: relative;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            font-size: 1.3em;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            margin-left: 10px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.6em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -591,6 +622,8 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+
+
     </style>
 </head>
 <body>
@@ -602,13 +635,20 @@
             <div class="user-avatar" id="userAvatar"><span id="avatarPlaceholder">👤</span></div>
             <div class="user-name" id="userNameDisplay">Войти</div>
         </div>
+        <button class="notification-btn" onclick="showNotifications()">
+            🔔
+            <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
     </header>
 
-    <div class="container">
-        <div class="view-toggle" id="viewToggle"></div>
-        <div id="listView"><div id="projectsContainer"></div></div>
-        <div id="calendarView" class="calendar-view"><div id="calendarContainer"></div></div>
-        <div id="dynamicViews"></div>
+
+    <div id="appContent" style="display:none;">
+        <div class="container">
+            <div class="view-toggle" id="viewToggle"></div>
+            <div id="listView"><div id="projectsContainer"></div></div>
+            <div id="calendarView" class="calendar-view"><div id="calendarContainer"></div></div>
+            <div id="dynamicViews"></div>
+        </div>
     </div>
 
     <button class="floating-btn" onclick="openAddProjectModal()">+</button>
@@ -796,7 +836,16 @@
                 <button class="btn-primary" onclick="addComment()">Отправить</button>
             </div>
         </div>
+    <div class="modal" id="notificationsModal">
+        <div class="modal-content">
+            <div class="modal-title">🔔 Журнал действий</div>
+            <div id="notificationsList"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('notificationsModal')">Закрыть</button>
+            </div>
+        </div>
     </div>
+
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -1872,11 +1921,13 @@
 
         function initApp() {
             const user = auth.currentUser;
-            if (user) handleSignInResult(user);
-            else {
-                const savedUser = localStorage.getItem('userName');
-                if (savedUser) { currentUser = savedUser; userAvatar = localStorage.getItem('userAvatar'); }
-            }
+                if (user) {
+                    handleSignInResult(user);
+                    document.getElementById('appContent').style.display = 'block';
+                } else {
+                    document.getElementById('appContent').style.display = 'none';
+                    showLoginModal();
+                }
             updateUserInfo();
             syncWithFirebase();
             loadCustomSections();
