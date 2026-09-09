@@ -920,16 +920,16 @@
         }, { passive: true });
 
         // ==================== РАЗДЕЛЫ (Firebase) ====================
-        function loadCustomSections() {
-            const sectionsRef = database.ref('customSections');
-            sectionsRef.on('value', (snapshot) => {
+        function loadNotifications() {
+            const notificationsRef = database.ref('notifications');
+            notificationsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    customSections = Object.values(data);
+                    notifications = Object.values(data);
                 } else {
-                    customSections = [];
+                    notifications = [];
                 }
-                renderViewToggle();
+                updateNotificationBadge();
             });
         }
 
@@ -1000,7 +1000,12 @@
             projectsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    projects = data;
+                    // Преобразуем объект в массив
+                    if (Array.isArray(data)) {
+                        projects = data;
+                    } else {
+                        projects = Object.values(data);
+                    }
                     projects.forEach((p, i) => collapsedProjects.add(i));
                     renderProjects();
                     renderViewToggle();
