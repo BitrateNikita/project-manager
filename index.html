@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#667eea">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="icon" type="image/png" href="iconApp.png">
+    <link rel="apple-touch-icon" href="iconApp.png">
     <title>📊 Планнер</title>
     <style>
         :root {
@@ -1010,9 +1011,10 @@
         }
 
         .task-item:hover {
-            background: linear-gradient(90deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.02) 100%);
+            background: rgba(33, 150, 243, 0.15);
             padding-left: 12px;
-            border-left: 3px solid var(--primary);
+            border-left: 3px solid var(--info);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
         }
 
         /* Подзадачи */
@@ -1021,9 +1023,10 @@
         }
 
         .subtask-item:hover {
-            background: linear-gradient(90deg, rgba(33, 150, 243, 0.08) 0%, rgba(33, 150, 243, 0.02) 100%);
+            background: rgba(33, 150, 243, 0.12);
             padding-left: 10px;
             border-left: 2px solid var(--info);
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.15);
         }
 
         /* Чекбоксы */
