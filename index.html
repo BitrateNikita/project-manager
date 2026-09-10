@@ -179,7 +179,25 @@
             -webkit-overflow-scrolling: touch;
             align-items: center;
             scroll-behavior: smooth;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            cursor: grab;
+        }
+
+        .view-toggle:active {
+            cursor: grabbing;
+        }
+
+        .view-toggle::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .view-toggle::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        .view-toggle::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.4);
         }
 
         .view-toggle::-webkit-scrollbar { display: none; }
@@ -888,6 +906,17 @@
             padding: 5px 12px;
             border-radius: 15px;
         }
+
+        .sections-swiper-container {
+            overflow: hidden;
+            position: relative;
+            touch-action: pan-y;
+            cursor: grab;
+        }
+
+        .sections-swiper-container:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body>
@@ -1488,7 +1517,7 @@
             });
         }
 
-        // Свайп влево-вправо
+        // Свайп влево-вправо (touch + mouse)
         (function initSwipe() {
             const container = document.getElementById('sectionsSwiperContainer');
             if (!container) return;
@@ -1496,8 +1525,10 @@
             let startX = 0;
             let startY = 0;
             let isSwiping = false;
+            let isDragging = false;
             let isHorizontal = null;
 
+            // ===== TOUCH (мобильные) =====
             container.addEventListener('touchstart', (e) => {
                 if (e.touches.length !== 1) return;
                 startX = e.touches[0].clientX;
@@ -1507,8 +1538,7 @@
             }, { passive: true });
 
             container.addEventListener('touchmove', (e) => {
-                if (!isSwiping) return;
-                if (e.touches.length !== 1) return;
+                if (!isSwiping || e.touches.length !== 1) return;
                 const dx = e.touches[0].clientX - startX;
                 const dy = e.touches[0].clientY - startY;
 
@@ -1516,9 +1546,7 @@
                     isHorizontal = Math.abs(dx) > Math.abs(dy);
                 }
 
-                if (isHorizontal) {
-                    e.preventDefault();
-                }
+                if (isHorizontal) e.preventDefault();
             }, { passive: false });
 
             container.addEventListener('touchend', (e) => {
@@ -1537,6 +1565,122 @@
                 }
                 isHorizontal = null;
             }, { passive: true });
+
+            // ===== MOUSE (ПК) — перетаскивание =====
+            container.addEventListener('mousedown', (e) => {
+                // Игнорируем клики по кнопкам
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) return;
+                if (e.target.closest('.task-image')) return;
+
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                isHorizontal = null;
+                container.style.cursor = 'grabbing';
+                container.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (isHorizontal === null) {
+                    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                        isHorizontal = Math.abs(dx) > Math.abs(dy);
+                    } else {
+                        return;
+                    }
+                }
+
+                // Не даём браузеру выделять текст
+                if (isHorizontal) {
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mouseup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                container.style.cursor = '';
+                container.style.userSelect = '';
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (isHorizontal && Math.abs(dx) > 60) {
+                    if (dx < 0 && currentSectionIndex < getAllSections().length - 1) {
+                        goToSection(currentSectionIndex + 1);
+                    } else if (dx > 0 && currentSectionIndex > 0) {
+                        goToSection(currentSectionIndex - 1);
+                    }
+                }
+                isHorizontal = null;
+            });
+
+            // ===== КОЛЁСИКО МЫШИ (ПК) =====
+            container.addEventListener('wheel', (e) => {
+                // Если у элемента горизонтальный скролл — пусть работает как обычно
+                // Иначе переключаем разделы
+                const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+                // Защита от слишком частых переключений
+                if (container._wheelLocked) return;
+
+                if (Math.abs(delta) > 30) {
+                    if (delta > 0 && currentSectionIndex < getAllSections().length - 1) {
+                        goToSection(currentSectionIndex + 1);
+                        container._wheelLocked = true;
+                        setTimeout(() => container._wheelLocked = false, 400);
+                    } else if (delta < 0 && currentSectionIndex > 0) {
+                        goToSection(currentSectionIndex - 1);
+                        container._wheelLocked = true;
+                        setTimeout(() => container._wheelLocked = false, 400);
+                    }
+                }
+            }, { passive: true });
+
+            // ===== ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ НА ВЕРХНИХ КНОПКАХ РАЗДЕЛОВ (ПК) =====
+            const viewToggle = document.getElementById('viewToggle');
+            if (viewToggle) {
+                viewToggle.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        viewToggle.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+
+                // Drag на верхних кнопках разделов
+                let vtStartX = 0;
+                let vtScrollLeft = 0;
+                let vtIsDown = false;
+
+                viewToggle.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button') && !e.target.closest('.view-btn')) return;
+                    vtIsDown = true;
+                    vtStartX = e.pageX - viewToggle.offsetLeft;
+                    vtScrollLeft = viewToggle.scrollLeft;
+                    viewToggle.style.cursor = 'grabbing';
+                });
+
+                viewToggle.addEventListener('mouseleave', () => {
+                    vtIsDown = false;
+                    viewToggle.style.cursor = '';
+                });
+
+                viewToggle.addEventListener('mouseup', () => {
+                    vtIsDown = false;
+                    viewToggle.style.cursor = '';
+                });
+
+                viewToggle.addEventListener('mousemove', (e) => {
+                    if (!vtIsDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - viewToggle.offsetLeft;
+                    const walk = (x - vtStartX) * 1.5;
+                    viewToggle.scrollLeft = vtScrollLeft - walk;
+                });
+            }
         })();
 
         // ==================== ПОЛЬЗОВАТЕЛЬ ====================
