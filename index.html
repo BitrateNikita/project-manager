@@ -107,7 +107,6 @@
             cursor: pointer;
             flex-shrink: 0;
             border: 2px solid white;
-            position: relative;
         }
 
         .user-avatar img {
@@ -234,6 +233,40 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* ==================== ЗАДАЧИ - горизонтальный скролл по проектам ==================== */
+        .projects-scroll-wrapper {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px 0 15px 0;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .projects-scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .projects-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        .projects-scroll-wrapper .project-card {
+            flex: 0 0 85%;
+            max-width: 400px;
+            scroll-snap-align: start;
+            margin-bottom: 0;
+        }
+
+        @media (min-width: 700px) {
+            .projects-scroll-wrapper .project-card {
+                flex: 0 0 350px;
+            }
         }
 
         /* ==================== ПРОЕКТЫ ==================== */
@@ -671,8 +704,23 @@
             position: relative;
             font-size: 0.85em;
         }
-        .calendar-day.today { background: var(--info); color: white; font-weight: bold; }
-        .calendar-day.has-tasks { background: #e8f5e9; border: 2px solid var(--primary); }
+        /* Сегодняшний день - голубой */
+        .calendar-day.today {
+            background: var(--info);
+            color: white;
+            font-weight: bold;
+        }
+        /* День с задачами - зелёный */
+        .calendar-day.has-tasks {
+            background: #e8f5e9;
+            border: 2px solid var(--primary);
+        }
+        /* Сегодня + задачи - голубой с зелёной рамкой */
+        .calendar-day.today.has-tasks {
+            background: var(--info);
+            border: 2px solid var(--primary);
+            color: white;
+        }
         .calendar-day.other-month { opacity: 0.3; }
         .calendar-day-indicator {
             position: absolute;
@@ -681,6 +729,9 @@
             height: 4px;
             background: var(--primary);
             border-radius: 50%;
+        }
+        .calendar-day.today .calendar-day-indicator {
+            background: white;
         }
         .calendar-tasks-panel {
             margin-top: 10px;
@@ -850,7 +901,7 @@
 
     <div class="container">
         <div class="view-toggle" id="viewToggle"></div>
-        <div id="listView"><div id="projectsContainer"></div></div>
+        <div id="listView"><div id="projectsContainer" class="projects-scroll-wrapper"></div></div>
         <div id="calendarView" class="calendar-view"><div id="calendarContainer"></div></div>
         <div id="dynamicViews"></div>
     </div>
@@ -1081,6 +1132,7 @@
         let currentView = 'list';
         let currentSectionId = null;
         let collapsedProjects = new Set();
+        let userExpandedProjects = new Set(); // Проекты, которые пользователь раскрыл вручную
         let selectedImage = null;
         let currentUser = localStorage.getItem('userName') || null;
         let userAvatar = localStorage.getItem('userAvatar') || null;
@@ -1217,6 +1269,7 @@
             const project = projects[projectIndex];
             if (project.tag && project.tag.startsWith('custom_')) switchView(project.tag);
             else switchView('list');
+            userExpandedProjects.add(projectIndex);
             collapsedProjects.delete(projectIndex);
             renderProjects();
             setTimeout(() => {
@@ -1269,7 +1322,6 @@
                 return `<button class="view-btn ${isActive ? 'active' : ''}" onclick="switchView('${section.tag || 'list'}')">${section.name} ${count > 0 ? `<span class="task-count">${count}</span>` : ''}</button>`;
             }).join('') + `<button class="add-section-btn" onclick="openAddSectionModal()">+</button>`;
 
-            // Скролл к активному разделу
             setTimeout(() => {
                 const activeBtn = container.querySelector('.view-btn.active');
                 if (activeBtn) {
@@ -1324,6 +1376,14 @@
                 const data = snapshot.val();
                 if (data) {
                     projects = Array.isArray(data) ? data : Object.values(data);
+                    // По умолчанию все проекты СВЁРНУТЫ, кроме тех что пользователь раскрыл вручную
+                    projects.forEach((p, i) => {
+                        if (!userExpandedProjects.has(i)) {
+                            collapsedProjects.add(i);
+                        } else {
+                            collapsedProjects.delete(i);
+                        }
+                    });
                     renderProjects();
                     renderViewToggle();
                     document.getElementById('syncStatus').textContent = '✅';
@@ -1382,8 +1442,11 @@
             const listProjects = projects.filter(p => !p.tag || p.tag === '');
             if (!listProjects.length) {
                 container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚀</div><h3>Нет проектов</h3><p style="color:#666;margin:10px 0;">Нажмите + чтобы создать</p></div>`;
+                container.style.display = 'block';
                 return;
             }
+            // Для горизонтального скролла - flex
+            container.classList.add('projects-scroll-wrapper');
             container.innerHTML = listProjects.map(project => renderProjectCard(project)).join('');
         }
 
@@ -1392,8 +1455,11 @@
             const tagged = projects.filter(p => p.tag === tag);
             if (!tagged.length) {
                 container.innerHTML = `<div class="empty-state">${emptyMessage || 'Нет проектов'}</div>`;
+                container.classList.remove('projects-scroll-wrapper');
+                container.style.display = 'block';
                 return;
             }
+            container.classList.add('projects-scroll-wrapper');
             container.innerHTML = tagged.map(project => renderProjectCard(project)).join('');
         }
 
@@ -1498,6 +1564,7 @@
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hasTasks = checkTasksForDate(dateStr);
                 const isToday = dateStr === todayStr;
+                // Сегодня = голубой, с задачами = зелёный, сегодня+задачи = голубой с зелёной рамкой
                 html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" onclick="selectDate('${dateStr}')">${day}${hasTasks ? '<div class="calendar-day-indicator"></div>' : ''}</div>`;
             }
 
@@ -1528,7 +1595,7 @@
                     if (t.date && t.date.split('T')[0] === dateStr) {
                         tasks.push({ name: t.name, projectName: p.name, completed: t.completed, time: t.date.split('T')[1] || '', projectIndex: pIndex, taskIndex: tIndex });
                     }
-                    if (t.subtasks) t.subtasks.forEach((st, stIndex) => {
+                    if (t.subtasks) t.subtasks.forEach((st) => {
                         if (st.date && st.date.split('T')[0] === dateStr) {
                             tasks.push({ name: st.name, projectName: p.name, completed: st.completed, time: st.date.split('T')[1] || '', projectIndex: pIndex, taskIndex: tIndex });
                         }
@@ -1552,6 +1619,7 @@
             if (project.tag && project.tag.startsWith('custom_')) switchView(project.tag);
             else if (project.tag === 'calendar') switchView('calendar');
             else switchView('list');
+            userExpandedProjects.add(projectIndex);
             collapsedProjects.delete(projectIndex);
             renderProjects();
             setTimeout(() => {
@@ -1559,7 +1627,7 @@
                 cards.forEach(card => {
                     const title = card.querySelector('.project-title');
                     if (title && title.textContent === project.name) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                         card.style.border = '2px solid var(--info)';
                         setTimeout(() => card.style.border = 'none', 2000);
                     }
@@ -1588,10 +1656,13 @@
         }
 
         function toggleProject(index) {
+            // Ручное переключение пользователем
             if (collapsedProjects.has(index)) {
                 collapsedProjects.delete(index);
+                userExpandedProjects.add(index);
             } else {
                 collapsedProjects.add(index);
+                userExpandedProjects.delete(index);
             }
             renderProjects();
         }
@@ -1617,7 +1688,6 @@
 
         // ==================== ПОЛНОЭКРАННЫЙ ПРОСМОТР ИЗОБРАЖЕНИЙ ====================
         function showImage(src) {
-            // Удаляем старое окно если есть
             const existing = document.getElementById('imageViewer');
             if (existing) existing.remove();
 
@@ -1650,6 +1720,27 @@
                 overlay.style.cursor = scale > 1 ? 'grab' : 'default';
             }
 
+            function closeViewer() {
+                // Убираем history state
+                if (history.state && history.state.imageViewer) {
+                    history.back();
+                } else {
+                    overlay.remove();
+                }
+            }
+
+            // Добавляем запись в history, чтобы кнопка "Назад" закрывала просмотрщик
+            history.pushState({ imageViewer: true }, '');
+
+            // Обработка кнопки "Назад" (popstate)
+            const handlePopState = (e) => {
+                if (document.getElementById('imageViewer')) {
+                    overlay.remove();
+                }
+                window.removeEventListener('popstate', handlePopState);
+            };
+            window.addEventListener('popstate', handlePopState);
+
             // Двойной тап — увеличение в 2 раза
             overlay.addEventListener('click', (e) => {
                 if (e.target === closeBtn) return;
@@ -1667,7 +1758,6 @@
                 lastTap = now;
             });
 
-            // Панорамирование мышью
             img.addEventListener('mousedown', (e) => {
                 if (scale > 1) {
                     isDragging = true;
@@ -1690,7 +1780,6 @@
                 if (scale > 1) img.style.cursor = 'grab';
             });
 
-            // Touch — панорамирование и пинч
             img.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 1 && scale > 1) {
                     isDragging = true;
@@ -1730,16 +1819,14 @@
                 lastTouchDistance = 0;
             });
 
-            // Кнопка закрытия
-            closeBtn.addEventListener('click', () => overlay.remove());
+            closeBtn.addEventListener('click', closeViewer);
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.remove();
+                if (e.target === overlay) closeViewer();
             });
 
-            // Escape
             const handleEscape = (e) => {
                 if (e.key === 'Escape') {
-                    overlay.remove();
+                    closeViewer();
                     document.removeEventListener('keydown', handleEscape);
                 }
             };
@@ -1758,6 +1845,7 @@
             const temp = tasks[tid];
             tasks[tid] = tasks[ni];
             tasks[ni] = temp;
+            userExpandedProjects.add(pid);
             saveToFirebase();
             renderProjects();
         }
@@ -1769,6 +1857,7 @@
             const temp = subs[sid];
             subs[sid] = subs[ni];
             subs[ni] = temp;
+            userExpandedProjects.add(pid);
             saveToFirebase();
             renderProjects();
         }
@@ -1778,6 +1867,7 @@
             const assignees = ['me','wife','nika','both'];
             const ci = assignees.indexOf(task.assignee || 'me');
             task.assignee = assignees[(ci + 1) % assignees.length];
+            userExpandedProjects.add(pid);
             saveToFirebase();
             renderProjects();
         }
@@ -1804,6 +1894,7 @@
         function openComments(pid, tid) {
             currentProjectId = pid;
             currentTaskId = tid;
+            userExpandedProjects.add(pid);
             renderComments();
             openModal('commentsModal');
         }
@@ -1833,6 +1924,7 @@
             if (!task.comments) task.comments = [];
             task.comments.push({ author: currentUser, text: text, timestamp: new Date().toISOString() });
             document.getElementById('commentInput').value = '';
+            userExpandedProjects.add(currentProjectId);
             saveToFirebase();
             const project = projects[currentProjectId];
             logAction('comment_added', project.id, project.name, '💬 ' + text);
@@ -1886,6 +1978,7 @@
             const task = projects[currentProjectId].tasks[currentTaskId];
             if (!task.comments) task.comments = [];
             task.comments.push({ author: currentUser, voice: audioBase64, timestamp: new Date().toISOString() });
+            userExpandedProjects.add(currentProjectId);
             saveToFirebase();
             const project = projects[currentProjectId];
             logAction('voice_added', project.id, project.name, '🎤 Голосовое сообщение');
@@ -1896,7 +1989,8 @@
         function editProject(pid) {
             isEditing = true;
             currentProjectId = pid;
-            // Разворачиваем проект при редактировании
+            // Запоминаем что проект раскрыт пользователем
+            userExpandedProjects.add(pid);
             collapsedProjects.delete(pid);
             const p = projects[pid];
             document.getElementById('projectModalTitle').textContent = 'Редактировать проект';
@@ -1917,7 +2011,7 @@
             isEditing = true;
             currentProjectId = pid;
             currentTaskId = tid;
-            // Разворачиваем проект
+            userExpandedProjects.add(pid);
             collapsedProjects.delete(pid);
             const t = projects[pid].tasks[tid];
             document.getElementById('taskModalTitle').textContent = 'Редактировать задачу';
@@ -1939,7 +2033,7 @@
             currentProjectId = pid;
             currentTaskId = tid;
             currentSubtaskId = sid;
-            // Разворачиваем проект
+            userExpandedProjects.add(pid);
             collapsedProjects.delete(pid);
             const st = projects[pid].tasks[tid].subtasks[sid];
             document.getElementById('subtaskModalTitle').textContent = 'Редактировать подзадачу';
@@ -1993,7 +2087,7 @@
         function openAddTaskModal(pid) {
             isEditing = false;
             currentProjectId = pid;
-            // Разворачиваем проект
+            userExpandedProjects.add(pid);
             collapsedProjects.delete(pid);
             document.getElementById('taskModalTitle').textContent = 'Новая задача';
             document.getElementById('taskName').value = '';
@@ -2009,7 +2103,7 @@
             isEditing = false;
             currentProjectId = pid;
             currentTaskId = tid;
-            // Разворачиваем проект
+            userExpandedProjects.add(pid);
             collapsedProjects.delete(pid);
             document.getElementById('subtaskModalTitle').textContent = 'Новая подзадача';
             document.getElementById('subtaskName').value = '';
@@ -2081,8 +2175,12 @@
             }
             saveToFirebase();
             logAction(isEditing ? 'project_edited' : 'project_created', newProjectId, name, (isEditing ? '✏️ Изменен проект' : '📁 Создан проект') + ': ' + name);
-            // Разворачиваем проект
-            collapsedProjects.delete(projects.findIndex(p => p.id === newProjectId));
+            // Помечаем что пользователь раскрыл этот проект
+            const idx = projects.findIndex(p => p.id === newProjectId);
+            if (idx !== -1) {
+                userExpandedProjects.add(idx);
+                collapsedProjects.delete(idx);
+            }
             closeModal('projectModal');
             renderViewToggle();
             renderProjects();
@@ -2110,7 +2208,8 @@
                 if (!projects[currentProjectId].tasks) projects[currentProjectId].tasks = [];
                 projects[currentProjectId].tasks.push({ id: Date.now(), name, completed: false, subtasks: [], date, assignee, image: selectedImage, comments: comments, createdAt: new Date().toISOString() });
             }
-            // Разворачиваем проект
+            // Проект остаётся раскрытым
+            userExpandedProjects.add(currentProjectId);
             collapsedProjects.delete(currentProjectId);
             saveToFirebase();
             const project = projects[currentProjectId];
@@ -2139,7 +2238,8 @@
             } else {
                 task.subtasks.push({ id: Date.now(), name, completed: false, date, comments });
             }
-            // Разворачиваем проект
+            // Проект остаётся раскрытым
+            userExpandedProjects.add(currentProjectId);
             collapsedProjects.delete(currentProjectId);
             saveToFirebase();
             const project = projects[currentProjectId];
@@ -2151,6 +2251,7 @@
         // ==================== УДАЛЕНИЕ / ПЕРЕКЛЮЧЕНИЕ ====================
         function toggleTask(pid, tid) {
             projects[pid].tasks[tid].completed = !projects[pid].tasks[tid].completed;
+            userExpandedProjects.add(pid);
             saveToFirebase();
             if (projects[pid].tasks[tid].completed) {
                 const project = projects[pid];
@@ -2161,6 +2262,7 @@
 
         function toggleSubtask(pid, tid, sid) {
             projects[pid].tasks[tid].subtasks[sid].completed = !projects[pid].tasks[tid].subtasks[sid].completed;
+            userExpandedProjects.add(pid);
             saveToFirebase();
             renderProjects();
         }
@@ -2169,6 +2271,7 @@
             if (confirm('Удалить проект?')) {
                 const project = projects[pid];
                 projects.splice(pid, 1);
+                userExpandedProjects.clear();
                 saveToFirebase();
                 logAction('project_deleted', project.id, project.name, '🗑️ Удален проект: ' + project.name);
                 renderProjects();
@@ -2179,6 +2282,7 @@
             const task = projects[pid].tasks[tid];
             const project = projects[pid];
             projects[pid].tasks.splice(tid, 1);
+            userExpandedProjects.add(pid);
             saveToFirebase();
             logAction('task_deleted', project.id, project.name, '❌ Удалена задача: ' + task.name);
             renderProjects();
@@ -2186,6 +2290,7 @@
 
         function deleteSubtask(pid, tid, sid) {
             projects[pid].tasks[tid].subtasks.splice(sid, 1);
+            userExpandedProjects.add(pid);
             saveToFirebase();
             renderProjects();
         }
