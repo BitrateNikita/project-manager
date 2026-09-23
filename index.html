@@ -24,12 +24,7 @@
             --shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -45,13 +40,14 @@
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 10px;
-            padding-bottom: 120px;
-            padding-top: 110px;
+        /* Разрешаем выделение текста для читаемых элементов */
+        .task-text, .project-title, .detail-title, .comment-item, .detail-section > div {
+            user-select: text;
+            -webkit-user-select: text;
+            cursor: text;
         }
+
+        .container { max-width: 100%; margin: 0 auto; padding: 10px; padding-bottom: 120px; padding-top: 110px; }
 
         /* ==================== ХЕДЕР ==================== */
         header {
@@ -62,18 +58,14 @@
             padding: 8px 10px;
             box-shadow: var(--shadow);
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 100;
             height: 100px;
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
         }
-
         header.hidden { transform: translateY(-100%); }
-
         header::before {
             content: '';
             position: absolute;
@@ -81,377 +73,204 @@
             background: rgba(255,255,255,0.25);
             z-index: 1;
         }
-
         header > * { position: relative; z-index: 2; }
 
-        .header-top {
-            display: flex;
-            align-items: center;
-            height: 42px;
-        }
+        .header-top { display: flex; align-items: center; height: 42px; }
 
-        .user-avatar-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
+        .user-avatar-container { display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
         .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1em;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 2px solid white;
+            width: 36px; height: 36px; border-radius: 50%; background: #e0e0e0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1em; overflow: hidden; flex-shrink: 0; border: 2px solid white;
         }
-
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .user-name { font-size: 0.75em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
 
-        .user-name {
-            font-size: 0.75em;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 80px;
-        }
-
-        .header-search {
-            flex: 1;
-            margin: 0 8px;
-            display: flex;
-            align-items: center;
-        }
-
+        .header-search { flex: 1; margin: 0 8px; display: flex; align-items: center; }
         .search-input {
-            width: 100%;
-            padding: 6px 10px;
-            border: none;
-            border-radius: 18px;
-            font-size: 0.85em;
-            background: rgba(255,255,255,0.9);
-            color: #333;
+            width: 100%; padding: 6px 10px; border: none; border-radius: 18px;
+            font-size: 0.85em; background: rgba(255,255,255,0.9); color: #333;
         }
-
-        .search-input:focus {
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
-        }
+        .search-input:focus { outline: none; background: white; box-shadow: 0 0 0 2px rgba(255,255,255,0.5); }
 
         .filter-btn, .notification-btn {
-            position: relative;
-            background: rgba(255,255,255,0.3);
-            border: none;
-            font-size: 1.1em;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative; background: rgba(255,255,255,0.3); border: none;
+            font-size: 1.1em; cursor: pointer; padding: 6px; border-radius: 50%;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
-
         .filter-btn { margin-left: 4px; }
-
         .filter-badge, .notification-badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            font-size: 0.55em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            position: absolute; top: -2px; right: -2px; background: var(--danger); color: white;
+            border-radius: 50%; width: 16px; height: 16px; font-size: 0.55em;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
 
         .active-filters {
-            display: flex;
-            gap: 5px;
-            margin-top: 4px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-            scrollbar-width: none;
+            display: flex; gap: 5px; margin-top: 4px;
+            overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
         }
         .active-filters::-webkit-scrollbar { display: none; }
-
         .filter-chip {
-            flex-shrink: 0;
-            background: rgba(255,255,255,0.85);
-            color: #333;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.7em;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            flex-shrink: 0; background: rgba(255,255,255,0.85); color: #333;
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7em;
+            display: flex; align-items: center; gap: 4px;
         }
-
-        .filter-chip button {
-            background: none;
-            border: none;
-            color: var(--danger);
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1em;
-        }
+        .filter-chip button { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; font-size: 1em; }
 
         .sync-status {
-            position: fixed;
-            top: 105px;
-            right: 8px;
-            background: white;
-            border-radius: 12px;
-            padding: 2px 6px;
-            font-size: 0.6em;
-            box-shadow: var(--shadow);
-            z-index: 200;
+            position: fixed; top: 105px; right: 8px; background: white;
+            border-radius: 12px; padding: 2px 6px; font-size: 0.6em;
+            box-shadow: var(--shadow); z-index: 200;
         }
 
         /* ==================== РАЗДЕЛЫ ==================== */
         .view-toggle {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            align-items: center;
-            cursor: grab;
-            scrollbar-width: none;
+            display: flex; gap: 5px; margin-bottom: 15px;
+            overflow-x: auto; padding-bottom: 5px; align-items: center;
+            cursor: grab; scrollbar-width: none;
         }
         .view-toggle::-webkit-scrollbar { display: none; }
 
         .view-btn {
-            flex-shrink: 0;
-            padding: 8px 12px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 0.8em;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.25s;
+            flex-shrink: 0; padding: 8px 12px; background: white;
+            border: 2px solid #e0e0e0; border-radius: 18px; cursor: pointer;
+            font-size: 0.8em; white-space: nowrap; display: flex; align-items: center;
+            gap: 4px; transition: all 0.25s;
         }
-
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+        .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .task-count {
-            background: var(--info);
-            color: white;
-            border-radius: 10px;
-            padding: 1px 5px;
-            font-size: 0.65em;
-            font-weight: bold;
+            background: var(--info); color: white; border-radius: 10px;
+            padding: 1px 5px; font-size: 0.65em; font-weight: bold;
         }
 
         .add-section-btn {
-            flex-shrink: 0;
-            width: 35px;
-            height: 35px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-shrink: 0; width: 35px; height: 35px; background: var(--primary);
+            color: white; border: none; border-radius: 50%; cursor: pointer;
+            font-size: 1.3em; display: flex; align-items: center; justify-content: center;
         }
 
         /* ==================== СВАЙП ==================== */
-        .sections-swiper-container {
-            overflow: hidden;
-            position: relative;
-            touch-action: pan-y;
-            cursor: grab;
-        }
-
+        .sections-swiper-container { overflow: hidden; position: relative; touch-action: pan-y; cursor: grab; }
         .sections-swiper { display: flex; transition: transform 0.3s ease; }
-
         .section-slide { flex-shrink: 0; width: 100%; padding: 0 2px; }
-
         .projects-list { display: flex; flex-direction: column; gap: 12px; }
 
-        .sections-dots {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-
+        .sections-dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
         .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ddd;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 8px; height: 8px; border-radius: 50%; background: #ddd;
+            cursor: pointer; transition: all 0.3s;
         }
-
         .dot.active { background: var(--primary); width: 22px; border-radius: 4px; }
 
-        /* ==================== КАРТОЧКИ ==================== */
+        /* ==================== КАРТОЧКИ С НАСЫЩЕННЫМИ ЦВЕТАМИ ==================== */
         .project-card, .task-card-item {
             border-radius: 12px;
             padding: 12px;
             box-shadow: var(--shadow);
             transition: all 0.25s ease;
-            border-left: 5px solid transparent;
+            border-left: 6px solid transparent;
+            /* Разрешаем выделение текста внутри карточки */
+            user-select: text;
+            -webkit-user-select: text;
         }
 
-        /* Цвета приоритета карточек */
+        /* Насыщенные цвета приоритетов — контрастные между собой */
         .project-card.priority-high {
-            background: #ffebee;
-            border-left-color: var(--danger);
+            background: #ef9a9a;
+            border-left-color: #c62828;
         }
         .project-card.priority-high:hover {
-            background: #ffcdd2;
-            box-shadow: 0 6px 20px rgba(244,67,54,0.25);
+            background: #e57373;
+            box-shadow: 0 6px 20px rgba(198,40,40,0.4);
             transform: translateY(-2px);
         }
 
         .project-card.priority-medium {
-            background: #fff3e0;
-            border-left-color: var(--warning);
+            background: #ffcc80;
+            border-left-color: #ef6c00;
         }
         .project-card.priority-medium:hover {
-            background: #ffe0b2;
-            box-shadow: 0 6px 20px rgba(255,152,0,0.25);
+            background: #ffb74d;
+            box-shadow: 0 6px 20px rgba(239,108,0,0.4);
             transform: translateY(-2px);
         }
 
         .project-card.priority-low {
-            background: #e8f5e9;
-            border-left-color: var(--primary);
+            background: #a5d6a7;
+            border-left-color: #2e7d32;
         }
         .project-card.priority-low:hover {
-            background: #c8e6c9;
-            box-shadow: 0 6px 20px rgba(76,175,80,0.25);
+            background: #81c784;
+            box-shadow: 0 6px 20px rgba(46,125,50,0.4);
             transform: translateY(-2px);
         }
 
-        .project-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
+        .project-header { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
         .project-title {
             font-size: 1.05em;
             font-weight: 600;
             flex: 1;
             word-wrap: break-word;
+            color: #212121;
         }
+        .project-title:hover { color: #000; text-decoration: underline; }
 
-        .project-title:hover { color: var(--primary); }
-
-        /* Приоритет-бейдж скрыт — цвет показывает приоритет */
-        .priority-badge {
-            display: none; /* Приоритет теперь показывается цветом карточки */
-        }
+        /* Приоритет-бейдж скрыт */
+        .priority-badge { display: none; }
 
         .edit-btn, .delete-btn, .move-btn, .voice-btn, .collapse-btn, .copy-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            flex-shrink: 0;
-            padding: 4px;
-            border-radius: 50%;
-            transition: all 0.2s;
-            font-size: 0.95em;
+            background: none; border: none; cursor: pointer;
+            flex-shrink: 0; padding: 4px; border-radius: 50%;
+            transition: all 0.2s; font-size: 0.95em;
         }
-
-        .edit-btn:hover { background: rgba(33,150,243,0.2); transform: scale(1.15); }
-        .delete-btn { color: #999; }
-        .delete-btn:hover { color: var(--danger); background: rgba(244,67,54,0.2); transform: scale(1.15); }
-        .move-btn { color: #999; font-size: 0.75em; }
+        .edit-btn:hover { background: rgba(33,150,243,0.25); transform: scale(1.15); }
+        .delete-btn { color: #555; }
+        .delete-btn:hover { color: var(--danger); background: rgba(244,67,54,0.25); transform: scale(1.15); }
+        .move-btn { color: #555; font-size: 0.75em; }
         .move-btn:hover { color: var(--primary); transform: scale(1.15); }
-        .copy-btn { color: #999; font-size: 0.85em; }
-        .copy-btn:hover { color: var(--info); background: rgba(33,150,243,0.2); transform: scale(1.15); }
+        .copy-btn { color: #555; font-size: 0.85em; }
+        .copy-btn:hover { color: var(--info); background: rgba(33,150,243,0.25); transform: scale(1.15); }
 
-        .project-content {
-            transition: max-height 0.3s ease;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
+        .project-content { transition: max-height 0.3s ease; overflow: hidden; margin-top: 10px; }
         .project-content.collapsed { max-height: 0 !important; margin-top: 0; }
 
         .progress-container { margin: 8px 0; }
-        .progress-bar { height: 6px; background: rgba(255,255,255,0.6); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 6px; background: rgba(255,255,255,0.7); border-radius: 3px; overflow: hidden; }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            background: linear-gradient(90deg, #2e7d32, #66bb6a);
             transition: width 0.3s;
         }
-        .progress-percent { font-size: 0.7em; color: #666; margin-top: 2px; text-align: right; }
+        .progress-percent { font-size: 0.7em; color: #424242; margin-top: 2px; text-align: right; font-weight: 600; }
 
         /* ==================== ЗАДАЧИ ==================== */
         .tasks-list { margin-top: 8px; }
 
         .task-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.15s;
-            gap: 6px;
+            display: flex; align-items: center; padding: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer; border-radius: 8px;
+            transition: background 0.15s; gap: 6px;
+            background: rgba(255,255,255,0.5);
         }
-
-        .task-item:hover { background: rgba(33,150,243,0.15); }
+        .task-item:hover { background: rgba(255,255,255,0.9); }
 
         .task-checkbox {
-            width: 28px;
-            height: 28px;
-            border: 2px solid #999;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 14px;
-            color: white;
-            transition: all 0.2s;
-            background: white;
+            width: 28px; height: 28px; border: 2px solid #555; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 14px; color: white;
+            transition: all 0.2s; background: white;
         }
-
         .task-checkbox:hover {
-            border-color: var(--primary);
-            transform: scale(1.1);
+            border-color: var(--primary); transform: scale(1.1);
             box-shadow: 0 0 0 4px rgba(76,175,80,0.2);
         }
-
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
 
-        /* Текст задачи: одна строка с автопрокруткой при переполнении */
+        /* Текст задачи в одну строку с многоточием */
         .task-text {
             flex: 1;
             font-size: 0.9em;
@@ -459,174 +278,100 @@
             overflow: hidden;
             text-overflow: ellipsis;
             min-width: 0;
-            position: relative;
+            color: #212121;
         }
-
-        .task-text.marquee {
-            text-overflow: clip;
-            animation: marqueeScroll 6s linear infinite alternate;
-        }
-
-        @keyframes marqueeScroll {
-            0%, 15% { transform: translateX(0); }
-            85%, 100% { transform: translateX(calc(-1 * var(--scroll-distance, 0px))); }
-        }
-
-        .task-text.completed { text-decoration: line-through; color: #999; }
+        .task-text.completed { text-decoration: line-through; color: #757575; }
 
         /* ==================== МИНИАТЮРЫ ФАЙЛОВ ==================== */
         .file-thumb {
-            width: 32px;
-            height: 32px;
-            object-fit: cover;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid #e0e0e0;
+            width: 32px; height: 32px; object-fit: cover; border-radius: 6px;
+            cursor: pointer; border: 1px solid rgba(0,0,0,0.15);
         }
 
         /* ==================== ПОДЗАДАЧИ ==================== */
-        .subtasks {
-            margin-left: 34px;
-            padding-left: 8px;
-            border-left: 2px solid rgba(0,0,0,0.1);
-        }
+        .subtasks { margin-left: 34px; padding-left: 8px; border-left: 2px solid rgba(0,0,0,0.15); }
 
         .subtask-item {
-            display: flex;
-            align-items: center;
-            padding: 6px;
-            font-size: 0.8em;
-            cursor: pointer;
-            border-radius: 6px;
-            gap: 6px;
-            transition: background 0.15s;
+            display: flex; align-items: center; padding: 6px;
+            font-size: 0.8em; cursor: pointer; border-radius: 6px;
+            gap: 6px; transition: background 0.15s;
+            background: rgba(255,255,255,0.4);
         }
-
-        .subtask-item:hover { background: rgba(33,150,243,0.15); }
+        .subtask-item:hover { background: rgba(255,255,255,0.85); }
 
         .subtask-checkbox {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 11px;
-            color: white;
-            background: white;
+            width: 22px; height: 22px; border: 2px solid #666; border-radius: 4px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 11px; color: white; background: white;
         }
-
         .subtask-checkbox.checked { background: var(--info); border-color: var(--info); }
 
         /* ==================== БЕЙДЖИ ==================== */
         .date-badge, .price-badge, .phone-badge {
             font-size: 0.7em;
-            color: #333;
-            background: rgba(255,255,255,0.85);
+            color: #212121;
+            background: rgba(255,255,255,0.9);
             padding: 3px 8px;
             border-radius: 8px;
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
             gap: 3px;
+            font-weight: 500;
         }
-
-        .price-badge { color: var(--primary); font-weight: 600; }
-        .phone-badge { color: var(--info); font-weight: 500; }
+        .price-badge { color: #1b5e20; font-weight: 700; }
+        .phone-badge { color: #0d47a1; font-weight: 600; }
 
         .phone-badge .copy-phone-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-            padding: 0 0 0 3px;
-            color: var(--info);
+            background: none; border: none; cursor: pointer;
+            font-size: 1em; padding: 0 0 0 3px; color: #0d47a1;
         }
 
         .assignee-badge {
-            font-size: 0.7em;
-            padding: 3px 8px;
-            border-radius: 8px;
-            white-space: nowrap;
+            font-size: 0.7em; padding: 3px 8px; border-radius: 8px;
+            white-space: nowrap; font-weight: 500;
         }
-
-        .assignee-me { background: #e3f2fd; color: #1976d2; }
-        .assignee-wife { background: #fce4ec; color: #c2185b; }
+        .assignee-me { background: #e3f2fd; color: #0d47a1; }
+        .assignee-wife { background: #fce4ec; color: #880e4f; }
         .assignee-nika { background: #fff3e0; color: #e65100; }
-        .assignee-both { background: #f3e5f5; color: #7b1fa2; }
+        .assignee-both { background: #f3e5f5; color: #4a148c; }
 
         /* ==================== КНОПКИ ==================== */
         .add-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 0.8em;
-            margin-top: 8px;
-            width: 100%;
-            font-weight: 500;
-            transition: all 0.2s;
+            background: var(--primary); color: white; border: none;
+            padding: 8px 12px; border-radius: 18px; cursor: pointer;
+            font-size: 0.8em; margin-top: 8px; width: 100%;
+            font-weight: 500; transition: all 0.2s;
         }
-
-        .add-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(76,175,80,0.4);
-        }
+        .add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,175,80,0.4); }
 
         /* ==================== КОММЕНТАРИИ / ГОЛОС ==================== */
         .comment-item {
-            padding: 8px;
-            margin: 5px 0;
-            background: #f9f9f9;
-            border-radius: 8px;
-            font-size: 0.85em;
+            padding: 8px; margin: 5px 0; background: rgba(255,255,255,0.85);
+            border-radius: 8px; font-size: 0.85em;
         }
-
         .comment-author { font-weight: 600; color: var(--info); }
 
         .voice-message {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px;
-            background: #f0f0f0;
-            border-radius: 15px;
-            margin: 3px 0;
+            display: flex; align-items: center; gap: 5px; padding: 5px;
+            background: #f0f0f0; border-radius: 15px; margin: 3px 0;
         }
-
         .voice-message audio { max-width: 180px; height: 30px; }
 
         /* ==================== МОДАЛЬНЫЕ ОКНА ==================== */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            align-items: center; justify-content: center;
+            padding: 15px; backdrop-filter: blur(5px);
         }
-
         .modal.active { display: flex; }
 
         .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 18px;
-            width: 100%;
-            max-width: 420px;
+            background: white; border-radius: 20px; padding: 18px;
+            width: 100%; max-width: 420px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
-            max-height: 92vh;
-            overflow-y: auto;
+            animation: slideUp 0.3s ease; max-height: 92vh; overflow-y: auto;
         }
 
         @keyframes slideUp {
@@ -639,164 +384,82 @@
         .form-label { display: block; margin-bottom: 4px; font-weight: 500; color: #666; font-size: 0.85em; }
 
         .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 9px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 0.9em;
-            background: #f9f9f9;
-            font-family: inherit;
+            width: 100%; padding: 9px; border: 2px solid #e0e0e0;
+            border-radius: 10px; font-size: 0.9em; background: #f9f9f9; font-family: inherit;
         }
-
         .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
+            outline: none; border-color: var(--primary); background: white;
         }
-
         .form-textarea { resize: vertical; min-height: 60px; }
 
-        .form-row {
-            display: flex;
-            gap: 8px;
-        }
-
+        .form-row { display: flex; gap: 8px; }
         .form-row .form-group { flex: 1; }
 
-        .phone-input-wrapper {
-            display: flex;
-            gap: 4px;
-        }
-
+        .phone-input-wrapper { display: flex; gap: 4px; }
         .phone-input-wrapper .form-input { flex: 1; }
 
-        .copy-input-btn {
-            padding: 0 12px;
-            background: var(--info);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1em;
-            flex-shrink: 0;
+        .copy-input-btn, .paste-input-btn {
+            padding: 0 12px; color: white; border: none;
+            border-radius: 10px; cursor: pointer; font-size: 1.1em; flex-shrink: 0;
         }
-
-        .copy-input-btn:hover { filter: brightness(1.1); }
+        .copy-input-btn { background: var(--info); }
+        .paste-input-btn { background: var(--purple); }
+        .copy-input-btn:hover, .paste-input-btn:hover { filter: brightness(1.1); }
 
         .voice-record-btn {
-            width: 100%;
-            padding: 10px;
-            background: #f5f5f5;
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s;
+            width: 100%; padding: 10px; background: #f5f5f5;
+            border: 2px dashed #ccc; border-radius: 10px;
+            cursor: pointer; font-size: 0.9em; transition: all 0.2s;
         }
-
         .voice-record-btn:hover { background: #e8f5e9; border-color: var(--primary); }
         .voice-record-btn.recording { background: #ffebee; border-color: var(--danger); animation: pulse 1s infinite; }
 
         .file-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 6px;
-            margin-top: 8px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 6px; margin-top: 8px;
         }
-
         .file-preview-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #f0f0f0;
-            cursor: pointer;
+            position: relative; aspect-ratio: 1; border-radius: 8px;
+            overflow: hidden; background: #f0f0f0; cursor: pointer;
         }
-
         .file-preview-item img, .file-preview-item video { width: 100%; height: 100%; object-fit: cover; }
-
         .file-preview-item .file-remove {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: rgba(244,67,54,0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            font-size: 0.7em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 2px; right: 2px;
+            background: rgba(244,67,54,0.9); color: white; border: none;
+            border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+            font-size: 0.7em; display: flex; align-items: center; justify-content: center;
         }
-
         .file-preview-item .file-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            font-size: 1.5em;
+            display: flex; align-items: center; justify-content: center;
+            height: 100%; font-size: 1.5em;
         }
 
         .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-
         .btn-primary {
-            flex: 1;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 11px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.95em;
-            font-weight: 500;
+            flex: 1; background: var(--primary); color: white; border: none;
+            padding: 11px; border-radius: 10px; cursor: pointer;
+            font-size: 0.95em; font-weight: 500;
         }
-
         .btn-secondary {
-            flex: 1;
-            background: #f5f5f5;
-            color: #666;
-            border: none;
-            padding: 11px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.95em;
+            flex: 1; background: #f5f5f5; color: #666; border: none;
+            padding: 11px; border-radius: 10px; cursor: pointer; font-size: 0.95em;
         }
 
         /* ==================== ПЛАВАЮЩИЕ КНОПКИ ==================== */
         .floating-btn, .edit-sections-btn {
-            position: fixed;
-            bottom: 110px;
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            font-size: 1.6em;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            transition: all 0.3s;
+            position: fixed; bottom: 110px; width: 50px; height: 50px;
+            border: none; border-radius: 50%; font-size: 1.6em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50; transition: all 0.3s;
         }
-
         .floating-btn {
-            right: 15px;
-            background: var(--primary);
-            color: white;
+            right: 15px; background: var(--primary); color: white;
             box-shadow: 0 4px 20px rgba(76,175,80,0.4);
         }
-
         .edit-sections-btn {
-            right: 75px;
-            background: var(--info);
-            color: white;
-            font-size: 1.2em;
-            box-shadow: 0 4px 20px rgba(33,150,243,0.4);
+            right: 75px; background: var(--info); color: white;
+            font-size: 1.2em; box-shadow: 0 4px 20px rgba(33,150,243,0.4);
         }
-
         .floating-btn:hover { transform: scale(1.15) rotate(90deg); }
         .edit-sections-btn:hover { transform: scale(1.15) rotate(-90deg); }
 
@@ -808,101 +471,57 @@
         .calendar-container { background: white; border-radius: 12px; padding: 12px; box-shadow: var(--shadow); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .calendar-nav-btn {
-            background: var(--info);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
+            background: var(--info); color: white; border: none;
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
         }
         .calendar-month { font-size: 1.05em; font-weight: 600; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 10px; }
         .calendar-weekday { text-align: center; font-weight: 600; font-size: 0.7em; color: #666; padding: 3px; }
         .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f5f5f5;
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            font-size: 0.8em;
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            background: #f5f5f5; border-radius: 6px; cursor: pointer;
+            position: relative; font-size: 0.8em;
         }
         .calendar-day.today { background: var(--info); color: white; font-weight: bold; }
         .calendar-day.has-tasks { background: #e8f5e9; border: 2px solid var(--primary); }
         .calendar-day.today.has-tasks { background: var(--info); border-color: var(--primary); color: white; }
         .calendar-day.other-month { opacity: 0.3; }
         .calendar-day-indicator {
-            position: absolute;
-            bottom: 3px;
-            width: 4px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 50%;
+            position: absolute; bottom: 3px; width: 4px; height: 4px;
+            background: var(--primary); border-radius: 50%;
         }
         .calendar-day.today .calendar-day-indicator { background: white; }
         .calendar-tasks-panel { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 10px; display: none; }
         .calendar-tasks-panel.active { display: block; }
         .calendar-task-item {
-            padding: 8px;
-            margin: 5px 0;
-            background: white;
-            border-radius: 8px;
-            font-size: 0.85em;
-            cursor: pointer;
+            padding: 8px; margin: 5px 0; background: white;
+            border-radius: 8px; font-size: 0.85em; cursor: pointer;
         }
 
         /* ==================== ФУТЕР ==================== */
         .footer {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: rgb(50, 81, 102);
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 150;
-            padding: 5px;
-            height: 90px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgb(50, 81, 102); box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 150; padding: 5px; height: 90px;
+            display: flex; flex-direction: column; justify-content: center;
         }
-
         .footer-icons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 3px; }
         .footer-icon { width: 24px; height: 24px; cursor: pointer; }
         .footer-calls { display: flex; justify-content: space-around; gap: 5px; }
-
         .footer-call-btn {
-            flex: 1;
-            padding: 4px;
-            background: #f5f5f5;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.6em;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text);
+            flex: 1; padding: 4px; background: #f5f5f5; border: none;
+            border-radius: 10px; cursor: pointer; font-size: 0.6em;
+            text-align: center; text-decoration: none; color: var(--text);
         }
 
         /* ==================== TOAST ==================== */
         .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 30000;
-            animation: slideDown 0.3s ease;
-            max-width: 90%;
-            text-align: center;
-            font-size: 0.9em;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 18px;
+            border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 30000; animation: slideDown 0.3s ease;
+            max-width: 90%; text-align: center; font-size: 0.9em;
         }
-
         @keyframes slideDown {
             from { transform: translate(-50%, -100px); opacity: 0; }
             to { transform: translate(-50%, 0); opacity: 1; }
@@ -915,161 +534,74 @@
 
         /* ==================== ПРОСМОТРЩИК ФАЙЛОВ ==================== */
         .file-viewer {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.97);
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            touch-action: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.97); z-index: 99999;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; overflow: hidden; touch-action: none;
         }
-
         .file-viewer-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            overflow: hidden;
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            width: 100%; overflow: hidden;
         }
-
         .file-viewer-item {
-            max-width: 100%;
-            max-height: 100%;
-            user-select: none;
-            -webkit-user-drag: none;
+            max-width: 100%; max-height: 100%;
+            user-select: none; -webkit-user-drag: none;
             transition: transform 0.15s ease;
         }
-
         .file-viewer-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255,255,255,0.3);
-            border: none;
-            color: white;
-            font-size: 1.4em;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.3); border: none; color: white;
+            font-size: 1.4em; width: 42px; height: 42px; border-radius: 50%;
+            cursor: pointer; z-index: 10;
         }
-
         .file-viewer-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.25);
-            color: white;
-            border: none;
-            font-size: 1.5em;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.25); color: white; border: none;
+            font-size: 1.5em; width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; z-index: 10;
         }
-
         .file-viewer-prev { left: 10px; }
         .file-viewer-next { right: 10px; }
-
         .file-viewer-counter {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 0.85em;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 12px;
-            border-radius: 15px;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            color: white; font-size: 0.85em; background: rgba(0,0,0,0.5);
+            padding: 4px 12px; border-radius: 15px;
         }
 
         /* ==================== ФИЛЬТРЫ ==================== */
         .filter-section { margin-bottom: 14px; }
         .filter-section-title {
-            font-size: 0.85em;
-            font-weight: 600;
-            color: #666;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            font-size: 0.85em; font-weight: 600; color: #666;
+            margin-bottom: 6px; text-transform: uppercase;
         }
-
         .filter-options { display: flex; flex-wrap: wrap; gap: 6px; }
-
         .filter-option {
-            padding: 6px 12px;
-            background: #f5f5f5;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.2s;
+            padding: 6px 12px; background: #f5f5f5;
+            border: 2px solid transparent; border-radius: 15px;
+            cursor: pointer; font-size: 0.8em; transition: all 0.2s;
         }
-
-        .filter-option.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+        .filter-option.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* ==================== ДЕТАЛИ ==================== */
-        .detail-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .detail-title {
-            flex: 1;
-            font-size: 1.15em;
-            font-weight: 600;
-        }
-
-        .detail-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
+        .detail-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .detail-title { flex: 1; font-size: 1.15em; font-weight: 600; color: #212121; }
+        .detail-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .detail-section {
-            margin-bottom: 14px;
-            padding: 10px;
-            background: #f9f9f9;
+            margin-bottom: 14px; padding: 10px; background: #f9f9f9;
             border-radius: 10px;
         }
-
         .detail-section-title {
-            font-size: 0.8em;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 6px;
+            font-size: 0.8em; font-weight: 600; color: #666;
+            text-transform: uppercase; margin-bottom: 6px;
         }
-
         .detail-files {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 6px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px;
         }
-
         .detail-file {
-            aspect-ratio: 1;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+            cursor: pointer; background: #f0f0f0;
+            display: flex; align-items: center; justify-content: center;
         }
-
         .detail-file img, .detail-file video { width: 100%; height: 100%; object-fit: cover; }
         .detail-file .file-icon { font-size: 2em; }
     </style>
@@ -1144,7 +676,10 @@
 
             <div class="form-group">
                 <label class="form-label">Название</label>
-                <input type="text" class="form-input" id="itemName" placeholder="Введите название">
+                <div class="phone-input-wrapper">
+                    <input type="text" class="form-input" id="itemName" placeholder="Введите название">
+                    <button type="button" class="paste-input-btn" onclick="pasteFromClipboard('itemName')" title="Вставить">📥</button>
+                </div>
             </div>
 
             <div class="form-row">
@@ -1183,6 +718,7 @@
                 <div class="phone-input-wrapper">
                     <input type="tel" class="form-input" id="itemPhone" placeholder="+7..." inputmode="tel">
                     <button type="button" class="copy-input-btn" onclick="copyFromInput('itemPhone')" title="Скопировать">📋</button>
+                    <button type="button" class="paste-input-btn" onclick="pasteFromClipboard('itemPhone')" title="Вставить">📥</button>
                 </div>
             </div>
 
@@ -1405,12 +941,7 @@
 
         let searchQuery = '';
         let filters = {
-            status: 'all',
-            priority: [],
-            assignee: [],
-            flags: [],
-            dateFrom: '',
-            dateTo: ''
+            status: 'all', priority: [], assignee: [], flags: [], dateFrom: '', dateTo: ''
         };
 
         let currentProjectId = null;
@@ -1456,7 +987,6 @@
             return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
-        // Копирование текста в буфер
         function copyToClipboard(text) {
             if (!text) return;
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1486,18 +1016,40 @@
             copyToClipboard(val);
         }
 
-        // Применение анимации прокрутки к текстам задач, если они не влезают
-        function applyMarqueeToTaskTexts() {
-            document.querySelectorAll('.task-text').forEach(el => {
-                el.classList.remove('marquee');
-                el.style.removeProperty('--scroll-distance');
-                // Проверяем после отрисовки
-                if (el.scrollWidth > el.clientWidth) {
-                    const dist = el.scrollWidth - el.clientWidth;
-                    el.style.setProperty('--scroll-distance', `${dist}px`);
-                    el.classList.add('marquee');
+        async function pasteFromClipboard(inputId) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        const el = document.getElementById(inputId);
+                        // Если поле уже с текстом — добавляем
+                        el.value = el.value ? el.value + ' ' + text : text;
+                        showNotification('📥 Вставлено');
+                    } else {
+                        showNotification('Буфер пуст');
+                    }
+                } else {
+                    showNotification('❌ Вставка не поддерживается');
                 }
-            });
+            } catch (e) {
+                showNotification('❌ Нет доступа к буферу');
+            }
+        }
+
+        // Округление времени до 5 минут
+        function snapDateToFiveMinutes(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            const d = new Date(dateTimeStr);
+            if (isNaN(d.getTime())) return dateTimeStr;
+            const m = d.getMinutes();
+            const snapped = Math.round(m / 5) * 5;
+            d.setMinutes(snapped, 0, 0);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mins = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}T${hh}:${mins}`;
         }
 
         // ==================== АВТОРИЗАЦИЯ ====================
@@ -1733,8 +1285,6 @@
                     }
                 }
             });
-            // Применяем автопрокрутку к переполненным текстам
-            setTimeout(applyMarqueeToTaskTexts, 50);
         }
 
         function updateSwiperPosition() {
@@ -1992,7 +1542,6 @@
             return `<div class="project-card priority-${priority}">
                 <div class="project-header">
                     <div class="project-title" onclick="openProjectDetail(${idx})">${escapeHtml(project.name)}</div>
-                    <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(project.name).replace(/'/g, '\\\'')}')" title="Копировать название">📋</button>
                     <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('project', {projectId:${idx}, edit:true})">✏️</button>
                     <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="event.stopPropagation();toggleProject(${idx})">▼</button>
                     <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${idx})">🗑️</button>
@@ -2017,7 +1566,7 @@
             const parts = [];
             if (item.date) parts.push(`<span class="date-badge">📅 ${formatDate(item.date)}</span>`);
             if (item.price) parts.push(`<span class="price-badge">💰 ${formatPrice(item.price)}</span>`);
-            if (item.phone) parts.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>`);
+            if (item.phone) parts.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать номер">📋</button></span>`);
             if (item.assignee) parts.push(`<span class="assignee-badge assignee-${item.assignee}">${getAssigneeName(item.assignee)}</span>`);
             return parts.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;">${parts.join('')}</div>` : '';
         }
@@ -2048,12 +1597,10 @@
 
         function renderTaskItem(pid, task, ti) {
             const completed = task.completed;
-            const taskNameSafe = escapeHtml(task.name).replace(/'/g, '\\\'');
             return `<div>
                 <div class="task-item">
                     <div class="task-checkbox ${completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask(${pid}, ${ti})">${completed ? '✓' : ''}</div>
                     <div class="task-text ${completed ? 'completed' : ''}" onclick="event.stopPropagation();openTaskDetail(${pid}, ${ti})" title="${escapeHtml(task.name)}">${escapeHtml(task.name)}</div>
-                    <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${taskNameSafe}')" title="Копировать">📋</button>
                     ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
                     ${task.price ? `<span class="price-badge">💰 ${formatPrice(task.price)}</span>` : ''}
                     ${task.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(task.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
@@ -2063,19 +1610,16 @@
                     <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
                 </div>
                 ${(task.subtasks || []).length ? `<div class="subtasks">
-                    ${task.subtasks.map((st, si) => {
-                        const stNameSafe = escapeHtml(st.name).replace(/'/g, '\\\'');
-                        return `
+                    ${task.subtasks.map((st, si) => `
                         <div class="subtask-item">
                             <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleSubtask(${pid},${ti},${si})">${st.completed ? '✓' : ''}</div>
                             <div class="task-text ${st.completed ? 'completed' : ''}" onclick="event.stopPropagation();openSubtaskDetail(${pid},${ti},${si})" title="${escapeHtml(st.name)}">${escapeHtml(st.name)}</div>
-                            <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${stNameSafe}')" title="Копировать">📋</button>
                             ${st.date ? `<span class="date-badge">📅 ${formatDate(st.date)}</span>` : ''}
                             ${st.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(st.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
                             <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}, subtaskId:${si}, edit:true})">✏️</button>
                             <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
                         </div>
-                    `;}).join('')}
+                    `).join('')}
                 </div>` : ''}
                 <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}})">+ Подзадача</button>
             </div>`;
@@ -2090,7 +1634,6 @@
             detailContent.innerHTML = `
                 <div class="detail-header">
                     <div class="detail-title">${escapeHtml(p.name)}</div>
-                    <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(p.name).replace(/'/g, '\\\'')}')" title="Копировать название">📋</button>
                 </div>
                 <div class="detail-badges">
                     <span class="priority-badge priority-${p.priority || 'medium'}" style="display:inline-block;">${getPriorityText(p.priority)}</span>
@@ -2123,7 +1666,6 @@
                 <div class="detail-header">
                     <div class="task-checkbox ${t.completed ? 'checked' : ''}" style="width:32px;height:32px;font-size:16px;" onclick="toggleTask(${pid},${ti});closeModal('detailModal')">${t.completed ? '✓' : ''}</div>
                     <div class="detail-title ${t.completed ? 'completed' : ''}">${escapeHtml(t.name)}</div>
-                    <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(t.name).replace(/'/g, '\\\'')}')" title="Копировать">📋</button>
                 </div>
                 <div class="detail-badges">
                     <span class="priority-badge priority-${p.priority || 'medium'}" style="display:inline-block;">${getPriorityText(p.priority)}</span>
@@ -2156,7 +1698,6 @@
                 <div class="detail-header">
                     <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" style="width:28px;height:28px;font-size:14px;" onclick="toggleSubtask(${pid},${ti},${si});closeModal('detailModal')">${st.completed ? '✓' : ''}</div>
                     <div class="detail-title ${st.completed ? 'completed' : ''}">${escapeHtml(st.name)}</div>
-                    <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(st.name).replace(/'/g, '\\\'')}')" title="Копировать">📋</button>
                 </div>
                 <div class="detail-badges">
                     ${st.assignee ? `<span class="assignee-badge assignee-${st.assignee}">${getAssigneeName(st.assignee)}</span>` : ''}
@@ -2472,7 +2013,9 @@
 
             const priority = document.getElementById('itemPriority').value;
             const assignee = document.getElementById('itemAssignee').value;
-            const date = document.getElementById('itemDate').value;
+            let date = document.getElementById('itemDate').value;
+            // Округляем время до 5 минут
+            if (date) date = snapDateToFiveMinutes(date);
             const price = document.getElementById('itemPrice').value;
             const phone = document.getElementById('itemPhone').value.trim();
             const comment = document.getElementById('itemComment').value.trim();
@@ -2816,9 +2359,6 @@
         }
 
         initApp();
-
-        // Пересчёт marquee при изменении размера окна
-        window.addEventListener('resize', () => setTimeout(applyMarqueeToTaskTexts, 100));
     </script>
 </body>
 </html>
