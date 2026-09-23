@@ -245,14 +245,27 @@
         /* ==================== ЗАДАЧИ ==================== */
         .tasks-list { margin-top: 8px; }
 
+        /* Плашка задачи: две строки - контент + метаданные внутри */
         .task-item {
-            display: flex; align-items: flex-start; padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            padding: 8px;
             border-bottom: 1px solid rgba(0,0,0,0.1);
             cursor: pointer; border-radius: 8px;
             transition: background 0.15s; gap: 6px;
             background: rgba(255,255,255,0.5);
         }
         .task-item:hover { background: rgba(255,255,255,0.9); }
+
+        /* Верхняя строка задачи: чекбокс + текст + кнопки */
+        .task-item-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            width: 100%;
+            min-width: 0;
+        }
 
         .task-checkbox {
             width: 28px; height: 28px; border: 2px solid #555; border-radius: 50%;
@@ -293,12 +306,23 @@
         .subtasks { margin-left: 34px; padding-left: 8px; border-left: 2px solid rgba(0,0,0,0.15); }
 
         .subtask-item {
-            display: flex; align-items: flex-start; padding: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            padding: 6px;
             font-size: 0.8em; cursor: pointer; border-radius: 6px;
             gap: 6px; transition: background 0.15s;
             background: rgba(255,255,255,0.4);
         }
         .subtask-item:hover { background: rgba(255,255,255,0.85); }
+
+        .subtask-item-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            width: 100%;
+            min-width: 0;
+        }
 
         .subtask-checkbox {
             width: 22px; height: 22px; border: 2px solid #666; border-radius: 4px;
@@ -339,20 +363,18 @@
         .assignee-nika { background: #fff3e0; color: #e65100; }
         .assignee-both { background: #f3e5f5; color: #4a148c; }
 
-        /* ==================== БЛОК МЕТАДАННЫХ ВНИЗУ ==================== */
-        .meta-rows {
+        /* ==================== МЕТАДАННЫЕ ВНУТРИ ПЛАШКИ — ОДНА СТРОКА ==================== */
+        .meta-row-inline {
             display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px dashed rgba(0,0,0,0.12);
-        }
-        .meta-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
             flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            width: 100%;
+            padding-left: 34px; /* выравнивание под текстом задачи (28px чекбокс + 6px gap) */
+            margin-top: 2px;
+        }
+        .subtask-item .meta-row-inline {
+            padding-left: 28px; /* 22px чекбокс + 6px gap */
         }
 
         /* ==================== КНОПКИ ==================== */
@@ -1730,22 +1752,22 @@
             return total === 0 ? 0 : Math.round(done / total * 100);
         }
 
-        // ==================== БЕЙДЖИ ВНИЗУ ====================
-        function renderMetaRows(item, options = {}) {
-            const rows = [];
+        // ==================== МЕТАДАННЫЕ В ОДНУ СТРОКУ (внутри плашки) ====================
+        function renderMetaInline(item, options = {}) {
+            const parts = [];
             const includePriority = options.includePriority;
             const priority = options.priority || item.priority || 'medium';
 
             if (includePriority) {
-                rows.push(`<span class="priority-badge priority-${priority}" style="display:inline-block;">${getPriorityText(priority)}</span>`);
+                parts.push(`<span class="priority-badge priority-${priority}" style="display:inline-block;">${getPriorityText(priority)}</span>`);
             }
-            if (item.assignee) rows.push(`<span class="assignee-badge assignee-${item.assignee}">${getAssigneeName(item.assignee)}</span>`);
-            if (item.date) rows.push(`<span class="date-badge">📅 ${formatDate(item.date)}</span>`);
-            if (item.price) rows.push(`<span class="price-badge">💰 ${formatPrice(item.price)}</span>`);
-            if (item.phone) rows.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать номер">📋</button></span>`);
+            if (item.assignee) parts.push(`<span class="assignee-badge assignee-${item.assignee}">${getAssigneeName(item.assignee)}</span>`);
+            if (item.date) parts.push(`<span class="date-badge">📅 ${formatDate(item.date)}</span>`);
+            if (item.price) parts.push(`<span class="price-badge">💰 ${formatPrice(item.price)}</span>`);
+            if (item.phone) parts.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать номер">📋</button></span>`);
 
-            if (!rows.length) return '';
-            return `<div class="meta-rows">${rows.map(r => `<div class="meta-row">${r}</div>`).join('')}</div>`;
+            if (!parts.length) return '';
+            return `<div class="meta-row-inline">${parts.join('')}</div>`;
         }
 
         function renderProjectCard(project) {
@@ -1763,6 +1785,7 @@
                     <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${idx})">🗑️</button>
                 </div>
                 <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
+                    ${renderMetaInline(project, { includePriority: true })}
                     <div class="progress-container">
                         <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                         <div class="progress-percent">${progress}%</div>
@@ -1773,7 +1796,6 @@
                         ${(project.tasks || []).map((task, ti) => renderTaskItem(idx, task, ti)).join('')}
                     </div>
                     <button class="add-btn" onclick="openNewItemModal('task', {projectId:${idx}})">+ Добавить задачу</button>
-                    ${renderMetaRows(project, { includePriority: true })}
                 </div>
             </div>`;
         }
@@ -1802,28 +1824,33 @@
             </div>`;
         }
 
+        // Задача: метаданные внутри той же плашки, снизу, в одну строку
         function renderTaskItem(pid, task, ti) {
             const completed = task.completed;
             return `<div>
                 <div class="task-item">
-                    <div class="task-checkbox ${completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask(${pid}, ${ti})">${completed ? '✓' : ''}</div>
-                    <div class="task-text ${completed ? 'completed' : ''}" onclick="event.stopPropagation();openTaskDetail(${pid}, ${ti})" title="${escapeHtml(task.name)}">${escapeHtml(task.name)}</div>
-                    ${task.files && task.files.length ? `<span style="font-size:0.7em;">📎${task.files.length}</span>` : ''}
-                    <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti})" title="Комментарии">💬</button>
-                    <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('task', {projectId:${pid}, taskId:${ti}, edit:true})">✏️</button>
-                    <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
+                    <div class="task-item-main">
+                        <div class="task-checkbox ${completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask(${pid}, ${ti})">${completed ? '✓' : ''}</div>
+                        <div class="task-text ${completed ? 'completed' : ''}" onclick="event.stopPropagation();openTaskDetail(${pid}, ${ti})" title="${escapeHtml(task.name)}">${escapeHtml(task.name)}</div>
+                        ${task.files && task.files.length ? `<span style="font-size:0.7em;">📎${task.files.length}</span>` : ''}
+                        <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti})" title="Комментарии">💬</button>
+                        <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('task', {projectId:${pid}, taskId:${ti}, edit:true})">✏️</button>
+                        <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
+                    </div>
+                    ${renderMetaInline(task)}
                 </div>
-                ${renderMetaRows(task)}
                 ${(task.subtasks || []).length ? `<div class="subtasks">
                     ${task.subtasks.map((st, si) => `
                         <div class="subtask-item">
-                            <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleSubtask(${pid},${ti},${si})">${st.completed ? '✓' : ''}</div>
-                            <div class="task-text ${st.completed ? 'completed' : ''}" onclick="event.stopPropagation();openSubtaskDetail(${pid},${ti},${si})" title="${escapeHtml(st.name)}">${escapeHtml(st.name)}</div>
-                            <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti}, ${si})" title="Комментарии">💬</button>
-                            <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}, subtaskId:${si}, edit:true})">✏️</button>
-                            <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
+                            <div class="subtask-item-main">
+                                <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleSubtask(${pid},${ti},${si})">${st.completed ? '✓' : ''}</div>
+                                <div class="task-text ${st.completed ? 'completed' : ''}" onclick="event.stopPropagation();openSubtaskDetail(${pid},${ti},${si})" title="${escapeHtml(st.name)}">${escapeHtml(st.name)}</div>
+                                <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti}, ${si})" title="Комментарии">💬</button>
+                                <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}, subtaskId:${si}, edit:true})">✏️</button>
+                                <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
+                            </div>
+                            ${renderMetaInline(st)}
                         </div>
-                        ${renderMetaRows(st)}
                     `).join('')}
                 </div>` : ''}
                 <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}})">+ Подзадача</button>
