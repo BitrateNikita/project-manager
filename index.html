@@ -40,7 +40,6 @@
             min-height: 100vh;
         }
 
-        /* Разрешаем выделение текста для читаемых элементов */
         .task-text, .project-title, .detail-title, .comment-item, .detail-section > div {
             user-select: text;
             -webkit-user-select: text;
@@ -164,43 +163,32 @@
         }
         .dot.active { background: var(--primary); width: 22px; border-radius: 4px; }
 
-        /* ==================== КАРТОЧКИ С НАСЫЩЕННЫМИ ЦВЕТАМИ ==================== */
+        /* ==================== КАРТОЧКИ ==================== */
         .project-card, .task-card-item {
             border-radius: 12px;
             padding: 12px;
             box-shadow: var(--shadow);
             transition: all 0.25s ease;
             border-left: 6px solid transparent;
-            /* Разрешаем выделение текста внутри карточки */
             user-select: text;
             -webkit-user-select: text;
         }
 
-        /* Насыщенные цвета приоритетов — контрастные между собой */
-        .project-card.priority-high {
-            background: #ef9a9a;
-            border-left-color: #c62828;
-        }
+        .project-card.priority-high { background: #ef9a9a; border-left-color: #c62828; }
         .project-card.priority-high:hover {
             background: #e57373;
             box-shadow: 0 6px 20px rgba(198,40,40,0.4);
             transform: translateY(-2px);
         }
 
-        .project-card.priority-medium {
-            background: #ffcc80;
-            border-left-color: #ef6c00;
-        }
+        .project-card.priority-medium { background: #ffcc80; border-left-color: #ef6c00; }
         .project-card.priority-medium:hover {
             background: #ffb74d;
             box-shadow: 0 6px 20px rgba(239,108,0,0.4);
             transform: translateY(-2px);
         }
 
-        .project-card.priority-low {
-            background: #a5d6a7;
-            border-left-color: #2e7d32;
-        }
+        .project-card.priority-low { background: #a5d6a7; border-left-color: #2e7d32; }
         .project-card.priority-low:hover {
             background: #81c784;
             box-shadow: 0 6px 20px rgba(46,125,50,0.4);
@@ -218,7 +206,6 @@
         }
         .project-title:hover { color: #000; text-decoration: underline; }
 
-        /* Приоритет-бейдж скрыт */
         .priority-badge { display: none; }
 
         .edit-btn, .delete-btn, .move-btn, .voice-btn, .collapse-btn, .copy-btn {
@@ -231,8 +218,8 @@
         .delete-btn:hover { color: var(--danger); background: rgba(244,67,54,0.25); transform: scale(1.15); }
         .move-btn { color: #555; font-size: 0.75em; }
         .move-btn:hover { color: var(--primary); transform: scale(1.15); }
-        .copy-btn { color: #555; font-size: 0.85em; }
-        .copy-btn:hover { color: var(--info); background: rgba(33,150,243,0.25); transform: scale(1.15); }
+        .voice-btn { font-size: 1em; }
+        .voice-btn:hover { background: rgba(33,150,243,0.25); transform: scale(1.15); }
 
         .project-content { transition: max-height 0.3s ease; overflow: hidden; margin-top: 10px; }
         .project-content.collapsed { max-height: 0 !important; margin-top: 0; }
@@ -270,7 +257,6 @@
         }
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
 
-        /* Текст задачи в одну строку с многоточием */
         .task-text {
             flex: 1;
             font-size: 0.9em;
@@ -282,7 +268,6 @@
         }
         .task-text.completed { text-decoration: line-through; color: #757575; }
 
-        /* ==================== МИНИАТЮРЫ ФАЙЛОВ ==================== */
         .file-thumb {
             width: 32px; height: 32px; object-fit: cover; border-radius: 6px;
             cursor: pointer; border: 1px solid rgba(0,0,0,0.15);
@@ -347,7 +332,7 @@
 
         /* ==================== КОММЕНТАРИИ / ГОЛОС ==================== */
         .comment-item {
-            padding: 8px; margin: 5px 0; background: rgba(255,255,255,0.85);
+            padding: 8px; margin: 5px 0; background: rgba(255,255,255,0.95);
             border-radius: 8px; font-size: 0.85em;
         }
         .comment-author { font-weight: 600; color: var(--info); }
@@ -676,10 +661,7 @@
 
             <div class="form-group">
                 <label class="form-label">Название</label>
-                <div class="phone-input-wrapper">
-                    <input type="text" class="form-input" id="itemName" placeholder="Введите название">
-                    <button type="button" class="paste-input-btn" onclick="pasteFromClipboard('itemName')" title="Вставить">📥</button>
-                </div>
+                <input type="text" class="form-input" id="itemName" placeholder="Введите название">
             </div>
 
             <div class="form-row">
@@ -704,7 +686,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Дата и время (шаг 5 мин)</label>
+                    <label class="form-label">Дата и время</label>
                     <input type="datetime-local" class="form-input" id="itemDate" step="300">
                 </div>
                 <div class="form-group">
@@ -887,7 +869,7 @@
             <div class="form-group" style="margin-top:10px;">
                 <div style="display:flex;gap:8px;">
                     <input type="text" class="form-input" id="commentInput" placeholder="Написать комментарий...">
-                    <button class="voice-record-btn" style="width:50px;padding:8px;" id="commentVoiceBtn" onclick="toggleCommentVoice()">🎤</button>
+                    <button class="voice-record-btn" style="width:50px;padding:8px;" id="commentVoiceBtn" onclick="toggleVoiceComment()">🎤</button>
                 </div>
             </div>
             <div class="modal-actions">
@@ -944,8 +926,10 @@
             status: 'all', priority: [], assignee: [], flags: [], dateFrom: '', dateTo: ''
         };
 
-        let currentProjectId = null;
-        let currentTaskId = null;
+        // Контекст комментариев
+        let commentContext = { projectId: null, taskId: null, subtaskId: null };
+        let commentVoiceRecording = false;
+        let commentRec = null;
 
         const emojiList = ['📋','📅','🖨️','🛒','💪','🏠','🚗','📚','💰','🎨','🎮','🎵','📷','✈️','🌍','🔥','💡','⭐','❤️','🎯','📌','📎','🗂️','📁','📊','📈','📉','🎁','🎉','🎊','🌸','🌺','🍀','🌈','☀️','🌙','⚡','💧','🌊','🍎','🍕','🍔','☕','🍺','🏆','🎖️','🥇','🚀','🛸','🏰','🗿','🎪','🎭','🎬','📺','💻','📱','🔧','🔨','⚙️','🧰','🧲','🧪','🔬','💊','💉','🩺','🧬','🦷','👁️','🧠','🫀','💪','🦴','👶','👧','👦','👩','👨','👵','👴','🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐍','🦎','🐙','🦑','🦐','🦀','🐠','🐟','🐡','🐬','🐳','🦈','🐊','🦕','🦖','🌵','🎄','🌲','🌳','🌴','🌱','🌿','☘️','🍁','🍂','🍃','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','⭐','🌟','💫','✨','🔥','💥','☄️','🌊','💦','💧','🫧','🌪️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌫️'];
 
@@ -1022,7 +1006,6 @@
                     const text = await navigator.clipboard.readText();
                     if (text) {
                         const el = document.getElementById(inputId);
-                        // Если поле уже с текстом — добавляем
                         el.value = el.value ? el.value + ' ' + text : text;
                         showNotification('📥 Вставлено');
                     } else {
@@ -1036,7 +1019,6 @@
             }
         }
 
-        // Округление времени до 5 минут
         function snapDateToFiveMinutes(dateTimeStr) {
             if (!dateTimeStr) return '';
             const d = new Date(dateTimeStr);
@@ -1229,6 +1211,102 @@
                     }
                 });
             }, 300);
+        }
+
+        // ==================== КОММЕНТАРИИ ====================
+        function openComments(projectId, taskId, subtaskId) {
+            commentContext = {
+                projectId,
+                taskId: (typeof taskId === 'number') ? taskId : null,
+                subtaskId: (typeof subtaskId === 'number') ? subtaskId : null
+            };
+            renderComments();
+            openModal('commentsModal');
+        }
+
+        function getCommentItem() {
+            const { projectId, taskId, subtaskId } = commentContext;
+            if (!projects[projectId]) return null;
+            if (subtaskId !== null && subtaskId !== undefined) {
+                return projects[projectId].tasks?.[taskId]?.subtasks?.[subtaskId];
+            }
+            if (taskId !== null && taskId !== undefined) {
+                return projects[projectId].tasks?.[taskId];
+            }
+            return projects[projectId];
+        }
+
+        function renderComments() {
+            const item = getCommentItem();
+            const container = document.getElementById('commentsList');
+            if (!item) { container.innerHTML = '<p style="color:#999;text-align:center;">Элемент не найден</p>'; return; }
+            const comments = item.comments || [];
+            if (!comments.length) {
+                container.innerHTML = '<p style="color:#999;text-align:center;">Нет комментариев</p>';
+                return;
+            }
+            container.innerHTML = comments.map(c => `
+                <div class="comment-item">
+                    <div class="comment-author">${escapeHtml(c.author)}</div>
+                    ${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}
+                    ${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}
+                    <div style="font-size:0.75em;color:#999;margin-top:3px;">${new Date(c.timestamp).toLocaleString('ru-RU')}</div>
+                </div>`).join('');
+        }
+
+        function addComment() {
+            if (!currentUser) { alert('Сначала войдите'); showLoginModal(); return; }
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text) return;
+            const item = getCommentItem();
+            if (!item) return;
+            if (!item.comments) item.comments = [];
+            item.comments.push({ author: currentUser, text, timestamp: new Date().toISOString() });
+            input.value = '';
+            saveToFirebase();
+            renderComments();
+            renderAll();
+        }
+
+        function toggleVoiceComment() {
+            if (commentVoiceRecording) { stopVoiceComment(); return; }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Запись не поддерживается');
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                commentRec = new MediaRecorder(stream);
+                const chunks = [];
+                commentRec.ondataavailable = e => chunks.push(e.data);
+                commentRec.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const item = getCommentItem();
+                        if (!item) return;
+                        if (!item.comments) item.comments = [];
+                        item.comments.push({ author: currentUser || 'Пользователь', voice: e.target.result, timestamp: new Date().toISOString() });
+                        saveToFirebase();
+                        renderComments();
+                        renderAll();
+                        showNotification('✅ Голосовое добавлено');
+                    };
+                    reader.readAsDataURL(blob);
+                    stream.getTracks().forEach(t => t.stop());
+                    commentVoiceRecording = false;
+                    document.getElementById('commentVoiceBtn').textContent = '🎤';
+                };
+                commentRec.start();
+                commentVoiceRecording = true;
+                document.getElementById('commentVoiceBtn').textContent = '⏹️';
+            }).catch(() => alert('Нет доступа к микрофону'));
+        }
+
+        function stopVoiceComment() {
+            if (commentRec && commentVoiceRecording) {
+                commentRec.stop();
+            }
         }
 
         // ==================== РАЗДЕЛЫ ====================
@@ -1542,6 +1620,7 @@
             return `<div class="project-card priority-${priority}">
                 <div class="project-header">
                     <div class="project-title" onclick="openProjectDetail(${idx})">${escapeHtml(project.name)}</div>
+                    <button class="voice-btn" onclick="event.stopPropagation();openComments(${idx})" title="Комментарии">💬</button>
                     <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('project', {projectId:${idx}, edit:true})">✏️</button>
                     <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" onclick="event.stopPropagation();toggleProject(${idx})">▼</button>
                     <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${idx})">🗑️</button>
@@ -1606,6 +1685,7 @@
                     ${task.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(task.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
                     ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}">${getAssigneeName(task.assignee)}</span>` : ''}
                     ${task.files && task.files.length ? `<span style="font-size:0.7em;">📎${task.files.length}</span>` : ''}
+                    <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti})" title="Комментарии">💬</button>
                     <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('task', {projectId:${pid}, taskId:${ti}, edit:true})">✏️</button>
                     <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
                 </div>
@@ -1616,6 +1696,7 @@
                             <div class="task-text ${st.completed ? 'completed' : ''}" onclick="event.stopPropagation();openSubtaskDetail(${pid},${ti},${si})" title="${escapeHtml(st.name)}">${escapeHtml(st.name)}</div>
                             ${st.date ? `<span class="date-badge">📅 ${formatDate(st.date)}</span>` : ''}
                             ${st.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(st.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
+                            <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti}, ${si})" title="Комментарии">💬</button>
                             <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}, subtaskId:${si}, edit:true})">✏️</button>
                             <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
                         </div>
@@ -1629,7 +1710,6 @@
         function openProjectDetail(pid) {
             const p = projects[pid];
             if (!p) return;
-            currentProjectId = pid;
             const detailContent = document.getElementById('detailContent');
             detailContent.innerHTML = `
                 <div class="detail-header">
@@ -1645,7 +1725,11 @@
                 ${p.comment ? `<div class="detail-section"><div class="detail-section-title">Комментарий</div><div>${escapeHtml(p.comment)}</div></div>` : ''}
                 ${p.voice ? `<div class="detail-section"><div class="detail-section-title">Голосовое</div><div class="voice-message"><audio controls src="${p.voice}"></audio></div></div>` : ''}
                 ${(p.files && p.files.length) ? `<div class="detail-section"><div class="detail-section-title">Файлы (${p.files.length})</div><div class="detail-files">${p.files.map((f, i) => renderDetailFile(f, p.files, i)).join('')}</div></div>` : ''}
-                ${(p.comments && p.comments.length) ? `<div class="detail-section"><div class="detail-section-title">Комментарии</div>${p.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                <div class="detail-section">
+                    <div class="detail-section-title">Комментарии (${(p.comments || []).length})</div>
+                    ${(p.comments && p.comments.length) ? p.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('') : '<p style="color:#999;">Нет комментариев</p>'}
+                    <button class="add-btn" style="background:#9C27B0;margin-top:6px;" onclick="openComments(${pid})">💬 Комментарии</button>
+                </div>
                 <div class="detail-section">
                     <div class="detail-section-title">Задачи (${(p.tasks || []).length})</div>
                     ${(p.tasks || []).map((t, i) => `<div style="padding:4px 0;cursor:pointer;" onclick="closeModal('detailModal');openTaskDetail(${pid},${i})">${t.completed ? '✅' : '⬜'} ${escapeHtml(t.name)}</div>`).join('') || '<p style="color:#999;">Нет задач</p>'}
@@ -1659,8 +1743,6 @@
             const p = projects[pid];
             if (!p || !p.tasks || !p.tasks[ti]) return;
             const t = p.tasks[ti];
-            currentProjectId = pid;
-            currentTaskId = ti;
             const detailContent = document.getElementById('detailContent');
             detailContent.innerHTML = `
                 <div class="detail-header">
@@ -1678,7 +1760,11 @@
                 ${t.comment ? `<div class="detail-section"><div class="detail-section-title">Комментарий</div><div>${escapeHtml(t.comment)}</div></div>` : ''}
                 ${t.voice ? `<div class="detail-section"><div class="detail-section-title">Голосовое</div><div class="voice-message"><audio controls src="${t.voice}"></audio></div></div>` : ''}
                 ${(t.files && t.files.length) ? `<div class="detail-section"><div class="detail-section-title">Файлы (${t.files.length})</div><div class="detail-files">${t.files.map((f, i) => renderDetailFile(f, t.files, i)).join('')}</div></div>` : ''}
-                ${(t.comments && t.comments.length) ? `<div class="detail-section"><div class="detail-section-title">Комментарии</div>${t.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                <div class="detail-section">
+                    <div class="detail-section-title">Комментарии (${(t.comments || []).length})</div>
+                    ${(t.comments && t.comments.length) ? t.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('') : '<p style="color:#999;">Нет комментариев</p>'}
+                    <button class="add-btn" style="background:#9C27B0;margin-top:6px;" onclick="openComments(${pid}, ${ti})">💬 Комментарии</button>
+                </div>
                 <div class="detail-section">
                     <div class="detail-section-title">Подзадачи (${(t.subtasks || []).length})</div>
                     ${(t.subtasks || []).map((st, i) => `<div style="padding:4px 0;cursor:pointer;" onclick="closeModal('detailModal');openSubtaskDetail(${pid},${ti},${i})">${st.completed ? '✅' : '⬜'} ${escapeHtml(st.name)}</div>`).join('') || '<p style="color:#999;">Нет подзадач</p>'}
@@ -1709,7 +1795,11 @@
                 ${st.comment ? `<div class="detail-section"><div class="detail-section-title">Комментарий</div><div>${escapeHtml(st.comment)}</div></div>` : ''}
                 ${st.voice ? `<div class="detail-section"><div class="detail-section-title">Голосовое</div><div class="voice-message"><audio controls src="${st.voice}"></audio></div></div>` : ''}
                 ${(st.files && st.files.length) ? `<div class="detail-section"><div class="detail-section-title">Файлы (${st.files.length})</div><div class="detail-files">${st.files.map((f, i) => renderDetailFile(f, st.files, i)).join('')}</div></div>` : ''}
-                ${(st.comments && st.comments.length) ? `<div class="detail-section"><div class="detail-section-title">Комментарии</div>${st.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('')}</div>` : ''}
+                <div class="detail-section">
+                    <div class="detail-section-title">Комментарии (${(st.comments || []).length})</div>
+                    ${(st.comments && st.comments.length) ? st.comments.map(c => `<div class="comment-item"><div class="comment-author">${escapeHtml(c.author)}</div>${c.text ? `<div>${escapeHtml(c.text)}</div>` : ''}${c.voice ? `<div class="voice-message"><audio controls src="${c.voice}"></audio></div>` : ''}</div>`).join('') : '<p style="color:#999;">Нет комментариев</p>'}
+                    <button class="add-btn" style="background:#9C27B0;margin-top:6px;" onclick="openComments(${pid}, ${ti}, ${si})">💬 Комментарии</button>
+                </div>
             `;
             currentItem = { type: 'subtask', projectId: pid, taskId: ti, subtaskId: si, editMode: true };
             openModal('detailModal');
@@ -2014,7 +2104,6 @@
             const priority = document.getElementById('itemPriority').value;
             const assignee = document.getElementById('itemAssignee').value;
             let date = document.getElementById('itemDate').value;
-            // Округляем время до 5 минут
             if (date) date = snapDateToFiveMinutes(date);
             const price = document.getElementById('itemPrice').value;
             const phone = document.getElementById('itemPhone').value.trim();
