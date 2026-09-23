@@ -339,6 +339,22 @@
         .assignee-nika { background: #fff3e0; color: #e65100; }
         .assignee-both { background: #f3e5f5; color: #4a148c; }
 
+        /* ==================== БЛОК МЕТАДАННЫХ ВНИЗУ ==================== */
+        .meta-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(0,0,0,0.12);
+        }
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         /* ==================== КНОПКИ ==================== */
         .add-btn {
             background: var(--primary); color: white; border: none;
@@ -436,6 +452,19 @@
             display: flex; align-items: center; justify-content: center;
             height: 100%; font-size: 1.5em;
         }
+
+        .file-input-row {
+            display: flex;
+            gap: 6px;
+            align-items: stretch;
+        }
+        .file-input-row .form-input { flex: 1; min-width: 0; }
+        .file-input-row .paste-file-btn {
+            padding: 0 14px; background: var(--purple); color: white;
+            border: none; border-radius: 10px; cursor: pointer;
+            font-size: 1em; flex-shrink: 0; white-space: nowrap;
+        }
+        .file-input-row .paste-file-btn:hover { filter: brightness(1.1); }
 
         .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
         .btn-primary {
@@ -751,7 +780,10 @@
 
             <div class="form-group">
                 <label class="form-label">Файлы (изображения, видео, документы)</label>
-                <input type="file" class="form-input" id="itemFiles" accept="image/*,video/*,*/*" multiple onchange="handleFilesSelect(this)">
+                <div class="file-input-row">
+                    <input type="file" class="form-input" id="itemFiles" accept="image/*,video/*,*/*" multiple onchange="handleFilesSelect(this)">
+                    <button type="button" class="paste-file-btn" onclick="pasteFilesFromClipboard()" title="Вставить из буфера обмена">📥 Вставить</button>
+                </div>
                 <div class="file-preview-grid" id="itemFilesPreview"></div>
             </div>
 
@@ -1044,6 +1076,67 @@
                 showNotification('❌ Нет доступа к буферу');
             }
         }
+
+        // ==================== ВСТАВКА ФАЙЛОВ ИЗ БУФЕРА ====================
+        async function pasteFilesFromClipboard() {
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.read) {
+                    showNotification('❌ Вставка файлов не поддерживается. Используйте Ctrl+V');
+                    return;
+                }
+                const items = await navigator.clipboard.read();
+                let added = false;
+                for (const item of items) {
+                    for (const type of item.types) {
+                        if (type.startsWith('image/') || type.startsWith('video/')) {
+                            const blob = await item.getType(type);
+                            const reader = new FileReader();
+                            const ext = type.split('/')[1] || 'png';
+                            const name = 'pasted_' + Date.now() + '.' + ext;
+                            reader.onload = e => {
+                                currentFiles.push({ name, type, data: e.target.result });
+                                renderFilesPreviewInModal();
+                                showNotification('📥 Файл вставлен');
+                            };
+                            reader.readAsDataURL(blob);
+                            added = true;
+                        }
+                    }
+                }
+                if (!added) showNotification('В буфере нет изображений');
+            } catch (e) {
+                console.error(e);
+                showNotification('❌ Нет доступа к буферу. Нажмите Ctrl+V в поле файлов.');
+            }
+        }
+
+        // Глобальная обработка события paste (работает и на ПК, и на мобильных)
+        document.addEventListener('paste', (e) => {
+            const itemModal = document.getElementById('itemModal');
+            if (!itemModal || !itemModal.classList.contains('active')) return;
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            let handled = false;
+            for (const item of items) {
+                if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
+                    const file = item.getAsFile();
+                    if (!file) continue;
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        currentFiles.push({
+                            name: file.name || ('pasted_' + Date.now() + '.' + (item.type.split('/')[1] || 'png')),
+                            type: item.type,
+                            data: ev.target.result
+                        });
+                        renderFilesPreviewInModal();
+                        showNotification('📥 Файл вставлен');
+                    };
+                    reader.readAsDataURL(file);
+                    handled = true;
+                }
+            }
+            if (handled) e.preventDefault();
+        });
 
         function snapDateToFiveMinutes(dateTimeStr) {
             if (!dateTimeStr) return '';
@@ -1637,6 +1730,24 @@
             return total === 0 ? 0 : Math.round(done / total * 100);
         }
 
+        // ==================== БЕЙДЖИ ВНИЗУ ====================
+        function renderMetaRows(item, options = {}) {
+            const rows = [];
+            const includePriority = options.includePriority;
+            const priority = options.priority || item.priority || 'medium';
+
+            if (includePriority) {
+                rows.push(`<span class="priority-badge priority-${priority}" style="display:inline-block;">${getPriorityText(priority)}</span>`);
+            }
+            if (item.assignee) rows.push(`<span class="assignee-badge assignee-${item.assignee}">${getAssigneeName(item.assignee)}</span>`);
+            if (item.date) rows.push(`<span class="date-badge">📅 ${formatDate(item.date)}</span>`);
+            if (item.price) rows.push(`<span class="price-badge">💰 ${formatPrice(item.price)}</span>`);
+            if (item.phone) rows.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать номер">📋</button></span>`);
+
+            if (!rows.length) return '';
+            return `<div class="meta-rows">${rows.map(r => `<div class="meta-row">${r}</div>`).join('')}</div>`;
+        }
+
         function renderProjectCard(project) {
             const idx = projects.indexOf(project);
             const progress = calculateProgress(project);
@@ -1652,7 +1763,6 @@
                     <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${idx})">🗑️</button>
                 </div>
                 <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
-                    ${renderBadgesRow(project)}
                     <div class="progress-container">
                         <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                         <div class="progress-percent">${progress}%</div>
@@ -1663,17 +1773,9 @@
                         ${(project.tasks || []).map((task, ti) => renderTaskItem(idx, task, ti)).join('')}
                     </div>
                     <button class="add-btn" onclick="openNewItemModal('task', {projectId:${idx}})">+ Добавить задачу</button>
+                    ${renderMetaRows(project, { includePriority: true })}
                 </div>
             </div>`;
-        }
-
-        function renderBadgesRow(item) {
-            const parts = [];
-            if (item.date) parts.push(`<span class="date-badge">📅 ${formatDate(item.date)}</span>`);
-            if (item.price) parts.push(`<span class="price-badge">💰 ${formatPrice(item.price)}</span>`);
-            if (item.phone) parts.push(`<span class="phone-badge">📞 ${escapeHtml(item.phone)}<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(item.phone).replace(/'/g, '\\\'')}')" title="Скопировать номер">📋</button></span>`);
-            if (item.assignee) parts.push(`<span class="assignee-badge assignee-${item.assignee}">${getAssigneeName(item.assignee)}</span>`);
-            return parts.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;">${parts.join('')}</div>` : '';
         }
 
         function renderCommentsPreview(comments, max = 1) {
@@ -1706,26 +1808,22 @@
                 <div class="task-item">
                     <div class="task-checkbox ${completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask(${pid}, ${ti})">${completed ? '✓' : ''}</div>
                     <div class="task-text ${completed ? 'completed' : ''}" onclick="event.stopPropagation();openTaskDetail(${pid}, ${ti})" title="${escapeHtml(task.name)}">${escapeHtml(task.name)}</div>
-                    ${task.date ? `<span class="date-badge">📅 ${formatDate(task.date)}</span>` : ''}
-                    ${task.price ? `<span class="price-badge">💰 ${formatPrice(task.price)}</span>` : ''}
-                    ${task.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(task.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
-                    ${task.assignee ? `<span class="assignee-badge assignee-${task.assignee}">${getAssigneeName(task.assignee)}</span>` : ''}
                     ${task.files && task.files.length ? `<span style="font-size:0.7em;">📎${task.files.length}</span>` : ''}
                     <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti})" title="Комментарии">💬</button>
                     <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('task', {projectId:${pid}, taskId:${ti}, edit:true})">✏️</button>
                     <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
                 </div>
+                ${renderMetaRows(task)}
                 ${(task.subtasks || []).length ? `<div class="subtasks">
                     ${task.subtasks.map((st, si) => `
                         <div class="subtask-item">
                             <div class="subtask-checkbox ${st.completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleSubtask(${pid},${ti},${si})">${st.completed ? '✓' : ''}</div>
                             <div class="task-text ${st.completed ? 'completed' : ''}" onclick="event.stopPropagation();openSubtaskDetail(${pid},${ti},${si})" title="${escapeHtml(st.name)}">${escapeHtml(st.name)}</div>
-                            ${st.date ? `<span class="date-badge">📅 ${formatDate(st.date)}</span>` : ''}
-                            ${st.phone ? `<span class="phone-badge">📞<button class="copy-phone-btn" onclick="event.stopPropagation();copyToClipboard('${escapeHtml(st.phone).replace(/'/g, '\\\'')}')" title="Скопировать">📋</button></span>` : ''}
                             <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti}, ${si})" title="Комментарии">💬</button>
                             <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}, subtaskId:${si}, edit:true})">✏️</button>
                             <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
                         </div>
+                        ${renderMetaRows(st)}
                     `).join('')}
                 </div>` : ''}
                 <button class="add-btn" style="background:#2196F3;margin-top:5px;" onclick="openNewItemModal('subtask', {projectId:${pid}, taskId:${ti}})">+ Подзадача</button>
