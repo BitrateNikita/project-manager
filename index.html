@@ -197,7 +197,6 @@
 
         .project-header { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
 
-        /* Название проекта — переносится на 2-3 строки */
         .project-title {
             font-size: 1.05em;
             font-weight: 600;
@@ -245,7 +244,6 @@
         /* ==================== ЗАДАЧИ ==================== */
         .tasks-list { margin-top: 8px; }
 
-        /* Плашка задачи: две строки - контент + метаданные внутри */
         .task-item {
             display: flex;
             flex-wrap: wrap;
@@ -258,7 +256,6 @@
         }
         .task-item:hover { background: rgba(255,255,255,0.9); }
 
-        /* Верхняя строка задачи: чекбокс + текст + кнопки */
         .task-item-main {
             display: flex;
             align-items: flex-start;
@@ -280,7 +277,6 @@
         }
         .task-checkbox.checked { background: var(--primary); border-color: var(--primary); }
 
-        /* Название задачи — переносится на 2-3 строки */
         .task-text {
             flex: 1;
             font-size: 0.9em;
@@ -370,11 +366,33 @@
             gap: 4px;
             align-items: center;
             width: 100%;
-            padding-left: 34px; /* выравнивание под текстом задачи (28px чекбокс + 6px gap) */
+            padding-left: 34px;
             margin-top: 2px;
         }
         .subtask-item .meta-row-inline {
-            padding-left: 28px; /* 22px чекбокс + 6px gap */
+            padding-left: 28px;
+        }
+
+        /* ==================== ПРЕВЬЮ ФАЙЛОВ И ГОЛОСА ВНУТРИ ПЛАШКИ ==================== */
+        .inline-files-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            width: 100%;
+            padding-left: 34px;
+            margin-top: 2px;
+            align-items: center;
+        }
+        .subtask-item .inline-files-row {
+            padding-left: 28px;
+        }
+        .inline-voice-row {
+            width: 100%;
+            padding-left: 34px;
+            margin-top: 2px;
+        }
+        .subtask-item .inline-voice-row {
+            padding-left: 28px;
         }
 
         /* ==================== КНОПКИ ==================== */
@@ -608,6 +626,14 @@
             font-size: 1.4em; width: 42px; height: 42px; border-radius: 50%;
             cursor: pointer; z-index: 10;
         }
+        .file-viewer-download {
+            position: absolute; top: 15px; right: 70px;
+            background: rgba(255,255,255,0.3); border: none; color: white;
+            font-size: 1.2em; height: 42px; padding: 0 14px; border-radius: 21px;
+            cursor: pointer; z-index: 10; display: flex; align-items: center; gap: 6px;
+            font-size: 0.9em;
+        }
+        .file-viewer-download:hover { background: rgba(255,255,255,0.5); }
         .file-viewer-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
             background: rgba(255,255,255,0.25); color: white; border: none;
@@ -1132,7 +1158,6 @@
             }
         }
 
-        // Глобальная обработка события paste (работает и на ПК, и на мобильных)
         document.addEventListener('paste', (e) => {
             const itemModal = document.getElementById('itemModal');
             if (!itemModal || !itemModal.classList.contains('active')) return;
@@ -1752,7 +1777,6 @@
             return total === 0 ? 0 : Math.round(done / total * 100);
         }
 
-        // ==================== МЕТАДАННЫЕ В ОДНУ СТРОКУ (внутри плашки) ====================
         function renderMetaInline(item, options = {}) {
             const parts = [];
             const includePriority = options.includePriority;
@@ -1768,6 +1792,37 @@
 
             if (!parts.length) return '';
             return `<div class="meta-row-inline">${parts.join('')}</div>`;
+        }
+
+        // Превью файлов в виде маленьких миниатюр с открытием просмотрщика
+        function renderFilesInline(files) {
+            if (!files || !files.length) return '';
+            const filesJson = JSON.stringify(files).replace(/"/g, '&quot;');
+            const shown = files.slice(0, 6);
+            const items = shown.map((f, i) => {
+                if (f.type.startsWith('image/')) {
+                    return `<img src="${f.data}" class="file-thumb" title="${escapeHtml(f.name)}" onclick="event.stopPropagation();openFileViewer(${filesJson},${i})">`;
+                }
+                if (f.type.startsWith('video/')) {
+                    return `<div class="file-thumb" style="position:relative;background:#000;display:flex;align-items:center;justify-content:center;" title="${escapeHtml(f.name)}" onclick="event.stopPropagation();openFileViewer(${filesJson},${i})">
+                        <video src="${f.data}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"></video>
+                        <span style="position:absolute;color:white;font-size:1em;text-shadow:0 0 4px #000;">▶</span>
+                    </div>`;
+                }
+                return `<div class="file-thumb" style="display:flex;align-items:center;justify-content:center;background:#f0f0f0;" title="${escapeHtml(f.name)}" onclick="event.stopPropagation();openFileViewer(${filesJson},${i})">📎</div>`;
+            }).join('');
+            const more = files.length > 6 ? `<div style="display:flex;align-items:center;font-size:0.75em;color:#666;padding:0 4px;">+${files.length - 6}</div>` : '';
+            return `<div class="inline-files-row">${items}${more}</div>`;
+        }
+
+        // Превью голосового внутри плашки
+        function renderVoiceInline(voice) {
+            if (!voice) return '';
+            return `<div class="inline-voice-row">
+                <div class="voice-message" style="max-width:280px;">
+                    <audio controls src="${voice}" style="max-width:100%;" onclick="event.stopPropagation();"></audio>
+                </div>
+            </div>`;
         }
 
         function renderProjectCard(project) {
@@ -1786,12 +1841,13 @@
                 </div>
                 <div class="project-content ${collapsed ? 'collapsed' : ''}" style="max-height:${collapsed ? '0' : '99999px'}">
                     ${renderMetaInline(project, { includePriority: true })}
+                    ${renderFilesInline(project.files)}
+                    ${renderVoiceInline(project.voice)}
                     <div class="progress-container">
                         <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                         <div class="progress-percent">${progress}%</div>
                     </div>
                     ${renderCommentsPreview(project.comments, 1)}
-                    ${renderFilesPreview(project.files)}
                     <div class="tasks-list">
                         ${(project.tasks || []).map((task, ti) => renderTaskItem(idx, task, ti)).join('')}
                     </div>
@@ -1811,20 +1867,6 @@
                 </div>`).join('')}</div>`;
         }
 
-        function renderFilesPreview(files) {
-            if (!files || !files.length) return '';
-            const shown = files.slice(0, 3);
-            return `<div style="display:flex;gap:4px;margin:6px 0;flex-wrap:wrap;">
-                ${shown.map((f, i) => {
-                    if (f.type.startsWith('image/')) return `<img src="${f.data}" class="file-thumb" onclick="event.stopPropagation();openFileViewer(${JSON.stringify(files).replace(/"/g, '&quot;')},${i})">`;
-                    if (f.type.startsWith('video/')) return `<video src="${f.data}" class="file-thumb" onclick="event.stopPropagation();openFileViewer(${JSON.stringify(files).replace(/"/g, '&quot;')},${i})"></video>`;
-                    return `<div class="file-thumb" style="display:flex;align-items:center;justify-content:center;background:#f0f0f0;" onclick="event.stopPropagation();openFileViewer(${JSON.stringify(files).replace(/"/g, '&quot;')},${i})">📎</div>`;
-                }).join('')}
-                ${files.length > 3 ? `<div style="display:flex;align-items:center;font-size:0.75em;color:#666;">+${files.length - 3}</div>` : ''}
-            </div>`;
-        }
-
-        // Задача: метаданные внутри той же плашки, снизу, в одну строку
         function renderTaskItem(pid, task, ti) {
             const completed = task.completed;
             return `<div>
@@ -1832,12 +1874,13 @@
                     <div class="task-item-main">
                         <div class="task-checkbox ${completed ? 'checked' : ''}" onclick="event.stopPropagation();toggleTask(${pid}, ${ti})">${completed ? '✓' : ''}</div>
                         <div class="task-text ${completed ? 'completed' : ''}" onclick="event.stopPropagation();openTaskDetail(${pid}, ${ti})" title="${escapeHtml(task.name)}">${escapeHtml(task.name)}</div>
-                        ${task.files && task.files.length ? `<span style="font-size:0.7em;">📎${task.files.length}</span>` : ''}
                         <button class="voice-btn" onclick="event.stopPropagation();openComments(${pid}, ${ti})" title="Комментарии">💬</button>
                         <button class="edit-btn" onclick="event.stopPropagation();openNewItemModal('task', {projectId:${pid}, taskId:${ti}, edit:true})">✏️</button>
                         <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${pid}, ${ti})">✕</button>
                     </div>
                     ${renderMetaInline(task)}
+                    ${renderFilesInline(task.files)}
+                    ${renderVoiceInline(task.voice)}
                 </div>
                 ${(task.subtasks || []).length ? `<div class="subtasks">
                     ${task.subtasks.map((st, si) => `
@@ -1850,6 +1893,8 @@
                                 <button class="delete-btn" onclick="event.stopPropagation();deleteSubtask(${pid},${ti},${si})">✕</button>
                             </div>
                             ${renderMetaInline(st)}
+                            ${renderFilesInline(st.files)}
+                            ${renderVoiceInline(st.voice)}
                         </div>
                     `).join('')}
                 </div>` : ''}
@@ -1994,10 +2039,16 @@
                     content.innerHTML = `<img class="file-viewer-item" src="${f.data}" style="will-change:transform;">`;
                     bindImageEvents(content.querySelector('img'));
                 } else {
-                    content.innerHTML = `<div style="color:white;text-align:center;padding:20px;"><div style="font-size:3em;">📎</div><div style="margin-top:10px;">${escapeHtml(f.name)}</div><a href="${f.data}" download="${f.name}" style="display:inline-block;margin-top:15px;padding:10px 20px;background:var(--primary);color:white;text-decoration:none;border-radius:10px;">Скачать</a></div>`;
+                    content.innerHTML = `<div style="color:white;text-align:center;padding:20px;">
+                        <div style="font-size:3em;">📎</div>
+                        <div style="margin-top:10px;">${escapeHtml(f.name)}</div>
+                        <a href="${f.data}" download="${escapeHtml(f.name)}" style="display:inline-block;margin-top:15px;padding:10px 20px;background:var(--primary);color:white;text-decoration:none;border-radius:10px;">⬇ Скачать</a>
+                    </div>`;
                 }
                 const counter = overlay.querySelector('.file-viewer-counter');
                 if (counter) counter.textContent = `${currentIndex + 1} / ${files.length}`;
+                const dlBtn = overlay.querySelector('.file-viewer-download');
+                if (dlBtn) dlBtn.dataset.name = f.name || 'file';
             }
 
             function bindImageEvents(img) {
@@ -2068,6 +2119,7 @@
 
             overlay.innerHTML = `
                 <button class="file-viewer-close" onclick="document.getElementById('fileViewer').remove();history.back();">✕</button>
+                <button class="file-viewer-download" title="Скачать файл">⬇ Скачать</button>
                 ${files.length > 1 ? `<button class="file-viewer-nav file-viewer-prev">‹</button>` : ''}
                 ${files.length > 1 ? `<button class="file-viewer-nav file-viewer-next">›</button>` : ''}
                 <div class="file-viewer-counter">1 / ${files.length}</div>
@@ -2075,6 +2127,19 @@
             `;
             document.body.appendChild(overlay);
             renderFile();
+
+            const dlBtn = overlay.querySelector('.file-viewer-download');
+            if (dlBtn) dlBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                const f = files[currentIndex];
+                const a = document.createElement('a');
+                a.href = f.data;
+                a.download = f.name || ('file_' + Date.now());
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                showNotification('⬇ Скачивание...');
+            });
 
             const prevBtn = overlay.querySelector('.file-viewer-prev');
             const nextBtn = overlay.querySelector('.file-viewer-next');
