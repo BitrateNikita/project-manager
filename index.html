@@ -643,11 +643,17 @@
         }
         .file-viewer-download {
             position: absolute; top: 15px; right: 70px;
-            background: rgba(255,255,255,0.3); border: none; color: white;
-            font-size: 1.2em; height: 42px; padding: 0 14px; border-radius: 21px;
-            cursor: pointer; z-index: 10; display: flex; align-items: center; gap: 6px;
+            background: rgba(33,150,243,0.95);
+            border: 2px solid #ffffff;
+            color: #ffffff;
             font-size: 0.9em;
+            height: 44px; padding: 0 14px; border-radius: 22px;
+            cursor: pointer; z-index: 100;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+            font-weight: 500;
         }
+        .file-viewer-download:hover { background: #1976d2; }
         .file-viewer-download:hover { background: rgba(255,255,255,0.5); }
         .file-viewer-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
